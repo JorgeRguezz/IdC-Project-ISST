@@ -1,22 +1,32 @@
 package es.upm.dit.isst.ioh.controller;
 
+import es.upm.dit.isst.ioh.model.Huesped;
+import es.upm.dit.isst.ioh.model.Propietario;
 import es.upm.dit.isst.ioh.model.Usuario;
+import es.upm.dit.isst.ioh.repository.HuespedRepository;
+import es.upm.dit.isst.ioh.repository.PropietarioRepository;
 import es.upm.dit.isst.ioh.repository.UsuarioRepository;
+import es.upm.dit.isst.ioh.service.UsuarioService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/usuarios")
+@CrossOrigin(origins = "*")
 public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
 
-    public UsuarioController(UsuarioRepository usuarioRepository) {
+    public UsuarioController(UsuarioRepository usuarioRepository,
+            UsuarioService usuarioService) {
         this.usuarioRepository = usuarioRepository;
+        this.usuarioService = usuarioService;
     }
 
     // Obtener todos los usuarios
@@ -25,17 +35,34 @@ public class UsuarioController {
         return (List<Usuario>) usuarioRepository.findAll();
     }
 
-    // Registrar un nuevo usuario (propietario o huésped)
-    @PostMapping
-    public ResponseEntity<Usuario> create(@RequestBody Usuario nuevoUsuario) {
-        Optional<Usuario> existente = usuarioRepository.findByEmail(nuevoUsuario.getEmail());
-
-        if (existente.isPresent()) {
-            return ResponseEntity.status(409).build(); // 409 Conflict
+    // Registrar un nuevo huésped
+    @PostMapping("/huesped")
+    public ResponseEntity<?> registrarHuesped(@RequestBody Map<String, String> datos) {
+        try {
+            Huesped guardado = usuarioService.registrarHuesped(datos);
+            return ResponseEntity.ok(Map.of(
+                    "id", guardado.getId(),
+                    "nombre", guardado.getNombre(),
+                    "email", guardado.getEmail(),
+                    "tipo", "huesped"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(409).body(Map.of("error", e.getMessage())); // 409 Conflict
         }
+    }
 
-        Usuario guardado = usuarioRepository.save(nuevoUsuario);
-        return ResponseEntity.ok(guardado);
+    // Registrar un nuevo propietario
+    @PostMapping("/propietario")
+    public ResponseEntity<?> registrarPropietario(@RequestBody Map<String, String> datos) {
+        try {
+            Propietario guardado = usuarioService.registrarPropietario(datos);
+            return ResponseEntity.ok(Map.of(
+                    "id", guardado.getId(),
+                    "nombre", guardado.getNombre(),
+                    "email", guardado.getEmail(),
+                    "tipo", "propietario"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(409).body(Map.of("error", e.getMessage())); // 409 Conflict
+        }
     }
 
     // Buscar usuario por email (para login u otros usos)
