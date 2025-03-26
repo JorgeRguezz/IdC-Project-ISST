@@ -1,27 +1,71 @@
 import { useState } from 'react';
-import { Box, Button, Checkbox, Container, FormControlLabel, IconButton, InputAdornment, Paper, TextField, Typography } from '@mui/material';
+import { Box, Button, Checkbox, Container, FormControlLabel, IconButton, InputAdornment, Paper, TextField, Typography, CircularProgress, Snackbar, Alert } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import homeBluetooth from '../assets/home-bluetooth.svg';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [showError, setShowError] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
-  
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log({ username, password, rememberMe });
-    // Here you would typically handle the login logic
+
+    if (!email || !password) {
+      setError('Por favor, ingresa tu email y contraseña');
+      setShowError(true);
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Llamada a la API para autenticar al usuario
+      const response = await fetch('http://localhost:8080/api/usuarios/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error en la autenticación');
+      }
+
+      // Guardar información del usuario
+      localStorage.setItem('usuario', JSON.stringify(data));
+
+      // Redireccionar según el tipo de usuario
+      if (data.tipo === 'propietario') {
+        navigate('/propietario-dashboard');
+      } else {
+        navigate('/huesped-dashboard');
+      }
+
+    } catch (error) {
+      console.error('Error de login:', error);
+      setError(error instanceof Error ? error.message : 'Error al iniciar sesión');
+      setShowError(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Container component="main" maxWidth="xs" sx={{ py: 4 }}>
-      <Paper 
-        elevation={3} 
+      <Paper
+        elevation={3}
         sx={{
           p: 4,
           display: 'flex',
@@ -33,24 +77,24 @@ const Login = () => {
       >
         {/* Back button and title */}
         <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', mb: 3 }}>
-          <Button 
-            component={Link} 
+          <Button
+            component={Link}
             to="/"
-            sx={{ 
-              minWidth: 'auto', 
-              p: 0.5, 
+            sx={{
+              minWidth: 'auto',
+              p: 0.5,
               color: '#0d6efd',
               '&:hover': { bgcolor: 'transparent' }
             }}
           >
             ←
           </Button>
-          <Typography 
-            component="h1" 
-            variant="h6" 
-            sx={{ 
-              flexGrow: 1, 
-              textAlign: 'center', 
+          <Typography
+            component="h1"
+            variant="h6"
+            sx={{
+              flexGrow: 1,
+              textAlign: 'center',
               color: '#0d6efd',
               fontWeight: 'bold'
             }}
@@ -65,20 +109,20 @@ const Login = () => {
 
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
           <Typography sx={{ mb: 1, color: '#333', fontWeight: 'medium' }}>
-            Nombre de usuario
+            Email
           </Typography>
           <TextField
             margin="normal"
             required
             fullWidth
-            id="username"
-            placeholder="Escribe su nombre"
-            name="username"
-            autoComplete="username"
+            id="email"
+            placeholder="Escribe su email"
+            name="email"
+            autoComplete="email"
             autoFocus
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            sx={{ 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            sx={{
               mb: 2,
               '& .MuiOutlinedInput-root': {
                 borderRadius: 1.5,
@@ -114,7 +158,7 @@ const Login = () => {
                 </InputAdornment>
               ),
             }}
-            sx={{ 
+            sx={{
               mb: 1,
               '& .MuiOutlinedInput-root': {
                 borderRadius: 1.5,
@@ -126,9 +170,9 @@ const Login = () => {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <FormControlLabel
               control={
-                <Checkbox 
-                  value="remember" 
-                  color="primary" 
+                <Checkbox
+                  value="remember"
+                  color="primary"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                   size="small"
@@ -147,9 +191,10 @@ const Login = () => {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ 
-              mt: 2, 
-              mb: 2, 
+            disabled={isLoading}
+            sx={{
+              mt: 2,
+              mb: 2,
               py: 1.5,
               bgcolor: '#0d6efd',
               borderRadius: 50,
@@ -158,7 +203,7 @@ const Login = () => {
               }
             }}
           >
-            Iniciar sesión
+            {isLoading ? <CircularProgress size={24} /> : 'Iniciar sesión'}
           </Button>
 
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', my: 2 }}>
@@ -172,9 +217,9 @@ const Login = () => {
             to="/register"
             fullWidth
             variant="contained"
-            sx={{ 
-              mt: 1, 
-              mb: 2, 
+            sx={{
+              mt: 1,
+              mb: 2,
               py: 1.5,
               bgcolor: '#0d6efd',
               borderRadius: 50,
@@ -187,6 +232,21 @@ const Login = () => {
           </Button>
         </Box>
       </Paper>
+
+      <Snackbar
+        open={showError}
+        autoHideDuration={6000}
+        onClose={() => setShowError(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setShowError(false)}
+          severity="error"
+          sx={{ width: '100%' }}
+        >
+          {error}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

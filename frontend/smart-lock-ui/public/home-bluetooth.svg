@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512px" height="512px" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Home Bluetooth</title>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M256,80 L432,208 L432,432 L80,432 L80,208 L256,80 Z" fill="#f5f8ff" fill-rule="nonzero"></path>
+        <path d="M256,48 L448,192 L448,448 L64,448 L64,192 L256,48 Z M256,80 L96,192 L96,416 L416,416 L416,192 L256,80 Z" fill="#0d6efd" fill-rule="nonzero"></path>
+        <path d="M256,176 C300.18,176 336,211.82 336,256 C336,300.18 300.18,336 256,336 C211.82,336 176,300.18 176,256 C176,211.82 211.82,176 256,176 Z M256,208 C229.49,208 208,229.49 208,256 C208,282.51 229.49,304 256,304 C282.51,304 304,282.51 304,256 C304,229.49 282.51,208 256,208 Z" fill="#0d6efd" fill-rule="nonzero"></path>
+        <path d="M272,224 L272,248 L288,232 L296,240 L272,264 L296,288 L288,296 L272,280 L272,304 L256,304 L256,280 L240,296 L232,288 L256,264 L232,240 L240,232 L256,248 L256,224 L272,224 Z" fill="#0d6efd" fill-rule="nonzero"></path>
+    </g>
+</svg> 

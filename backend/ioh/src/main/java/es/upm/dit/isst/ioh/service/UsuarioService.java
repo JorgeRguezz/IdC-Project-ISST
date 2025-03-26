@@ -96,4 +96,25 @@ public class UsuarioService {
     public Optional<Usuario> buscarPorEmail(String email) {
         return usuarioRepository.findByEmail(email);
     }
+    
+    /**
+     * Autentica a un usuario verificando sus credenciales
+     * 
+     * @param email Email del usuario
+     * @param contrasena Contraseña proporcionada
+     * @return Optional con el usuario autenticado si las credenciales son válidas
+     */
+    public Optional<Usuario> autenticarUsuario(String email, String contrasena) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
+        
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            // Comprobación directa de contraseña (en un caso real se usaría bcrypt o similar)
+            if (usuario.getContrasena().equals(contrasena)) {
+                return Optional.of(usuario);
+            }
+        }
+        
+        return Optional.empty();
+    }
 }

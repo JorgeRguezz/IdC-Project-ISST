@@ -72,4 +72,26 @@ public class UsuarioController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    
+    // Endpoint para login
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credenciales) {
+        String email = credenciales.get("email");
+        String contrasena = credenciales.get("password");
+        
+        if (email == null || contrasena == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email y contraseña son requeridos"));
+        }
+        
+        return usuarioService.autenticarUsuario(email, contrasena)
+                .map(usuario -> {
+                    String tipo = usuario instanceof Propietario ? "propietario" : "huesped";
+                    return ResponseEntity.ok(Map.of(
+                            "id", usuario.getId(),
+                            "nombre", usuario.getNombre(),
+                            "email", usuario.getEmail(),
+                            "tipo", tipo));
+                })
+                .orElse(ResponseEntity.status(401).body(Map.of("error", "Credenciales inválidas")));
+    }
 }
