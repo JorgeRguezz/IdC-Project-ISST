@@ -1,44 +1,53 @@
 import { useState, useEffect } from 'react';
-import { Box, Container, Typography, Paper, IconButton, Grid, Button, Badge } from '@mui/material';
+import { Box, Typography, Paper, IconButton, Grid, Button, Badge } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ClockIcon from '@mui/icons-material/AccessTime';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import KeyIcon from '@mui/icons-material/Key';
-import HomeIcon from '@mui/icons-material/Home';
 
-interface Alojamiento {
+interface Propiedad {
     id: number;
     nombre: string;
     direccion: string;
+    propietario: string;
+    fechaInicio: string;
+    fechaFin: string;
 }
 
 const HuespedDashboard = () => {
     const navigate = useNavigate();
-    const [alojamientos, setAlojamientos] = useState<Alojamiento[]>([
-        { id: 1, nombre: 'Mi casa', direccion: 'Calle José Abascal 45, 3B' },
-        { id: 2, nombre: 'Apartamento en Amsterdam', direccion: 'Martini van Geffenstraat 25' }
+    const [propiedades, setPropiedades] = useState<Propiedad[]>([
+        {
+            id: 1,
+            nombre: 'Casa Madrid',
+            direccion: 'Calle de Santa Engracia 108, 5B',
+            propietario: 'Ana Martínez',
+            fechaInicio: '2023-07-01',
+            fechaFin: '2023-07-15'
+        },
     ]);
 
-    const [notificaciones, setNotificaciones] = useState<number>(1);
+    const [notificaciones, setNotificaciones] = useState<number>(0);
 
     // Datos del usuario (esto vendría del contexto de autenticación en una app real)
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 
-    // Simular recuperación de alojamientos desde el backend
+    // Simular recuperación de propiedades desde el backend
     useEffect(() => {
         // Aquí se haría una llamada a la API real
-        // const fetchAlojamientos = async () => {
+        // const fetchPropiedades = async () => {
         //   try {
-        //     const response = await fetch(`/api/huespedes/${usuario.id}/alojamientos`);
+        //     const response = await fetch(`/api/huespedes/${usuario.id}/invitaciones`);
         //     const data = await response.json();
-        //     setAlojamientos(data);
+        //     setPropiedades(data);
         //   } catch (error) {
-        //     console.error('Error al obtener alojamientos:', error);
+        //     console.error('Error al obtener propiedades:', error);
         //   }
         // };
-        // fetchAlojamientos();
+        // fetchPropiedades();
     }, [usuario.id]);
 
     const handleCerrarSesion = () => {
@@ -46,70 +55,43 @@ const HuespedDashboard = () => {
         navigate('/login');
     };
 
-    const handleAbrirPuerta = (alojamientoId: number) => {
-        console.log(`Abriendo puerta del alojamiento ${alojamientoId}`);
-        // Aquí se haría una llamada a la API para abrir la puerta
+    const handleAbrirPuerta = (propiedad: Propiedad) => {
+        // Navegar a la vista de apertura de puerta, pasando los datos de la propiedad
+        navigate(`/abrir-puerta/${propiedad.id}`, { state: { propiedad } });
     };
 
-    // Función para generar fechas del calendario
-    const generarCalendario = () => {
+    // Función para verificar si el acceso a una propiedad está activo
+    const esAccesoActivo = (inicio: string, fin: string) => {
         const hoy = new Date();
-        const mes = hoy.getMonth();
-        const año = hoy.getFullYear();
-        const diasEnMes = new Date(año, mes + 1, 0).getDate();
-
-        const diasSemana = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
-        const primerDia = new Date(año, mes, 1).getDay();
-
-        // Días del mes anterior para completar la primera semana
-        const diasPrevios = [];
-        for (let i = 0; i < primerDia; i++) {
-            diasPrevios.push(<Box key={`prev-${i}`} sx={{ width: 24, height: 24, m: 0.5, color: '#ccc' }}></Box>);
-        }
-
-        // Días del mes actual
-        const dias = [];
-        for (let i = 1; i <= diasEnMes; i++) {
-            dias.push(
-                <Box
-                    key={i}
-                    sx={{
-                        width: 24,
-                        height: 24,
-                        m: 0.5,
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        bgcolor: i === hoy.getDate() ? '#0d6efd' : 'transparent',
-                        color: i === hoy.getDate() ? 'white' : 'inherit'
-                    }}
-                >
-                    {i}
-                </Box>
-            );
-        }
-
-        return { diasSemana, diasPrevios, dias };
+        const fechaInicio = new Date(inicio);
+        const fechaFin = new Date(fin);
+        return hoy >= fechaInicio && hoy <= fechaFin;
     };
-
-    const { diasSemana, diasPrevios, dias } = generarCalendario();
 
     return (
-        <Container
-            component="main"
-            maxWidth="xs"
+        <Box
             sx={{
-                py: 2,
-                px: 2,
                 display: 'flex',
                 flexDirection: 'column',
-                minHeight: '100vh',
-                bgcolor: '#ebf5ff'
+                width: '100%',
+                height: '100vh',
+                bgcolor: '#ebf5ff',
+                m: 0,
+                p: 0,
+                overflow: 'hidden'
             }}
         >
             {/* Header */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    p: 2,
+                    width: '100%',
+                    borderBottom: '1px solid rgba(0,0,0,0.05)'
+                }}
+            >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <img
                         src="/home-bluetooth.svg"
@@ -117,7 +99,7 @@ const HuespedDashboard = () => {
                         style={{ height: 30, marginRight: 10 }}
                     />
                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0d6efd' }}>
-                        Inicio
+                        Inicio Huésped
                     </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -130,123 +112,121 @@ const HuespedDashboard = () => {
                 </Box>
             </Box>
 
-            {/* Calendario y Mis puertas */}
-            <Grid container spacing={2} sx={{ mb: 2 }}>
-                <Grid item xs={6}>
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: 2,
-                            borderRadius: 2,
-                            bgcolor: '#e3f2fd'
-                        }}
-                    >
-                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                            Julio de 2025
-                        </Typography>
+            {/* Contenido principal */}
+            <Box
+                sx={{
+                    flexGrow: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    p: 2,
+                    overflowY: 'auto'
+                }}
+            >
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                    Tus accesos
+                </Typography>
 
-                        {/* Días de la semana */}
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                            {diasSemana.map((dia, index) => (
-                                <Box
-                                    key={index}
+                {/* Banner informativo */}
+                <Paper
+                    elevation={0}
+                    sx={{
+                        p: 2,
+                        mb: 3,
+                        borderRadius: 2,
+                        bgcolor: '#fff8db',
+                        border: '1px solid #fff2a8'
+                    }}
+                >
+                    <Typography variant="body2">
+                        Solo podrás abrir las puertas durante las fechas activas de tu invitación. Si necesitas más tiempo,
+                        contacta con el propietario.
+                    </Typography>
+                </Paper>
+
+                {/* Lista de propiedades */}
+                <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+                    {propiedades.map((propiedad) => {
+                        const activo = esAccesoActivo(propiedad.fechaInicio, propiedad.fechaFin);
+                        return (
+                            <Paper
+                                key={propiedad.id}
+                                elevation={0}
+                                sx={{
+                                    p: 2,
+                                    mb: 2,
+                                    borderRadius: 2,
+                                    bgcolor: activo ? '#e3f2fd' : '#f5f5f5',
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}
+                            >
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                                    <Box>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                                            {propiedad.nombre}
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#666', mb: 0.5 }}>
+                                            {propiedad.direccion}
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#666' }}>
+                                            Propietario: {propiedad.propietario}
+                                        </Typography>
+                                    </Box>
+                                    {activo && (
+                                        <Box
+                                            sx={{
+                                                bgcolor: '#4caf50',
+                                                color: 'white',
+                                                px: 1,
+                                                py: 0.5,
+                                                borderRadius: 1,
+                                                fontSize: '0.75rem'
+                                            }}
+                                        >
+                                            Activo
+                                        </Box>
+                                    )}
+                                    {!activo && (
+                                        <Box
+                                            sx={{
+                                                bgcolor: '#bdbdbd',
+                                                color: 'white',
+                                                px: 1,
+                                                py: 0.5,
+                                                borderRadius: 1,
+                                                fontSize: '0.75rem'
+                                            }}
+                                        >
+                                            Inactivo
+                                        </Box>
+                                    )}
+                                </Box>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                                    <Typography variant="body2" sx={{ color: '#666' }}>
+                                        Desde: {new Date(propiedad.fechaInicio).toLocaleDateString()}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: '#666' }}>
+                                        Hasta: {new Date(propiedad.fechaFin).toLocaleDateString()}
+                                    </Typography>
+                                </Box>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    startIcon={<KeyIcon />}
+                                    onClick={() => handleAbrirPuerta(propiedad)}
+                                    disabled={!activo}
                                     sx={{
-                                        width: 24,
-                                        height: 24,
-                                        m: 0.5,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '0.75rem',
-                                        fontWeight: 'bold',
-                                        color: '#666'
+                                        borderRadius: 1,
+                                        textTransform: 'none',
+                                        alignSelf: 'flex-end'
                                     }}
                                 >
-                                    {dia}
-                                </Box>
-                            ))}
-
-                            {/* Espacios en blanco para los días previos */}
-                            {diasPrevios}
-
-                            {/* Días del mes */}
-                            {dias}
-                        </Box>
-                    </Paper>
-                </Grid>
-
-                <Grid item xs={6}>
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: 2,
-                            borderRadius: 2,
-                            bgcolor: '#e3f2fd',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            height: '100%'
-                        }}
-                    >
-                        <Box sx={{ mb: 1 }}>
-                            <img
-                                src="/door-icon.svg"
-                                alt="Puerta"
-                                style={{ width: 60, height: 60 }}
-                            />
-                        </Box>
-                        <Typography
-                            variant="subtitle1"
-                            sx={{
-                                fontWeight: 'medium',
-                                color: '#0d6efd'
-                            }}
-                        >
-                            Mis puertas
-                        </Typography>
-                    </Paper>
-                </Grid>
-            </Grid>
-
-            {/* Lista de alojamientos */}
-            <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
-                {alojamientos.map((alojamiento) => (
-                    <Paper
-                        key={alojamiento.id}
-                        elevation={0}
-                        sx={{
-                            p: 2,
-                            mb: 2,
-                            borderRadius: 2,
-                            bgcolor: '#e3f2fd',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between'
-                        }}
-                    >
-                        <Box>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
-                                {alojamiento.nombre}
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: '#666' }}>
-                                {alojamiento.direccion}
-                            </Typography>
-                        </Box>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            startIcon={<KeyIcon />}
-                            onClick={() => handleAbrirPuerta(alojamiento.id)}
-                            sx={{
-                                borderRadius: 1,
-                                textTransform: 'none'
-                            }}
-                        >
-                            Abrir puerta
-                        </Button>
-                    </Paper>
-                ))}
+                                    Abrir puerta
+                                </Button>
+                            </Paper>
+                        );
+                    })}
+                </Box>
             </Box>
 
             {/* Footer */}
@@ -255,11 +235,13 @@ const HuespedDashboard = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     py: 2,
-                    borderTop: '1px solid #eee'
+                    px: 4,
+                    borderTop: '1px solid #eee',
+                    bgcolor: 'white'
                 }}
             >
                 <IconButton>
-                    <HomeIcon />
+                    <ClockIcon />
                 </IconButton>
                 <IconButton>
                     <Badge badgeContent={notificaciones} color="error">
@@ -270,7 +252,7 @@ const HuespedDashboard = () => {
                     <SearchIcon />
                 </IconButton>
             </Box>
-        </Container>
+        </Box>
     );
 };
 

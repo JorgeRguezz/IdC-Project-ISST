@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Container, Typography, Paper, IconButton, Grid, Button, Badge } from '@mui/material';
+import { Box, Typography, Paper, IconButton, Grid, Button, Badge } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ClockIcon from '@mui/icons-material/AccessTime';
@@ -47,9 +47,9 @@ const PropietarioDashboard = () => {
         navigate('/login');
     };
 
-    const handleAbrirPuerta = (propiedadId: number) => {
-        console.log(`Abriendo puerta de la propiedad ${propiedadId}`);
-        // Aquí se haría una llamada a la API para abrir la puerta
+    const handleAbrirPuerta = (propiedad: Propiedad) => {
+        // Navegar a la vista de apertura de puerta, pasando los datos de la propiedad
+        navigate(`/abrir-puerta/${propiedad.id}`, { state: { propiedad } });
     };
 
     // Función para generar fechas del calendario
@@ -97,20 +97,29 @@ const PropietarioDashboard = () => {
     const { diasSemana, diasPrevios, dias } = generarCalendario();
 
     return (
-        <Container
-            component="main"
-            maxWidth="xs"
+        <Box
             sx={{
-                py: 2,
-                px: 2,
                 display: 'flex',
                 flexDirection: 'column',
-                minHeight: '100vh',
-                bgcolor: '#ebf5ff'
+                width: '100%',
+                height: '100vh',
+                bgcolor: '#ebf5ff',
+                m: 0,
+                p: 0,
+                overflow: 'hidden'
             }}
         >
             {/* Header */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    p: 2,
+                    width: '100%',
+                    borderBottom: '1px solid rgba(0,0,0,0.05)'
+                }}
+            >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <img
                         src="/home-bluetooth.svg"
@@ -131,123 +140,134 @@ const PropietarioDashboard = () => {
                 </Box>
             </Box>
 
-            {/* Calendario y Mis puertas */}
-            <Grid container spacing={2} sx={{ mb: 2 }}>
-                <Grid item xs={6}>
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: 2,
-                            borderRadius: 2,
-                            bgcolor: '#e3f2fd'
-                        }}
-                    >
-                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                            Julio de 2025
-                        </Typography>
-
-                        {/* Días de la semana */}
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                            {diasSemana.map((dia, index) => (
-                                <Box
-                                    key={index}
-                                    sx={{
-                                        width: 24,
-                                        height: 24,
-                                        m: 0.5,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '0.75rem',
-                                        fontWeight: 'bold',
-                                        color: '#666'
-                                    }}
-                                >
-                                    {dia}
-                                </Box>
-                            ))}
-
-                            {/* Espacios en blanco para los días previos */}
-                            {diasPrevios}
-
-                            {/* Días del mes */}
-                            {dias}
-                        </Box>
-                    </Paper>
-                </Grid>
-
-                <Grid item xs={6}>
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: 2,
-                            borderRadius: 2,
-                            bgcolor: '#e3f2fd',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            height: '100%'
-                        }}
-                    >
-                        <Box sx={{ mb: 1 }}>
-                            <img
-                                src="/door-icon.svg"
-                                alt="Puerta"
-                                style={{ width: 60, height: 60 }}
-                            />
-                        </Box>
-                        <Typography
-                            variant="subtitle1"
+            {/* Contenido principal */}
+            <Box
+                sx={{
+                    flexGrow: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    p: 2,
+                    overflowY: 'auto'
+                }}
+            >
+                {/* Calendario y Mis puertas */}
+                <Grid container spacing={2} sx={{ mb: 2 }}>
+                    <Grid item xs={6}>
+                        <Paper
+                            elevation={0}
                             sx={{
-                                fontWeight: 'medium',
-                                color: '#0d6efd'
+                                p: 2,
+                                borderRadius: 2,
+                                bgcolor: '#e3f2fd'
                             }}
                         >
-                            Mis puertas
-                        </Typography>
-                    </Paper>
-                </Grid>
-            </Grid>
+                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                Julio de 2025
+                            </Typography>
 
-            {/* Lista de propiedades */}
-            <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
-                {propiedades.map((propiedad) => (
-                    <Paper
-                        key={propiedad.id}
-                        elevation={0}
-                        sx={{
-                            p: 2,
-                            mb: 2,
-                            borderRadius: 2,
-                            bgcolor: '#e3f2fd',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between'
-                        }}
-                    >
-                        <Box>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
-                                {propiedad.nombre}
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: '#666' }}>
-                                {propiedad.direccion}
-                            </Typography>
-                        </Box>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            startIcon={<KeyIcon />}
-                            onClick={() => handleAbrirPuerta(propiedad.id)}
+                            {/* Días de la semana */}
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                                {diasSemana.map((dia, index) => (
+                                    <Box
+                                        key={index}
+                                        sx={{
+                                            width: 24,
+                                            height: 24,
+                                            m: 0.5,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 'bold',
+                                            color: '#666'
+                                        }}
+                                    >
+                                        {dia}
+                                    </Box>
+                                ))}
+
+                                {/* Espacios en blanco para los días previos */}
+                                {diasPrevios}
+
+                                {/* Días del mes */}
+                                {dias}
+                            </Box>
+                        </Paper>
+                    </Grid>
+
+                    <Grid item xs={6}>
+                        <Paper
+                            elevation={0}
                             sx={{
-                                borderRadius: 1,
-                                textTransform: 'none'
+                                p: 2,
+                                borderRadius: 2,
+                                bgcolor: '#e3f2fd',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '100%'
                             }}
                         >
-                            Abrir puerta
-                        </Button>
-                    </Paper>
-                ))}
+                            <Box sx={{ mb: 1 }}>
+                                <img
+                                    src="/door-icon.svg"
+                                    alt="Puerta"
+                                    style={{ width: 60, height: 60 }}
+                                />
+                            </Box>
+                            <Typography
+                                variant="subtitle1"
+                                sx={{
+                                    fontWeight: 'medium',
+                                    color: '#0d6efd'
+                                }}
+                            >
+                                Mis puertas
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                </Grid>
+
+                {/* Lista de propiedades */}
+                <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+                    {propiedades.map((propiedad) => (
+                        <Paper
+                            key={propiedad.id}
+                            elevation={0}
+                            sx={{
+                                p: 2,
+                                mb: 2,
+                                borderRadius: 2,
+                                bgcolor: '#e3f2fd',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}
+                        >
+                            <Box>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                                    {propiedad.nombre}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#666' }}>
+                                    {propiedad.direccion}
+                                </Typography>
+                            </Box>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                startIcon={<KeyIcon />}
+                                onClick={() => handleAbrirPuerta(propiedad)}
+                                sx={{
+                                    borderRadius: 1,
+                                    textTransform: 'none'
+                                }}
+                            >
+                                Abrir puerta
+                            </Button>
+                        </Paper>
+                    ))}
+                </Box>
             </Box>
 
             {/* Footer */}
@@ -256,7 +276,9 @@ const PropietarioDashboard = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     py: 2,
-                    borderTop: '1px solid #eee'
+                    px: 4,
+                    borderTop: '1px solid #eee',
+                    bgcolor: 'white'
                 }}
             >
                 <IconButton>
@@ -271,7 +293,7 @@ const PropietarioDashboard = () => {
                     <SearchIcon />
                 </IconButton>
             </Box>
-        </Container>
+        </Box>
     );
 };
 

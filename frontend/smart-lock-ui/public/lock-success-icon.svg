@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512px" height="512px" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Lock Success Icon</title>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect x="96" y="192" width="320" height="256" rx="16" fill="#0d6efd" />
+        <path d="M352,192 L352,144 C352,82.1 301.9,32 240,32 C178.1,32 128,82.1 128,144 L128,192 L160,192 L160,144 C160,99.9 195.9,64 240,64 C284.1,64 320,99.9 320,144 L320,192 L352,192 Z" fill="#0d6efd" />
+        <circle cx="240" cy="288" r="32" fill="white" />
+        <rect x="224" y="288" width="32" height="96" rx="16" fill="white" />
+    </g>
+</svg> 

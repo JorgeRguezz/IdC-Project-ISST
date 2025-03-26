@@ -8,6 +8,7 @@ import ResetPassword from './components/ResetPassword'
 import TokenAccess from './components/TokenAccess'
 import PropietarioDashboard from './components/PropietarioDashboard'
 import HuespedDashboard from './components/HuespedDashboard'
+import AbrirPuerta from './components/AbrirPuerta'
 import AuthGuard from './components/AuthGuard'
 
 function App() {
@@ -33,6 +34,14 @@ function App() {
           element={
             <AuthGuard userType="huesped">
               <HuespedDashboard />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/abrir-puerta/:propiedadId"
+          element={
+            <AuthGuard>
+              <AbrirPuerta />
             </AuthGuard>
           }
         />

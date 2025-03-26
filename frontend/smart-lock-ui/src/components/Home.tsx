@@ -5,8 +5,8 @@ import homeBluetooth from '../assets/home-bluetooth.svg';
 const Home = () => {
   return (
     <Container component="main" maxWidth="xs" sx={{ py: 4 }}>
-      <Paper 
-        elevation={3} 
+      <Paper
+        elevation={3}
         sx={{
           p: 4,
           display: 'flex',
@@ -16,10 +16,10 @@ const Home = () => {
           bgcolor: '#f5f9ff'
         }}
       >
-        <Typography 
-          component="h1" 
-          variant="h5" 
-          sx={{ 
+        <Typography
+          component="h1"
+          variant="h5"
+          sx={{
             color: '#0d6efd',
             fontWeight: 'bold',
             mb: 2
@@ -41,8 +41,8 @@ const Home = () => {
           to="/login"
           fullWidth
           variant="contained"
-          sx={{ 
-            mb: 2, 
+          sx={{
+            mb: 2,
             py: 1.5,
             bgcolor: '#0d6efd',
             borderRadius: 50,
@@ -59,8 +59,8 @@ const Home = () => {
           to="/register"
           fullWidth
           variant="contained"
-          sx={{ 
-            mb: 2, 
+          sx={{
+            mb: 2,
             py: 1.5,
             bgcolor: '#0d6efd',
             borderRadius: 50,
@@ -77,7 +77,7 @@ const Home = () => {
           to="/token"
           fullWidth
           variant="contained"
-          sx={{ 
+          sx={{
             py: 1.5,
             bgcolor: '#0d6efd',
             borderRadius: 50,

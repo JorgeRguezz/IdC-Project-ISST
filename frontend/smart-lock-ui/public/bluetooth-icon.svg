@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512px" height="512px" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Bluetooth Icon</title>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M256,64 C365.9,64 456,154.1 456,264 C456,373.9 365.9,464 256,464 C146.1,464 56,373.9 56,264 C56,154.1 146.1,64 256,64 Z" fill="#0d6efd" fill-rule="nonzero"></path>
+        <path d="M224,128 L224,230.2 L171.4,177.6 L148.6,200.4 L224,275.8 L224,377.9 L148.6,311.6 L171.4,334.4 L224,387 L224,489.9 L246.8,489.9 L328,408.6 L256,336.6 L328,264.5 L256,192.5 L328,120.5 L246.8,39.1 L224,39.1 L224,128 Z M256,272 L290.2,306.2 L256,340.4 L256,272 Z M256,188.6 L256,120.5 L290.2,154.6 L256,188.6 Z" fill="white" fill-rule="nonzero"></path>
+    </g>
+</svg> 
