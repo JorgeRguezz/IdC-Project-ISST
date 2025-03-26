@@ -1,7 +1,7 @@
-package com.cerraduras.controller;
+package es.upm.dit.isst.ioh.controller;
 
-import com.cerraduras.model.Usuario;
-import com.cerraduras.repository.UsuarioRepository;
+import es.upm.dit.isst.ioh.model.Usuario;
+import es.upm.dit.isst.ioh.repository.UsuarioRepository;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

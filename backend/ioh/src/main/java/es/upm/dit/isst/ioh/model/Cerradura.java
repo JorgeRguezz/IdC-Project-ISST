@@ -1,4 +1,6 @@
-package com.cerraduras.model;
+package es.upm.dit.isst.ioh.model;
+
+import java.util.Objects;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -16,8 +18,10 @@ public class Cerradura {
 
     @ManyToOne
     private Propiedad propiedad;
+
     // Constructor vacío (obligatorio para JPA)
-    public Cerradura() {}
+    public Cerradura() {
+    }
 
     // Constructor con parámetros
     public Cerradura(String modelo, boolean bloqueada, Propiedad propiedad) {
@@ -60,8 +64,10 @@ public class Cerradura {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Cerradura)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Cerradura))
+            return false;
         Cerradura that = (Cerradura) o;
         return id != null && id.equals(that.id);
     }
@@ -71,4 +77,3 @@ public class Cerradura {
         return Objects.hash(id);
     }
 }
-

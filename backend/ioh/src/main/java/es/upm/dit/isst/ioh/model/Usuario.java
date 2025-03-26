@@ -1,4 +1,4 @@
-package com.cerraduras.model;
+package es.upm.dit.isst.ioh.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -26,7 +26,8 @@ public abstract class Usuario {
     private String contrasena;
 
     // Constructor vacío requerido por JPA
-    public Usuario() {}
+    public Usuario() {
+    }
 
     public Usuario(String nombre, String email, String telefono, String contrasena) {
         this.nombre = nombre;

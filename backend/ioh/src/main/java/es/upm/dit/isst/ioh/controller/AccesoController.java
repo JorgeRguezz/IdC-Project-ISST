@@ -1,7 +1,7 @@
-package com.cerraduras.controller;
+package es.upm.dit.isst.ioh.controller;
 
-import com.cerraduras.model.Acceso;
-import com.cerraduras.repository.AccesoRepository;
+import es.upm.dit.isst.ioh.model.Acceso;
+import es.upm.dit.isst.ioh.repository.AccesoRepository;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,15 +48,14 @@ public class AccesoController {
     @GetMapping("/validar")
     public ResponseEntity<?> validarAcceso(
             @RequestParam Long huespedId,
-            @RequestParam Long cerraduraId
-    ) {
+            @RequestParam Long cerraduraId) {
         LocalDateTime ahora = LocalDateTime.now();
         List<Acceso> accesosValidos = accesoRepository
-            .findByHuespedIdAndHorario_InicioBeforeAndHorario_FinAfter(
-                huespedId, ahora, ahora);
+                .findByHuespedIdAndHorario_InicioBeforeAndHorario_FinAfter(
+                        huespedId, ahora, ahora);
 
         boolean tieneAcceso = accesosValidos.stream()
-            .anyMatch(a -> a.getCerradura().getId().equals(cerraduraId));
+                .anyMatch(a -> a.getCerradura().getId().equals(cerraduraId));
 
         return ResponseEntity.ok(tieneAcceso);
     }

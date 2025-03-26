@@ -1,4 +1,4 @@
-package com.cerraduras.model;
+package es.upm.dit.isst.ioh.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -21,7 +21,8 @@ public class Propiedad {
     @OneToMany(mappedBy = "propiedad", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Cerradura> cerraduras;
 
-    public Propiedad() {}
+    public Propiedad() {
+    }
 
     public Propiedad(String direccion, Propietario propietario) {
         this.direccion = direccion;

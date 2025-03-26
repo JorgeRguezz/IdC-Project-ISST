@@ -1,6 +1,6 @@
-package com.cerraduras.repository;
+package es.upm.dit.isst.ioh.repository;
 
-import com.cerraduras.model.Token;
+import es.upm.dit.isst.ioh.model.Token;
 import org.springframework.data.repository.CrudRepository;
 
 import java.time.LocalDateTime;

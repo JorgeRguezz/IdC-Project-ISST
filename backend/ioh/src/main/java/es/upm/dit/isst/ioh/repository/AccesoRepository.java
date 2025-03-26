@@ -1,6 +1,6 @@
-package com.cerraduras.repository;
+package es.upm.dit.isst.ioh.repository;
 
-import com.cerraduras.model.Acceso;
+import es.upm.dit.isst.ioh.model.Acceso;
 import org.springframework.data.repository.CrudRepository;
 
 import java.time.LocalDateTime;
@@ -13,8 +13,7 @@ public interface AccesoRepository extends CrudRepository<Acceso, Long> {
     List<Acceso> findByCerraduraId(Long cerraduraId);
 
     List<Acceso> findByHuespedIdAndHorario_InicioBeforeAndHorario_FinAfter(
-        Long huespedId,
-        LocalDateTime ahora1,
-        LocalDateTime ahora2
-    );
+            Long huespedId,
+            LocalDateTime ahora1,
+            LocalDateTime ahora2);
 }

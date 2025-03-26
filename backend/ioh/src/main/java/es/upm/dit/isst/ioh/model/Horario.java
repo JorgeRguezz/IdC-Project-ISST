@@ -1,4 +1,4 @@
-package com.cerraduras.model;
+package es.upm.dit.isst.ioh.model;
 
 import jakarta.persistence.Embeddable;
 import java.time.LocalDateTime;
@@ -9,7 +9,8 @@ public class Horario {
     private LocalDateTime inicio;
     private LocalDateTime fin;
 
-    public Horario() {}
+    public Horario() {
+    }
 
     public Horario(LocalDateTime inicio, LocalDateTime fin) {
         this.inicio = inicio;

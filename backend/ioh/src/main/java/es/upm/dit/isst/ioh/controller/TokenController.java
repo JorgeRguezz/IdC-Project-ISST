@@ -1,8 +1,9 @@
-package com.cerraduras.controller;
+package es.upm.dit.isst.ioh.controller;
 
-import com.cerraduras.model.Token;
-import com.cerraduras.repository.TokenRepository;
-import com.cerraduras.repository.CerraduraRepository;
+import es.upm.dit.isst.ioh.model.Token;
+import es.upm.dit.isst.ioh.model.Cerradura;
+import es.upm.dit.isst.ioh.repository.TokenRepository;
+import es.upm.dit.isst.ioh.repository.CerraduraRepository;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,8 +56,12 @@ public class TokenController {
         token.registrarUso();
         tokenRepository.save(token);
 
-        // Aquí podrías registrar el acceso, desbloquear cerradura, etc.
-        return ResponseEntity.ok("Acceso concedido y token actualizado");
+        // Obtener la cerradura y cambiar su estado
+        Cerradura cerradura = token.getCerradura();
+        cerradura.setBloqueada(false);
+        cerraduraRepository.save(cerradura);
+
+        return ResponseEntity.ok("Puerta abierta correctamente");
     }
 
     // Listar todos los tokens (debug o administración)

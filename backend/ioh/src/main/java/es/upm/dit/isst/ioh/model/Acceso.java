@@ -1,4 +1,4 @@
-package com.cerraduras.model;
+package es.upm.dit.isst.ioh.model;
 
 import jakarta.persistence.*;
 
@@ -18,7 +18,8 @@ public class Acceso {
     @Embedded
     private Horario horario;
 
-    public Acceso() {}
+    public Acceso() {
+    }
 
     public Acceso(Huesped huesped, Cerradura cerradura, Horario horario) {
         this.huesped = huesped;

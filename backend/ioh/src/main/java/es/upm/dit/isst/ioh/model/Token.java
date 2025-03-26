@@ -1,4 +1,4 @@
-package com.cerraduras.model;
+package es.upm.dit.isst.ioh.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -24,7 +24,8 @@ public class Token {
     @ManyToOne
     private Cerradura cerradura;
 
-    public Token() {}
+    public Token() {
+    }
 
     public Token(String codigo, LocalDateTime fechaExpiracion, int usosMaximos, Cerradura cerradura) {
         this.codigo = codigo;
@@ -83,7 +84,7 @@ public class Token {
     // Método de utilidad para validar el token
     public boolean esValido(LocalDateTime ahora) {
         return (fechaExpiracion == null || ahora.isBefore(fechaExpiracion))
-            && (usosMaximos == 0 || usosActuales < usosMaximos);
+                && (usosMaximos == 0 || usosActuales < usosMaximos);
     }
 
     public void registrarUso() {

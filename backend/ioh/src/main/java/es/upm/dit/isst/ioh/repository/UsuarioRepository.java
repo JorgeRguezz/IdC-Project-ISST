@@ -1,6 +1,6 @@
-package com.cerraduras.repository;
+package es.upm.dit.isst.ioh.repository;
 
-import com.cerraduras.model.Usuario;
+import es.upm.dit.isst.ioh.model.Usuario;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

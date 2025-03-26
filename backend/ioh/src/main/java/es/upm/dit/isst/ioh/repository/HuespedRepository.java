@@ -1,6 +1,6 @@
-package com.cerraduras.repository;
+package es.upm.dit.isst.ioh.repository;
 
-import com.cerraduras.model.Huesped;
+import es.upm.dit.isst.ioh.model.Huesped;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
