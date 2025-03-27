@@ -21,16 +21,20 @@ public class Propiedad {
     @ManyToOne
     private Propietario propietario;
 
+    @Column(length = 512)
+    private String imagen; // ruta o URL relativa del archivo
+
     @OneToMany(mappedBy = "propiedad", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Cerradura> cerraduras;
 
     public Propiedad() {
     }
 
-    public Propiedad(String direccion, Propietario propietario,String nombre) {
+    public Propiedad(String direccion, Propietario propietario,String nombre,String imagen) {
         this.direccion = direccion;
         this.propietario = propietario;
         this.nombre = nombre;
+        this.imagen= imagen;
     }
 
     // Getters y setters
@@ -58,6 +62,10 @@ public class Propiedad {
     public void setPropietario(Propietario propietario) {
         this.propietario = propietario;
     }
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
+
 
     public List<Cerradura> getCerraduras() {
         return cerraduras;

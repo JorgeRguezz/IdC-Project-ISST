@@ -11,6 +11,7 @@ import HuespedDashboard from './components/HuespedDashboard'
 import AbrirPuerta from './components/AbrirPuerta'
 import AuthGuard from './components/AuthGuard'
 import Propiedades from './components/Propiedades'
+import AnadirPuerta from './components/AnadirPuerta'
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/token" element={<TokenAccess />} />
         <Route path="/propiedades" element={<Propiedades/>} />
+        <Route path="/propiedades/anadir" element={<AnadirPuerta />} />
+
 
         <Route
           path="/propietario-dashboard"
