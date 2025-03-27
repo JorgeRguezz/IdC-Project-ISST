@@ -10,16 +10,27 @@ import es.upm.dit.isst.ioh.repository.CerraduraRepository;
 import es.upm.dit.isst.ioh.repository.PropietarioRepository;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.nio.file.*;
+import java.util.UUID;
+import java.util.Optional;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/propiedades")
@@ -195,4 +206,32 @@ public class PropiedadController {
             propiedad.getNombre()
         );
     }
+    //Crear una propiedad con foto
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Propiedad> crearConImagen(
+    @RequestPart("propiedad") String propiedadJson,
+    @RequestPart(value = "imagen", required = false) MultipartFile imagenFile
+    ) {
+    try {
+        ObjectMapper mapper = new ObjectMapper();
+        Propiedad propiedad = mapper.readValue(propiedadJson, Propiedad.class);
+
+        if (imagenFile != null && !imagenFile.isEmpty()) {
+            String nombreArchivo = UUID.randomUUID() + "-" + imagenFile.getOriginalFilename();
+            Path rutaDestino = Paths.get("uploads").resolve(nombreArchivo);
+            Files.createDirectories(rutaDestino.getParent());
+            Files.copy(imagenFile.getInputStream(), rutaDestino, StandardCopyOption.REPLACE_EXISTING);
+            propiedad.setImagen("/uploads/" + nombreArchivo);
+        }
+
+        Propiedad guardada = propiedadRepository.save(propiedad);
+        return ResponseEntity.ok(guardada);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+
 }

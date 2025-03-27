@@ -24,6 +24,10 @@ const Propiedades = () => {
     navigate(`/editar-propiedad/${propiedad.id}`, { state: { propiedad } });
   };
 
+  const handleAnadirPuerta = () => {
+    navigate('/propiedades/anadir');
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', bgcolor: '#ebf5ff', p: 2 }}>
       <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)} sx={{ alignSelf: 'flex-start', mb: 2 }}>
@@ -83,7 +87,12 @@ const Propiedades = () => {
         ))
       )}
 
-      <Link href="#" underline="hover" sx={{ color: '#0d6efd', fontWeight: 'medium', mt: 2, alignSelf: 'flex-start' }}>
+      <Link
+        component="button"
+        onClick={handleAnadirPuerta}
+        underline="hover"
+        sx={{ color: '#0d6efd', fontWeight: 'medium', mt: 2, alignSelf: 'flex-start' }}
+      >
         Añadir puerta
       </Link>
     </Box>
