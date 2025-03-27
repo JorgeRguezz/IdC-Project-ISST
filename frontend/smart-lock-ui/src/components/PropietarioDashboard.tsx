@@ -12,42 +12,106 @@ interface Propiedad {
     id: number;
     nombre: string;
     direccion: string;
+    propietarioId: number;
+    numeroCerraduras: number;
 }
 
 const PropietarioDashboard = () => {
     const navigate = useNavigate();
-    const [propiedades, setPropiedades] = useState<Propiedad[]>([
-    ]);
-
+    const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
+    const [cargando, setCargando] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
     const [notificaciones, setNotificaciones] = useState<number>(1);
 
     // Datos del usuario (esto vendría del contexto de autenticación en una app real)
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 
-    // Simular recuperación de propiedades desde el backend
+    // Recuperación de propiedades desde el backend
     useEffect(() => {
         const fetchPropiedades = async () => {
             if (!usuario.id) {
                 console.error('No hay ID de usuario en localStorage');
+                setError('Usuario no autenticado');
+                setCargando(false);
                 return;
             }
-    
+
             try {
+                setCargando(true);
+                setError(null);
+
+                console.log('Iniciando solicitud al backend...');
                 const response = await fetch(`http://localhost:8080/api/propiedades/propietario/${usuario.id}`);
+                console.log('Respuesta recibida, status:', response.status);
+
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
                 }
-    
-                const data: Propiedad[] = await response.json();
-                setPropiedades(data);
+
+                // Obtener la respuesta como texto plano
+                const text = await response.text();
+                console.log('Respuesta como texto:', text);
+
+                if (!text || text.trim() === '' || text === '[]') {
+                    console.warn('La respuesta está vacía o es un array vacío');
+                    setPropiedades([]);
+                    setCargando(false);
+                    return;
+                }
+
+                // Limpiar cualquier carácter extraño que pudiera haber en la respuesta
+                const cleanedText = text.trim();
+                console.log('Texto limpio para parsear:', cleanedText);
+
+                try {
+                    // Intentar parsear la respuesta como JSON
+                    const data = JSON.parse(cleanedText);
+                    console.log('Datos parseados correctamente:', data);
+
+                    // Verificar que los datos tienen la estructura esperada
+                    if (Array.isArray(data)) {
+                        console.log('Los datos son un array con', data.length, 'elementos');
+
+                        // Mapear cada item para asegurar que cumple con la interfaz Propiedad
+                        const propiedadesSeguras = data.map(item => {
+                            // Crear un objeto con valores por defecto para todo
+                            const propiedadSegura: Propiedad = {
+                                id: typeof item.id === 'number' ? item.id : 0,
+                                nombre: typeof item.nombre === 'string' ? item.nombre : 'Sin nombre',
+                                direccion: typeof item.direccion === 'string' ? item.direccion : 'Sin dirección',
+                                propietarioId: typeof item.propietarioId === 'number' ? item.propietarioId : usuario.id,
+                                numeroCerraduras: typeof item.numeroCerraduras === 'number' ? item.numeroCerraduras : 0
+                            };
+                            return propiedadSegura;
+                        });
+
+                        console.log('Propiedades procesadas:', propiedadesSeguras);
+                        setPropiedades(propiedadesSeguras);
+                    } else if (typeof data === 'object' && data !== null) {
+                        // Si es un objeto pero no un array, quizás podríamos intentar adaptarlo
+                        console.warn('La respuesta es un objeto, no un array:', data);
+                        setPropiedades([]);
+                    } else {
+                        console.warn('La respuesta no es un array ni un objeto:', data);
+                        setPropiedades([]);
+                    }
+                } catch (parseError) {
+                    console.error('Error al parsear respuesta JSON:', parseError);
+                    console.error('Texto que causó el error:', cleanedText);
+                    throw new Error('Error al parsear la respuesta: formato JSON inválido');
+                }
             } catch (error) {
                 console.error('Error al obtener propiedades:', error);
+                setError(error instanceof Error ? error.message : 'Error desconocido');
+                setPropiedades([]);
+            } finally {
+                setCargando(false);
             }
         };
-    
+
         fetchPropiedades();
     }, [usuario.id]);
-    
+
     const handleCerrarSesion = () => {
         localStorage.removeItem('usuario');
         navigate('/login');
@@ -226,14 +290,77 @@ const PropietarioDashboard = () => {
                                     style={{ width: 60, height: 60 }}
                                 />
                             </Box>
-                            <Button variant="contained" onClick={handleVerPropiedades} sx={{ bgcolor: '#0d6efd', color: 'white', borderRadius: 2, textTransform: 'none' }}>Mis puertas</Button>
-
+                            <Button
+                                variant="contained"
+                                onClick={handleVerPropiedades}
+                                sx={{
+                                    bgcolor: '#0d6efd',
+                                    color: 'white',
+                                    borderRadius: 2,
+                                    textTransform: 'none'
+                                }}
+                            >
+                                Mis puertas
+                            </Button>
                         </Paper>
                     </Grid>
                 </Grid>
 
                 {/* Lista de propiedades */}
                 <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+                    {cargando && (
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                p: 2,
+                                mb: 2,
+                                borderRadius: 2,
+                                bgcolor: '#e3f2fd',
+                                textAlign: 'center'
+                            }}
+                        >
+                            <Typography>Cargando propiedades...</Typography>
+                        </Paper>
+                    )}
+
+                    {error && (
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                p: 2,
+                                mb: 2,
+                                borderRadius: 2,
+                                bgcolor: '#ffebee',
+                                textAlign: 'center'
+                            }}
+                        >
+                            <Typography color="error">Error: {error}</Typography>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                sx={{ mt: 1 }}
+                                onClick={() => window.location.reload()}
+                            >
+                                Reintentar
+                            </Button>
+                        </Paper>
+                    )}
+
+                    {!cargando && !error && propiedades.length === 0 && (
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                p: 2,
+                                mb: 2,
+                                borderRadius: 2,
+                                bgcolor: '#e3f2fd',
+                                textAlign: 'center'
+                            }}
+                        >
+                            <Typography>No tienes propiedades registradas</Typography>
+                        </Paper>
+                    )}
+
                     {propiedades.map((propiedad) => (
                         <Paper
                             key={propiedad.id}
@@ -249,11 +376,15 @@ const PropietarioDashboard = () => {
                             }}
                         >
                             <Box>
-                                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                                <Typography variant="subtitle1" fontWeight="bold">
                                     {propiedad.nombre}
                                 </Typography>
-                                <Typography variant="body2" sx={{ color: '#666' }}>
+                                <Typography variant="body2" color="text.secondary">
                                     {propiedad.direccion}
+                                </Typography>
+                                <Typography variant="body2" color="primary" sx={{ mt: 0.5 }}>
+                                    <KeyIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />
+                                    {propiedad.numeroCerraduras} {propiedad.numeroCerraduras === 1 ? 'cerradura' : 'cerraduras'}
                                 </Typography>
                             </Box>
                             <Button

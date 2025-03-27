@@ -12,18 +12,23 @@ interface PropiedadDetalle {
 }
 
 // Estados posibles para la vista de apertura
-type EstadoApertura = 'inicial' | 'conectando' | 'error' | 'tokenForm' | 'exito';
+type EstadoApertura = 'inicial' | 'conectando' | 'error' | 'tokenForm' | 'exito' | 'sin_acceso';
 
 const AbrirPuerta = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { propiedadId } = useParams();
     const [propiedad, setPropiedad] = useState<PropiedadDetalle | null>(null);
+    const [cerradura, setCerradura] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [estado, setEstado] = useState<EstadoApertura>('inicial');
     const [error, setError] = useState('');
     const [token, setToken] = useState('');
     const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
+    const [verificandoAcceso, setVerificandoAcceso] = useState(false);
+
+    // Obtener usuario del almacenamiento local
+    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 
     // Recuperar los datos de la propiedad desde location.state o hacer una llamada a la API
     useEffect(() => {
@@ -45,6 +50,73 @@ const AbrirPuerta = () => {
             }, 800);
         }
     }, [propiedadId, location.state]);
+
+    // Cuando se cargue la propiedad, obtener la información de las cerraduras
+    useEffect(() => {
+        if (propiedad) {
+            setIsLoading(true);
+            // En una app real, haríamos una llamada a la API para obtener las cerraduras de esta propiedad
+            // Simulamos que obtenemos la primera cerradura de la propiedad
+            fetch(`http://localhost:8080/api/cerraduras/propiedad/${propiedad.id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('No se pudieron obtener las cerraduras');
+                    }
+                    return response.json();
+                })
+                .then(cerraduras => {
+                    if (cerraduras && cerraduras.length > 0) {
+                        setCerradura(cerraduras[0].id);
+                        // Verificar acceso del usuario a la cerradura
+                        verificarAccesoUsuario(cerraduras[0].id);
+                    } else {
+                        setError('Esta propiedad no tiene cerraduras registradas');
+                        setEstado('error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al obtener cerraduras:', error);
+                    setError('Error al obtener cerraduras: ' + error.message);
+                    setEstado('error');
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        }
+    }, [propiedad]);
+
+    // Verificar si el usuario tiene acceso a la cerradura
+    const verificarAccesoUsuario = (cerraduraId: number) => {
+        if (!usuario || !usuario.id) {
+            setError('Usuario no autenticado');
+            setEstado('sin_acceso');
+            return;
+        }
+
+        setVerificandoAcceso(true);
+        // Llamar a la API para verificar acceso
+        fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/verificar-acceso?usuarioId=${usuario.id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al verificar acceso');
+                }
+                return response.json();
+            })
+            .then(tieneAcceso => {
+                if (!tieneAcceso) {
+                    setEstado('sin_acceso');
+                    setError('No tienes acceso a esta cerradura');
+                }
+            })
+            .catch(error => {
+                console.error('Error al verificar acceso:', error);
+                setEstado('sin_acceso');
+                setError('Error al verificar acceso: ' + error.message);
+            })
+            .finally(() => {
+                setVerificandoAcceso(false);
+            });
+    };
 
     const handleVolver = () => {
         // Si estamos en la pantalla de éxito, volvemos al dashboard
@@ -77,23 +149,49 @@ const AbrirPuerta = () => {
     };
 
     const handleAbrirPuerta = () => {
+        if (!cerradura) {
+            setError('No hay cerradura disponible para abrir');
+            setEstado('error');
+            return;
+        }
+
+        if (!usuario || !usuario.id) {
+            setError('Usuario no autenticado');
+            setEstado('sin_acceso');
+            return;
+        }
+
         setEstado('conectando');
         setError('');
 
-        // Simulación de apertura de puerta con Bluetooth
-        setTimeout(() => {
-            // Simulamos una probabilidad de éxito/error para mostrar el comportamiento
-            const exito = Math.random() > 0.7; // 30% de probabilidad de error
-
-            if (exito) {
-                // Si la apertura es exitosa, mostrar la vista de éxito
+        // Llamada a la API para abrir la puerta
+        fetch(`http://localhost:8080/api/cerraduras/${cerradura}/abrir`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ usuarioId: usuario.id }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        setEstado('sin_acceso');
+                    } else {
+                        setEstado('error');
+                    }
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'Error al abrir la puerta');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
                 setEstado('exito');
-            } else {
-                // Si hay un error en la apertura
-                setError('No se pudo conectar con la cerradura. Por favor, reintenta o usa un token de acceso.');
-                setEstado('error');
-            }
-        }, 2000);
+            })
+            .catch(error => {
+                console.error('Error al abrir puerta:', error);
+                setError(error.message);
+            });
     };
 
     const handleReintentar = () => {
@@ -116,27 +214,39 @@ const AbrirPuerta = () => {
             return;
         }
 
+        if (!cerradura) {
+            setError('No hay cerradura disponible');
+            return;
+        }
+
         setTokenDialogOpen(false);
         setEstado('conectando');
         setError('');
 
-        // Simulación de verificación de token
-        setTimeout(() => {
-            // En una app real, aquí verificaríamos el token con el backend
-            // Simulamos un 80% de probabilidad de que el token sea válido
-            const tokenValido = Math.random() > 0.2 || token === '1234'; // Token de prueba siempre válido
-
-            if (tokenValido) {
+        // Llamar a la API para validar el token
+        fetch(`http://localhost:8080/api/tokens/validar?codigo=${token}&cerraduraId=${cerradura}&usuarioId=${usuario.id}`, {
+            method: 'POST',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'Error al validar el token');
+                    });
+                }
+                return response.json();
+            })
+            .then(() => {
                 setEstado('exito');
-            } else {
-                setError('Token inválido o expirado. Por favor, verifica e intenta de nuevo.');
+            })
+            .catch(error => {
+                console.error('Error al validar token:', error);
+                setError(error.message);
                 setEstado('error');
-            }
-        }, 1500);
+            });
     };
 
     // Mientras carga los datos de la propiedad
-    if (isLoading) {
+    if (isLoading || verificandoAcceso) {
         return (
             <Box
                 sx={{
@@ -152,7 +262,9 @@ const AbrirPuerta = () => {
                 }}
             >
                 <CircularProgress />
-                <Typography sx={{ mt: 2 }}>Cargando detalles de la propiedad...</Typography>
+                <Typography sx={{ mt: 2 }}>
+                    {isLoading ? 'Cargando detalles de la propiedad...' : 'Verificando acceso...'}
+                </Typography>
             </Box>
         );
     }
@@ -187,6 +299,122 @@ const AbrirPuerta = () => {
                         Volver al Inicio
                     </Button>
                 </Paper>
+            </Box>
+        );
+    }
+
+    // Vista de sin acceso
+    if (estado === 'sin_acceso') {
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '100%',
+                    height: '100vh',
+                    bgcolor: '#ebf5ff',
+                    m: 0,
+                    p: 0,
+                    overflow: 'hidden'
+                }}
+            >
+                {/* Header */}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        p: 2,
+                        width: '100%',
+                        borderBottom: '1px solid rgba(0,0,0,0.05)'
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton color="primary" onClick={handleVolver}>
+                            <ArrowBackIcon />
+                        </IconButton>
+                        <Typography variant="h6" sx={{ ml: 1, fontWeight: 'bold', color: '#0d6efd' }}>
+                            Volver
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton color="primary" sx={{ mr: 1 }}>
+                            <SettingsIcon />
+                        </IconButton>
+                        <IconButton color="primary" onClick={handleCerrarSesion}>
+                            <LogoutIcon />
+                        </IconButton>
+                    </Box>
+                </Box>
+
+                {/* Contenido de error de acceso */}
+                <Box
+                    sx={{
+                        flexGrow: 1,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        p: 2
+                    }}
+                >
+                    <Paper
+                        elevation={3}
+                        sx={{
+                            p: 4,
+                            borderRadius: 2,
+                            width: '100%',
+                            maxWidth: 320,
+                            bgcolor: 'white',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center'
+                        }}
+                    >
+                        <img
+                            src="/error-icon.svg"
+                            alt="Error de acceso"
+                            style={{ width: 80, height: 80, marginBottom: 16 }}
+                        />
+
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                color: '#dc3545',
+                                fontWeight: 'bold',
+                                textAlign: 'center',
+                                mb: 2
+                            }}
+                        >
+                            Acceso denegado
+                        </Typography>
+
+                        <Typography
+                            variant="body1"
+                            sx={{
+                                color: '#666',
+                                textAlign: 'center',
+                                mb: 3
+                            }}
+                        >
+                            {error || 'No tienes permiso para abrir esta puerta. Contacta con el propietario para solicitar acceso.'}
+                        </Typography>
+
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={irAlDashboard}
+                            sx={{
+                                borderRadius: 28,
+                                py: 1,
+                                px: 4,
+                                textTransform: 'none',
+                                fontSize: '1rem',
+                            }}
+                        >
+                            Volver al inicio
+                        </Button>
+                    </Paper>
+                </Box>
             </Box>
         );
     }

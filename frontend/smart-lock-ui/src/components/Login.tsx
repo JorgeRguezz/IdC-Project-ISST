@@ -43,13 +43,23 @@ const Login = () => {
         throw new Error(data.error || 'Error en la autenticación');
       }
 
+      // Convertir el tipo de usuario a mayúsculas para consistencia
+      const userData = {
+        ...data,
+        tipo: data.tipo.toUpperCase()
+      };
+
       // Guardar información del usuario
-      localStorage.setItem('usuario', JSON.stringify(data));
+      localStorage.setItem('usuario', JSON.stringify(userData));
+
+      console.log('Usuario autenticado:', userData);
 
       // Redireccionar según el tipo de usuario
-      if (data.tipo === 'propietario') {
+      if (userData.tipo === 'PROPIETARIO') {
+        console.log('Redirigiendo a dashboard de propietario');
         navigate('/propietario-dashboard');
       } else {
+        console.log('Redirigiendo a dashboard de huésped');
         navigate('/huesped-dashboard');
       }
 

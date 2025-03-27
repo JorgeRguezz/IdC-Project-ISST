@@ -9,5 +9,4 @@ public class IohApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(IohApplication.class, args);
 	}
-
 }

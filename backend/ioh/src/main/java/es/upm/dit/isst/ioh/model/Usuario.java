@@ -3,9 +3,11 @@ package es.upm.dit.isst.ioh.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password", "contrasena"})
 public abstract class Usuario {
 
     @Id
@@ -17,6 +19,7 @@ public abstract class Usuario {
 
     @Email
     @NotEmpty
+    @Column(unique = true)
     private String email;
 
     @NotEmpty

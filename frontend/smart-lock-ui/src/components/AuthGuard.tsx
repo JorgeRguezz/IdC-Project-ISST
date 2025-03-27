@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 
 type AuthGuardProps = {
     children: ReactNode;
-    userType?: 'propietario' | 'huesped';
+    userType?: 'PROPIETARIO' | 'HUESPED';
 };
 
 const AuthGuard = ({ children, userType }: AuthGuardProps) => {
@@ -21,7 +21,11 @@ const AuthGuard = ({ children, userType }: AuthGuardProps) => {
         if (userType && isAuth) {
             try {
                 const usuario = JSON.parse(usuarioString!);
-                setHasCorrectType(usuario.tipo === userType);
+                // Convertir a mayúsculas para comparar
+                const usuarioTipo = usuario.tipo.toUpperCase();
+                setHasCorrectType(usuarioTipo === userType);
+
+                console.log('Usuario tipo:', usuarioTipo, 'Tipo esperado:', userType);
             } catch (error) {
                 console.error('Error al analizar usuario:', error);
                 setHasCorrectType(false);
@@ -44,10 +48,12 @@ const AuthGuard = ({ children, userType }: AuthGuardProps) => {
     // Si se especificó un tipo de usuario y no coincide, redirigir a la página correspondiente
     if (userType && !hasCorrectType) {
         const usuario = JSON.parse(localStorage.getItem('usuario')!);
-        const redirectPath = usuario.tipo === 'propietario'
+        const usuarioTipo = usuario.tipo.toUpperCase();
+        const redirectPath = usuarioTipo === 'PROPIETARIO'
             ? '/propietario-dashboard'
             : '/huesped-dashboard';
 
+        console.log('Redirigiendo a:', redirectPath, 'Tipo actual:', usuarioTipo);
         return <Navigate to={redirectPath} replace />;
     }
 

@@ -2,10 +2,14 @@ package es.upm.dit.isst.ioh.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Cerradura {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,6 +21,8 @@ public class Cerradura {
     private boolean bloqueada = true;
 
     @ManyToOne
+    @JsonBackReference
+    @JsonIgnoreProperties("cerraduras")
     private Propiedad propiedad;
 
     // Constructor vacío (obligatorio para JPA)
