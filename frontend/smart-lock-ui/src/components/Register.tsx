@@ -213,14 +213,14 @@ const Register = () => {
           />
 
           <Typography sx={{ mb: 1, color: '#333', fontWeight: 'medium' }}>
-            Nombre de usuario
+            Teléfono móvil
           </Typography>
           <TextField
             margin="normal"
             required
             fullWidth
             id="username"
-            placeholder="Escriba su nombre"
+            placeholder="Escriba su nº de teléfono"
             name="username"
             autoComplete="username"
             value={username}
