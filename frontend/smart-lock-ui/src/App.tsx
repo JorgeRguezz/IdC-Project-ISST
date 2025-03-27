@@ -10,6 +10,7 @@ import PropietarioDashboard from './components/PropietarioDashboard'
 import HuespedDashboard from './components/HuespedDashboard'
 import AbrirPuerta from './components/AbrirPuerta'
 import AuthGuard from './components/AuthGuard'
+import Propiedades from './components/Propiedades'
 
 function App() {
   return (
@@ -21,6 +22,8 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/token" element={<TokenAccess />} />
+        <Route path="/propiedades" element={<Propiedades/>} />
+
         <Route
           path="/propietario-dashboard"
           element={

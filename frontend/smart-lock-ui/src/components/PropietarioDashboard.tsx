@@ -17,9 +17,9 @@ interface Propiedad {
 const PropietarioDashboard = () => {
     const navigate = useNavigate();
     const [propiedades, setPropiedades] = useState<Propiedad[]>([
-        { id: 1, nombre: 'casa Madrid', direccion: 'Calle de santa Engracia 108, 5B' },
-        { id: 2, nombre: 'casa Valladolid', direccion: 'Calle Torrecilla 13, 1E' },
-        { id: 3, nombre: 'casa Mallorca', direccion: 'Carrer de Sant Alonso 7A' }
+       // { id: 1, nombre: 'casa Madrid', direccion: 'Calle de santa Engracia 108, 5B' },
+        //{ id: 2, nombre: 'casa Valladolid', direccion: 'Calle Torrecilla 13, 1E' },
+        //{ id: 3, nombre: 'casa Mallorca', direccion: 'Carrer de Sant Alonso 7A' }
     ]);
 
     const [notificaciones, setNotificaciones] = useState<number>(1);
@@ -29,22 +29,35 @@ const PropietarioDashboard = () => {
 
     // Simular recuperación de propiedades desde el backend
     useEffect(() => {
-        // Aquí se haría una llamada a la API real
-        // const fetchPropiedades = async () => {
-        //   try {
-        //     const response = await fetch(`/api/propietarios/${usuario.id}/propiedades`);
-        //     const data = await response.json();
-        //     setPropiedades(data);
-        //   } catch (error) {
-        //     console.error('Error al obtener propiedades:', error);
-        //   }
-        // };
-        // fetchPropiedades();
+        const fetchPropiedades = async () => {
+            if (!usuario.id) {
+                console.error('No hay ID de usuario en localStorage');
+                return;
+            }
+    
+            try {
+                const response = await fetch(`http://localhost:8080/api/propiedades/propietario/${usuario.id}`);
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+    
+                const data: Propiedad[] = await response.json();
+                setPropiedades(data);
+            } catch (error) {
+                console.error('Error al obtener propiedades:', error);
+            }
+        };
+    
+        fetchPropiedades();
     }, [usuario.id]);
-
+    
     const handleCerrarSesion = () => {
         localStorage.removeItem('usuario');
         navigate('/login');
+    };
+
+    const handleVerPropiedades = () => {
+        navigate('/propiedades', { state: { propiedades } });
     };
 
     const handleAbrirPuerta = (propiedad: Propiedad) => {
@@ -216,15 +229,8 @@ const PropietarioDashboard = () => {
                                     style={{ width: 60, height: 60 }}
                                 />
                             </Box>
-                            <Typography
-                                variant="subtitle1"
-                                sx={{
-                                    fontWeight: 'medium',
-                                    color: '#0d6efd'
-                                }}
-                            >
-                                Mis puertas
-                            </Typography>
+                            <Button variant="contained" onClick={handleVerPropiedades} sx={{ bgcolor: '#0d6efd', color: 'white', borderRadius: 2, textTransform: 'none' }}>Mis puertas</Button>
+
                         </Paper>
                     </Grid>
                 </Grid>

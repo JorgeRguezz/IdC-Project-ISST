@@ -27,7 +27,7 @@ public class CerraduraController {
         return (List<Cerradura>) cerraduraRepository.findAll();
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public Cerradura create(@RequestBody Cerradura cerradura) {
         return cerraduraRepository.save(cerradura);
     }

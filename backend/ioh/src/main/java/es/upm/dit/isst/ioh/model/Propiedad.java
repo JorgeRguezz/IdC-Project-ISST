@@ -14,6 +14,9 @@ public class Propiedad {
 
     @NotEmpty
     private String direccion;
+    //nombre que le ponemos a la propiedad rollo "Casa de coruña"
+    @NotEmpty
+    private String nombre;
 
     @ManyToOne
     private Propietario propietario;
@@ -24,9 +27,10 @@ public class Propiedad {
     public Propiedad() {
     }
 
-    public Propiedad(String direccion, Propietario propietario) {
+    public Propiedad(String direccion, Propietario propietario,String nombre) {
         this.direccion = direccion;
         this.propietario = propietario;
+        this.nombre = nombre;
     }
 
     // Getters y setters
@@ -45,6 +49,10 @@ public class Propiedad {
 
     public Propietario getPropietario() {
         return propietario;
+    }
+
+    public String getNombre() {
+        return nombre;
     }
 
     public void setPropietario(Propietario propietario) {
