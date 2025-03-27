@@ -17,9 +17,6 @@ interface Propiedad {
 const PropietarioDashboard = () => {
     const navigate = useNavigate();
     const [propiedades, setPropiedades] = useState<Propiedad[]>([
-       // { id: 1, nombre: 'casa Madrid', direccion: 'Calle de santa Engracia 108, 5B' },
-        //{ id: 2, nombre: 'casa Valladolid', direccion: 'Calle Torrecilla 13, 1E' },
-        //{ id: 3, nombre: 'casa Mallorca', direccion: 'Carrer de Sant Alonso 7A' }
     ]);
 
     const [notificaciones, setNotificaciones] = useState<number>(1);
