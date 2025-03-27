@@ -3,31 +3,170 @@ import { Box, Button, Container, IconButton, Paper, TextField, Typography, Snack
 import { ArrowBack, Settings, Logout } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 
+// Base URL para todas las llamadas a la API
+const API_BASE_URL = 'http://localhost:8080';
+
 const TokenAccess = () => {
   const [token, setToken] = useState('');
-  const [cerraduraId, setCerraduraId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+
+  // Método simplificado para validar y abrir la cerradura asociada al token
+  const validarTokenYAbrirPuerta = async (codigo: string): Promise<Response> => {
+    try {
+      console.log(`Buscando cerradura asociada al token ${codigo}`);
+
+      // Obtenemos todos los tokens para encontrar el que coincide con el código
+      const tokensResponse = await fetch(`${API_BASE_URL}/api/tokens`);
+
+      if (!tokensResponse.ok) {
+        throw new Error(`Error al obtener tokens (${tokensResponse.status})`);
+      }
+
+      const tokens = await tokensResponse.json();
+      console.log("Tokens disponibles:", tokens);
+
+      // Buscamos el token con el código proporcionado
+      const tokenObj = tokens.find((t: any) => t.codigo === codigo);
+
+      if (!tokenObj) {
+        throw new Error('Token no encontrado');
+      }
+
+      // Verificamos que el token tenga una cerradura asociada
+      if (!tokenObj.cerradura || !tokenObj.cerradura.id) {
+        throw new Error('El token no está asociado a ninguna cerradura');
+      }
+
+      const cerraduraId = tokenObj.cerradura.id;
+      console.log(`Token encontrado para cerradura ID: ${cerraduraId}`);
+
+      // Verificar si el token tiene usos disponibles
+      if (tokenObj.usosMaximos > 0 && tokenObj.usosActuales >= tokenObj.usosMaximos) {
+        throw new Error('Token sin usos disponibles');
+      }
+
+      // Si llegamos aquí, el token es válido
+      // Intentamos obtener el ID del propietario para abrir la puerta
+      let usuarioIdParaAbrir;
+
+      // Intentamos obtener el propietario del token si está disponible en la estructura anidada
+      if (tokenObj.cerradura.propiedad && tokenObj.cerradura.propiedad.propietario && tokenObj.cerradura.propiedad.propietario.id) {
+        usuarioIdParaAbrir = tokenObj.cerradura.propiedad.propietario.id;
+      } else {
+        // Si no está disponible en la estructura, intentamos obtener la cerradura y de ahí la propiedad y el propietario
+        const cerraduraResponse = await fetch(`${API_BASE_URL}/api/cerraduras/${cerraduraId}`);
+        if (cerraduraResponse.ok) {
+          const cerraduraData = await cerraduraResponse.json();
+          if (cerraduraData.propiedad && cerraduraData.propiedad.propietario) {
+            usuarioIdParaAbrir = cerraduraData.propiedad.propietario.id;
+          }
+        }
+      }
+
+      // Si todavía no tenemos un ID de usuario, usamos el ID 1 como respaldo
+      if (!usuarioIdParaAbrir) {
+        usuarioIdParaAbrir = 1; // ID por defecto que asumimos que existe
+        console.log("No se pudo obtener el ID del propietario, usando ID por defecto:", usuarioIdParaAbrir);
+      } else {
+        console.log(`Usando ID de propietario ${usuarioIdParaAbrir} para abrir cerradura`);
+      }
+
+      // Enviamos la solicitud para abrir la cerradura
+      const abrirResponse = await fetch(`${API_BASE_URL}/api/cerraduras/${cerraduraId}/abrir`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ usuarioId: usuarioIdParaAbrir }),
+      });
+
+      if (!abrirResponse.ok) {
+        throw new Error(`Error al abrir la puerta (${abrirResponse.status})`);
+      }
+
+      // Si se abrió la puerta correctamente, actualizamos el contador de usos del token
+      try {
+        const updatedToken = {
+          ...tokenObj,
+          usosActuales: (tokenObj.usosActuales || 0) + 1
+        };
+
+        await fetch(`${API_BASE_URL}/api/tokens`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedToken),
+        });
+      } catch (e) {
+        console.warn('No se pudo actualizar el uso del token, pero la puerta ya se abrió');
+      }
+
+      return new Response(JSON.stringify({
+        mensaje: 'Puerta abierta correctamente',
+        cerradura: cerraduraId
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      console.error('Error en validación del token:', error);
+      return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Error desconocido' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
 
-    try {
-      // Validamos el token para abrir la puerta (el endpoint ahora hace ambas cosas)
-      const validarResponse = await fetch(`/api/tokens/validar?codigo=${token}&cerraduraId=${cerraduraId || 1}`, {
-        method: 'POST',
+    if (!token.trim()) {
+      setSnackbar({
+        open: true,
+        message: 'Por favor, introduce un token',
+        severity: 'error'
       });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      console.log(`Validando token ${token}`);
+
+      // Usamos el método que busca automáticamente la cerradura asociada al token
+      const validarResponse = await validarTokenYAbrirPuerta(token);
 
       if (!validarResponse.ok) {
-        const errorData = await validarResponse.text();
-        throw new Error(errorData || 'Token inválido o expirado');
+        let errorMessage = 'Error al validar token';
+        try {
+          const errorData = await validarResponse.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          // Si no podemos extraer el mensaje de error como JSON, usamos el texto de la respuesta
+          const errorText = await validarResponse.text();
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
-      setSnackbar({ open: true, message: 'Puerta abierta correctamente', severity: 'success' });
+      const responseData = await validarResponse.json();
+      const cerraduraId = responseData.cerradura;
+
+      setSnackbar({
+        open: true,
+        message: `Puerta ${cerraduraId} abierta correctamente`,
+        severity: 'success'
+      });
     } catch (error) {
       console.error('Error:', error);
-      setSnackbar({ open: true, message: error instanceof Error ? error.message : 'Error desconocido', severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: error instanceof Error ? error.message : 'Error desconocido',
+        severity: 'error'
+      });
     } finally {
       setLoading(false);
     }
@@ -112,6 +251,8 @@ const TokenAccess = () => {
                 bgcolor: 'white'
               }
             }}
+            helperText="Introduce el código tal y como te lo proporcionó el propietario"
+            autoFocus
           />
 
           {/* Door with key illustration */}
@@ -144,10 +285,10 @@ const TokenAccess = () => {
                 mb: 1
               }}
             >
-              Abrir puerta
+              Acceso con token
             </Typography>
             <Typography variant="body2" sx={{ color: '#666', textAlign: 'center' }}>
-              Pulse el botón para abrir la puerta
+              El sistema identificará automáticamente la puerta correspondiente a tu token y la abrirá
             </Typography>
           </Box>
 
@@ -155,7 +296,7 @@ const TokenAccess = () => {
             type="submit"
             fullWidth
             variant="contained"
-            disabled={loading}
+            disabled={loading || !token.trim()}
             sx={{
               py: 1.5,
               bgcolor: '#0d6efd',
@@ -165,8 +306,15 @@ const TokenAccess = () => {
               }
             }}
           >
-            {loading ? 'Abriendo...' : 'Abrir puerta'}
+            {loading ? 'Validando...' : 'Abrir puerta'}
           </Button>
+
+          {/* Información adicional */}
+          <Box sx={{ mt: 3, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #dee2e6' }}>
+            <Typography variant="body2" sx={{ color: '#666' }}>
+              <strong>¿Cómo funciona?</strong> El token de acceso es un código único que el propietario genera para permitir la entrada a una vivienda. Cada token está asociado a una cerradura específica y puede tener limitaciones de uso.
+            </Typography>
+          </Box>
 
           <Snackbar
             open={snackbar.open}
