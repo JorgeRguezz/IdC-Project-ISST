@@ -32,7 +32,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/token" element={<TokenAccess />} />
           <Route path="/propiedades" element={<Propiedades />} />
-          <Route path="/propiedades/gestionar-acceso" element={<GestionarAcceso />} />
+          <Route path="/gestionar-acceso" element={<GestionarAcceso />} />
 
           <Route
             path="/propietario-dashboard"

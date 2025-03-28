@@ -1,9 +1,9 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Typography, TextField, Button, Grid, Link } from '@mui/material';
 import { useState } from 'react';
-const navigate = useNavigate();
 
 const GestionarAcceso = () => {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const propiedad = state?.propiedad || {};
 
