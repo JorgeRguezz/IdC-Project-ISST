@@ -121,6 +121,10 @@ const PropietarioDashboard = () => {
         navigate('/propiedades', { state: { propiedades } });
     };
 
+    const handleGestionarAcceso = (propiedad: Propiedad) => {
+        navigate('/propiedades/gestionar-acceso', { state: { propiedad } });
+    };
+
     const handleAbrirPuerta = (propiedad: Propiedad) => {
         // Navegar a la vista de apertura de puerta, pasando los datos de la propiedad
         navigate(`/abrir-puerta/${propiedad.id}`, { state: { propiedad } });

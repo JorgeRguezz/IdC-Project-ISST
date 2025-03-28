@@ -3,10 +3,15 @@ package es.upm.dit.isst.ioh.model;
 import jakarta.persistence.Embeddable;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Embeddable
 public class Horario {
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime inicio;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime fin;
 
     public Horario() {
