@@ -387,22 +387,38 @@ const PropietarioDashboard = () => {
                                     {propiedad.numeroCerraduras} {propiedad.numeroCerraduras === 1 ? 'cerradura' : 'cerraduras'}
                                 </Typography>
                             </Box>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                startIcon={<KeyIcon />}
-                                onClick={() => handleAbrirPuerta(propiedad)}
-                                sx={{
-                                    borderRadius: 1,
-                                    textTransform: 'none'
-                                }}
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+                        <Button
+                        variant="contained"
+                        color="primary"
+                         startIcon={<KeyIcon />}
+                         onClick={() => handleAbrirPuerta(propiedad)}
+                          sx={{
+                              borderRadius: 1,
+                            textTransform: 'none'
+                             }}
                             >
-                                Abrir puerta
-                            </Button>
+                          Abrir puerta
+                        </Button>
+
+                         <Button
+                          variant="contained"
+                         color="primary"
+                         startIcon={<KeyIcon />}
+                         onClick={() => handleGestionarAcceso(propiedad)}
+                        sx={{
+                         borderRadius: 1,
+                         textTransform: 'none'
+                         }}
+                         >
+                          Gestionar Acceso
+                          </Button>
+                        </Box>
+
                         </Paper>
-                    ))}
-                </Box>
-            </Box>
+                         ))}
+                        </Box>
+                         </Box>
 
             {/* Footer */}
             <Box
@@ -413,8 +429,8 @@ const PropietarioDashboard = () => {
                     px: 4,
                     borderTop: '1px solid #eee',
                     bgcolor: 'white'
-                }}
-            >
+                    }}
+                 >
                 <IconButton>
                     <ClockIcon />
                 </IconButton>
