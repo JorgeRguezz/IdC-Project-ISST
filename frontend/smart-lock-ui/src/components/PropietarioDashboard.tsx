@@ -122,6 +122,7 @@ const PropietarioDashboard = () => {
     };
 
     const handleGestionarAcceso = (propiedad: Propiedad) => {
+        // Navegar a la vista de gestion de acceso, pasando los datos de la propiedad
         navigate('/propiedades/gestionar-acceso', { state: { propiedad } });
     };
 
@@ -392,33 +393,33 @@ const PropietarioDashboard = () => {
                                 </Typography>
                             </Box>
                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
-                        <Button
-                        variant="contained"
-                        color="primary"
-                         startIcon={<KeyIcon />}
-                         onClick={() => handleAbrirPuerta(propiedad)}
-                          sx={{
-                              borderRadius: 1,
-                            textTransform: 'none'
-                             }}
-                            >
-                          Abrir puerta
-                        </Button>
 
-                         <Button
-                          variant="contained"
-                         color="primary"
-                         startIcon={<KeyIcon />}
-                         onClick={() => handleGestionarAcceso(propiedad)}
-                        sx={{
-                         borderRadius: 1,
-                         textTransform: 'none'
-                         }}
-                         >
-                          Gestionar Acceso
-                          </Button>
-                        </Box>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    startIcon={<KeyIcon />}
+                                    onClick={() => handleAbrirPuerta(propiedad)}
+                                    sx={{
+                                        borderRadius: 1,
+                                        textTransform: 'none'
+                                        }}
+                                        >
+                                    Abrir puerta
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    startIcon={<KeyIcon />}
+                                    onClick={() => handleGestionarAcceso(propiedad)}
+                                    sx={{
+                                    borderRadius: 1,
+                                    textTransform: 'none'
+                                    }}
+                                    >
+                                    Gestionar Acceso
+                                </Button>
 
+                            </Box>
                         </Paper>
                          ))}
                         </Box>

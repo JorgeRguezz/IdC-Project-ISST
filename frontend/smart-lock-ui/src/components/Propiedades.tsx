@@ -78,9 +78,6 @@ const Propiedades = () => {
                 <Link href="#" underline="hover" sx={{ fontSize: 14, color: '#0d6efd', mr: 2 }}>
                   Generar token
                 </Link>
-                <Link href="#" underline="hover" sx={{ fontSize: 14, color: '#0d6efd' }}>
-                  Gestionar acceso
-                </Link>
               </Box>
             </Box>
           </Paper>
