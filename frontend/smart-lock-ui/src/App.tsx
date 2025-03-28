@@ -15,6 +15,8 @@ import AuthGuard from './components/AuthGuard';
 import Propiedades from './components/Propiedades';
 import MisAccesos from './components/MisAccesos';
 import AnadirPuerta from './components/AnadirPuerta';
+import GenerarToken from './components/GenerarToken';
+import TokenGenerado from './components/TokenGenerado';
 
 const theme = createTheme();
 
@@ -31,6 +33,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/token" element={<TokenAccess />} />
           <Route path="/propiedades" element={<Propiedades />} />
+          <Route path="/token-generado" element={<TokenGenerado />} />
 
           <Route
             path="/propietario-dashboard"
@@ -64,6 +67,13 @@ function App() {
               </AuthGuard>
             }
           />
+          <Route
+            path="/generar-token/:cerraduraId" 
+            element={
+              <GenerarToken />
+              } 
+              />
+
           {/* Additional routes will be added later */}
           <Route path="*" element={<Home />} />
         </Routes>

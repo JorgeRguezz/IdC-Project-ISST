@@ -23,6 +23,10 @@ const Propiedades = () => {
   const handleEditarPropiedad = (propiedad: Propiedad) => {
     navigate(`/editar-propiedad/${propiedad.id}`, { state: { propiedad } });
   };
+  
+  const handleGenerarToken = (propiedad: Propiedad) => {
+    navigate(`/generar-token/${propiedad.id}`);
+  };
 
   const handleAnadirPuerta = () => {
     navigate('/propiedades/anadir');
@@ -75,9 +79,16 @@ const Propiedades = () => {
                 >
                   {propiedad.direccion}
                 </Typography>
-                <Link href="#" underline="hover" sx={{ fontSize: 14, color: '#0d6efd', mr: 2 }}>
-                  Generar token
+                <Link
+                  component="button"
+                  onClick={() => navigate(`/generar-token/${propiedad.id}`, { state: { propiedad } })}
+                  underline="hover"
+                  sx={{ fontSize: 14, color: "#0d6efd", mr: 2 }}
+                >
+                Generar token
                 </Link>
+
+
                 <Link href="#" underline="hover" sx={{ fontSize: 14, color: '#0d6efd' }}>
                   Gestionar acceso
                 </Link>

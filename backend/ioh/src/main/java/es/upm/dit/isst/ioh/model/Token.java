@@ -21,24 +21,23 @@ public class Token {
 
     private int usosActuales;
 
+    private LocalDateTime fechaInicio;
+
+    private LocalDateTime fechaFin;
+
+    private boolean validoUnaVez;
+
     @ManyToOne
     private Cerradura cerradura;
 
-    public Token() {
-    }
-
-    public Token(String codigo, LocalDateTime fechaExpiracion, int usosMaximos, Cerradura cerradura) {
-        this.codigo = codigo;
-        this.fechaExpiracion = fechaExpiracion;
-        this.usosMaximos = usosMaximos;
-        this.usosActuales = 0;
-        this.cerradura = cerradura;
-    }
-
-    // Getters y setters
+    // --- Getters y Setters ---
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getCodigo() {
@@ -73,6 +72,30 @@ public class Token {
         this.usosActuales = usosActuales;
     }
 
+    public LocalDateTime getFechaInicio() {
+        return fechaInicio;
+    }
+
+    public void setFechaInicio(LocalDateTime fechaInicio) {
+        this.fechaInicio = fechaInicio;
+    }
+
+    public LocalDateTime getFechaFin() {
+        return fechaFin;
+    }
+
+    public void setFechaFin(LocalDateTime fechaFin) {
+        this.fechaFin = fechaFin;
+    }
+
+    public boolean isValidoUnaVez() {
+        return validoUnaVez;
+    }
+
+    public void setValidoUnaVez(boolean validoUnaVez) {
+        this.validoUnaVez = validoUnaVez;
+    }
+
     public Cerradura getCerradura() {
         return cerradura;
     }
@@ -81,10 +104,12 @@ public class Token {
         this.cerradura = cerradura;
     }
 
-    // Método de utilidad para validar el token
+    // --- Lógica de validación ---
+
     public boolean esValido(LocalDateTime ahora) {
-        return (fechaExpiracion == null || ahora.isBefore(fechaExpiracion))
-                && (usosMaximos == 0 || usosActuales < usosMaximos);
+        boolean dentroDelRango = fechaInicio != null && fechaFin != null && !ahora.isBefore(fechaInicio) && !ahora.isAfter(fechaFin);
+        boolean tieneUsos = !validoUnaVez || usosActuales < 1;
+        return dentroDelRango && tieneUsos;
     }
 
     public void registrarUso() {
