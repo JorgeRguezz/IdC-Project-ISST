@@ -414,7 +414,7 @@ const AbrirPuerta = () => {
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         p: 2,
-                        width: '100%',
+                        width: '98%',
                         borderBottom: '1px solid rgba(0,0,0,0.05)'
                     }}
                 >
@@ -558,7 +558,7 @@ const AbrirPuerta = () => {
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         p: 2,
-                        width: '100%',
+                        width: '98%',
                         borderBottom: '1px solid rgba(0,0,0,0.05)'
                     }}
                 >
@@ -682,7 +682,7 @@ const AbrirPuerta = () => {
             sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                width: '100%',
+                width: '98%',
                 height: '100vh',
                 bgcolor: '#ebf5ff',
                 m: 0,
@@ -697,7 +697,7 @@ const AbrirPuerta = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     p: 2,
-                    width: '100%',
+                    width: '98%',
                     borderBottom: '1px solid rgba(0,0,0,0.05)'
                 }}
             >

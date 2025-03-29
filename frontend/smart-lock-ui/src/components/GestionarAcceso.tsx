@@ -1,7 +1,9 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, Typography, TextField, Button, Grid, Link } from '@mui/material';
+import { Box, Typography, TextField, Button, Grid, Link, IconButton } from '@mui/material';
 import { useState } from 'react';
-
+import SettingsIcon from '@mui/icons-material/Settings';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const GestionarAcceso = () => {
   const navigate = useNavigate();
@@ -85,228 +87,304 @@ const GestionarAcceso = () => {
       
   };
 
+  const handleVolver = () => {
+    // Si estamos en cualquier otro estado, mostramos un diálogo de confirmación
+    const confirmar = window.confirm("¿Estás seguro de que deseas volver al inicio?");
+    if (confirmar) {
+        irAlDashboard();
+    }
+};
+
+const irAlDashboard = () => {
+    // Determinar a qué dashboard regresar según el tipo de usuario
+    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    if (usuario.tipo === 'propietario') {
+        navigate('/propietario-dashboard');
+    } else {
+        navigate('/huesped-dashboard');
+    }
+};
+
+    const handleCerrarSesion = () => {
+      localStorage.removeItem('usuario');
+      navigate('/login');
+    };
+
   return (
-    <Box sx={{ bgcolor: '#e3f2fd', minHeight: '100vh', p: 3 }}>
-      <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0d6efd', mb: 1 }}>
-        Gestionar acceso a:
-      </Typography>
-      <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{propiedad.nombre}</Typography>
-      <Typography variant="body1" sx={{ mb: 3, textDecoration: 'underline', color: '#0d6efd' }}>
-        {propiedad.direccion}
-      </Typography>
-     
-
-      <Typography sx={{ fontWeight: 'bold', mb: 1 }}>Email de usuario del huésped:</Typography>
-      <TextField
-        fullWidth
-        placeholder="Escriba el email de usuario"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        sx={{ mb: 3 }}
-      />
-
-      <Typography sx={{ fontWeight: 'bold', mb: 1 }}>Fecha y hora de entrada:</Typography>
-      <Grid container spacing={1} sx={{ mb: 2, ml: 2}}>
-      <Grid item xs={1.5}>
-          <TextField
-        placeholder="hh"
-        fullWidth
-        value={horaInicio || ''}
-        onChange={(e) => {
-          let hour = e.target.value.replace(/\D/g, ''); // Allow only numbers
-          hour = hour.slice(0, 2); // Limit to 2 digits
-          if (hour !== '' && (parseInt(hour) < 0 || parseInt(hour) > 23)) {
-        return; // Ignore invalid values
-          }
-          setHoraInicio(hour);
-        }}
-        required
-          />
-        </Grid>
-        <Grid item xs="auto">
-          <Typography variant="body1" sx={{ textAlign: 'center', lineHeight: '56px' }}>
-            :
-          </Typography>
-        </Grid>
-        <Grid item xs={1.5}>
-          <TextField
-            placeholder="mm"
-            fullWidth
-            value={minInicio || ''}
-            onChange={(e) => {
-              let minute = e.target.value.replace(/\D/g, ''); // Allow only numbers
-              minute = minute.slice(0, 2); // Limit to 2 digits
-              if (minute !== '' && (parseInt(minute) < 0 || parseInt(minute) > 59)) {
-          return; // Ignore invalid values
-              }
-              setMinInicio(minute);
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100vh',
+                bgcolor: '#ebf5ff',
+                m: 0,
+                p: 0,
+                overflow: 'hidden'
             }}
-            required
-          />
-        </Grid>
-        <Grid item xs={1.5} sx={{ ml: 10 }}>
-          <TextField
-            placeholder="DD"
-            fullWidth
-            value={diaInicio}
-            onChange={(e) => {
-              let day = e.target.value.replace(/\D/g, ''); // Allow only numbers
-              day = day.slice(0, 2); // Limit to 2 digits
-              if (day !== '' && (parseInt(day) < 1 || parseInt(day) > 31)) {
-          return; // Ignore invalid values
-              }
-              setDiaInicio(day);
-            }}
-            required
-          />
-        </Grid>
-        <Grid item xs="auto">
-          <Typography variant="body1" sx={{ textAlign: 'center', lineHeight: '56px' }}>
-            /
-          </Typography>
-        </Grid>
-        <Grid item xs={1.5}>
-          <TextField
-            placeholder="MM"
-            fullWidth
-            value={mesInicio || ''}
-            onChange={(e) => {
-              let month = e.target.value.replace(/\D/g, ''); // Allow only numbers
-              month = month.slice(0, 2); // Limit to 2 digits
-              if (month !== '' && (parseInt(month) < 1 || parseInt(month) > 12)) {
-          return; // Ignore invalid values
-              }
-              setMesInicio(month);
-            }}
-            required
-          />
-        </Grid>
-        <Grid item xs="auto">
-          <Typography variant="body1" sx={{ textAlign: 'center', lineHeight: '56px' }}>
-            /
-          </Typography>
-        </Grid>
-        <Grid item xs={2}>
-          <TextField
-            placeholder="YYYY"
-            fullWidth
-            value={añoInicio || ''}
-            onChange={(e) => {
-              const year = e.target.value.replace(/\D/g, ''); // Allow only numbers
-              setAnoInicio(year.slice(0, 4)); // Limit to 4 digits
-            }}
-            required
-          />
-        </Grid>
-      </Grid>
-
-      <Typography sx={{ fontWeight: 'bold', mb: 1 }}>Fecha y hora de salida:</Typography>
-      <Grid container spacing={1} sx={{ mb: 2, ml: 2}}>
-        <Grid item xs={1.5}>
-          <TextField
-            placeholder="hh"
-            fullWidth
-            value={horaFin || ''}
-            onChange={(e) => {
-              let hour = e.target.value.replace(/\D/g, ''); // Allow only numbers
-              hour = hour.slice(0, 2); // Limit to 2 digits
-              if (hour !== '' && (parseInt(hour) < 0 || parseInt(hour) > 23)) {
-          hour = ''; // Reset to empty if out of range
-              }
-              setHoraFin(hour);
-            }}
-            required
-          />
-        </Grid>
-        <Grid item xs="auto">
-          <Typography variant="body1" sx={{ textAlign: 'center', lineHeight: '56px' }}>
-        :
-          </Typography>
-        </Grid>
-        <Grid item xs={1.5}>
-          <TextField
-            placeholder="mm"
-            fullWidth
-            value={minFin || ''}
-            onChange={(e) => {
-              let minute = e.target.value.replace(/\D/g, ''); // Allow only numbers
-              minute = minute.slice(0, 2); // Limit to 2 digits
-              if (minute !== '' && (parseInt(minute) < 0 || parseInt(minute) > 59)) {
-          minute = ''; // Reset to empty if out of range
-              }
-              setMinFin(minute);
-            }}
-            required
-          />
-        </Grid>
-        <Grid item xs={1.5} sx={{ ml: 10 }}>
-          <TextField
-            placeholder="DD"
-            fullWidth
-            value={diaFin || ''}
-            onChange={(e) => {
-              let day = e.target.value.replace(/\D/g, ''); // Allow only numbers
-              day = day.slice(0, 2); // Limit to 2 digits
-              if (day !== '' && (parseInt(day) < 1 || parseInt(day) > 31)) {
-          return; // Ignore invalid values
-              }
-              setDiaFin(day);
-            }}
-            required
-          />
-        </Grid>
-        <Grid item xs="auto">
-          <Typography variant="body1" sx={{ textAlign: 'center', lineHeight: '56px' }}>
-        /
-          </Typography>
-        </Grid>
-        <Grid item xs={1.5}>
-          <TextField
-            placeholder="MM"
-            fullWidth
-            value={mesFin || ''}
-            onChange={(e) => {
-              let month = e.target.value.replace(/\D/g, ''); // Allow only numbers
-              month = month.slice(0, 2); // Limit to 2 digits
-              if (month !== '' && (parseInt(month) < 1 || parseInt(month) > 12)) {
-          return; // Ignore invalid values
-              }
-              setMesFin(month);
-            }}
-            required
-          />
-        </Grid>
-        <Grid item xs="auto">
-          <Typography variant="body1" sx={{ textAlign: 'center', lineHeight: '56px' }}>
-        /
-          </Typography>
-        </Grid>
-        <Grid item xs={2}>
-          <TextField
-            placeholder="YYYY"
-            fullWidth
-            value={anoFin}
-            onChange={(e) => {
-              const year = e.target.value.replace(/\D/g, ''); // Allow only numbers
-              setAnoFin(year.slice(0, 4)); // Limit to 4 digits
-            }}
-            required
-          />
-        </Grid>
-      </Grid>
-
-      <Link href="#" underline="hover" sx={{ color: '#0d6efd', mb: 3, display: 'inline-block' }}>
-        Vincular con Google Calendar
-      </Link>
-
-      <Button
-        fullWidth
-        variant="contained"
-        sx={{ bgcolor: '#0d6efd', textTransform: 'none', fontWeight: 'bold', mt: 2 }}
-        onClick={handleCrearAcceso}
+        >
+      
+      {/* Header */}
+      <Box
+          sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              p: 2,
+              width: '98%',
+              borderBottom: '1px solid rgba(0,0,0,0.05)'
+          }}
       >
-        Registrar acceso
-      </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <IconButton color="primary" onClick={handleVolver}>
+                  <ArrowBackIcon />
+              </IconButton>
+              <Typography variant="h6" sx={{ ml: 1, fontWeight: 'bold', color: '#0d6efd' }}>
+                  Volver
+              </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <IconButton color="primary" sx={{ mr: 1 }}>
+                  <SettingsIcon />
+              </IconButton>
+              <IconButton color="primary" onClick={handleCerrarSesion}>
+                  <LogoutIcon />
+              </IconButton>
+          </Box>
+      </Box>
+
+      {/*Body*/}
+      <Box
+          sx={{
+              flexGrow: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              p: 2,
+              overflowY: 'auto'
+          }}
+      >
+
+        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0d6efd', mb: 1 }}>
+          Gestionar acceso a:
+        </Typography>
+        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{propiedad.nombre}</Typography>
+        <Typography variant="body1" sx={{ mb: 3, textDecoration: 'underline', color: '#0d6efd' }}>
+          {propiedad.direccion}
+        </Typography>
+      
+
+        <Typography sx={{ fontWeight: 'bold', mb: 1 }}>Email de usuario del huésped:</Typography>
+        <TextField
+          fullWidth
+          placeholder="Escriba el email de usuario"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          sx={{ mb: 3 }}
+        />
+
+        <Typography sx={{ fontWeight: 'bold', mb: 1 }}>Fecha y hora de entrada:</Typography>
+        <Grid container spacing={1} sx={{ mb: 2, ml: 2}}>
+        <Grid item xs={1.5}>
+            <TextField
+          placeholder="hh"
+          fullWidth
+          value={horaInicio || ''}
+          onChange={(e) => {
+            let hour = e.target.value.replace(/\D/g, ''); // Allow only numbers
+            hour = hour.slice(0, 2); // Limit to 2 digits
+            if (hour !== '' && (parseInt(hour) < 0 || parseInt(hour) > 23)) {
+          return; // Ignore invalid values
+            }
+            setHoraInicio(hour);
+          }}
+          required
+            />
+          </Grid>
+          <Grid item xs="auto">
+            <Typography variant="body1" sx={{ textAlign: 'center', lineHeight: '56px' }}>
+              :
+            </Typography>
+          </Grid>
+          <Grid item xs={1.5}>
+            <TextField
+              placeholder="mm"
+              fullWidth
+              value={minInicio || ''}
+              onChange={(e) => {
+                let minute = e.target.value.replace(/\D/g, ''); // Allow only numbers
+                minute = minute.slice(0, 2); // Limit to 2 digits
+                if (minute !== '' && (parseInt(minute) < 0 || parseInt(minute) > 59)) {
+            return; // Ignore invalid values
+                }
+                setMinInicio(minute);
+              }}
+              required
+            />
+          </Grid>
+          <Grid item xs={1.5} sx={{ ml: 10 }}>
+            <TextField
+              placeholder="DD"
+              fullWidth
+              value={diaInicio}
+              onChange={(e) => {
+                let day = e.target.value.replace(/\D/g, ''); // Allow only numbers
+                day = day.slice(0, 2); // Limit to 2 digits
+                if (day !== '' && (parseInt(day) < 1 || parseInt(day) > 31)) {
+            return; // Ignore invalid values
+                }
+                setDiaInicio(day);
+              }}
+              required
+            />
+          </Grid>
+          <Grid item xs="auto">
+            <Typography variant="body1" sx={{ textAlign: 'center', lineHeight: '56px' }}>
+              /
+            </Typography>
+          </Grid>
+          <Grid item xs={1.5}>
+            <TextField
+              placeholder="MM"
+              fullWidth
+              value={mesInicio || ''}
+              onChange={(e) => {
+                let month = e.target.value.replace(/\D/g, ''); // Allow only numbers
+                month = month.slice(0, 2); // Limit to 2 digits
+                if (month !== '' && (parseInt(month) < 1 || parseInt(month) > 12)) {
+            return; // Ignore invalid values
+                }
+                setMesInicio(month);
+              }}
+              required
+            />
+          </Grid>
+          <Grid item xs="auto">
+            <Typography variant="body1" sx={{ textAlign: 'center', lineHeight: '56px' }}>
+              /
+            </Typography>
+          </Grid>
+          <Grid item xs={2}>
+            <TextField
+              placeholder="YYYY"
+              fullWidth
+              value={añoInicio || ''}
+              onChange={(e) => {
+                const year = e.target.value.replace(/\D/g, ''); // Allow only numbers
+                setAnoInicio(year.slice(0, 4)); // Limit to 4 digits
+              }}
+              required
+            />
+          </Grid>
+        </Grid>
+
+        <Typography sx={{ fontWeight: 'bold', mb: 1 }}>Fecha y hora de salida:</Typography>
+        <Grid container spacing={1} sx={{ mb: 2, ml: 2}}>
+          <Grid item xs={1.5}>
+            <TextField
+              placeholder="hh"
+              fullWidth
+              value={horaFin || ''}
+              onChange={(e) => {
+                let hour = e.target.value.replace(/\D/g, ''); // Allow only numbers
+                hour = hour.slice(0, 2); // Limit to 2 digits
+                if (hour !== '' && (parseInt(hour) < 0 || parseInt(hour) > 23)) {
+            hour = ''; // Reset to empty if out of range
+                }
+                setHoraFin(hour);
+              }}
+              required
+            />
+          </Grid>
+          <Grid item xs="auto">
+            <Typography variant="body1" sx={{ textAlign: 'center', lineHeight: '56px' }}>
+          :
+            </Typography>
+          </Grid>
+          <Grid item xs={1.5}>
+            <TextField
+              placeholder="mm"
+              fullWidth
+              value={minFin || ''}
+              onChange={(e) => {
+                let minute = e.target.value.replace(/\D/g, ''); // Allow only numbers
+                minute = minute.slice(0, 2); // Limit to 2 digits
+                if (minute !== '' && (parseInt(minute) < 0 || parseInt(minute) > 59)) {
+            minute = ''; // Reset to empty if out of range
+                }
+                setMinFin(minute);
+              }}
+              required
+            />
+          </Grid>
+          <Grid item xs={1.5} sx={{ ml: 10 }}>
+            <TextField
+              placeholder="DD"
+              fullWidth
+              value={diaFin || ''}
+              onChange={(e) => {
+                let day = e.target.value.replace(/\D/g, ''); // Allow only numbers
+                day = day.slice(0, 2); // Limit to 2 digits
+                if (day !== '' && (parseInt(day) < 1 || parseInt(day) > 31)) {
+            return; // Ignore invalid values
+                }
+                setDiaFin(day);
+              }}
+              required
+            />
+          </Grid>
+          <Grid item xs="auto">
+            <Typography variant="body1" sx={{ textAlign: 'center', lineHeight: '56px' }}>
+          /
+            </Typography>
+          </Grid>
+          <Grid item xs={1.5}>
+            <TextField
+              placeholder="MM"
+              fullWidth
+              value={mesFin || ''}
+              onChange={(e) => {
+                let month = e.target.value.replace(/\D/g, ''); // Allow only numbers
+                month = month.slice(0, 2); // Limit to 2 digits
+                if (month !== '' && (parseInt(month) < 1 || parseInt(month) > 12)) {
+            return; // Ignore invalid values
+                }
+                setMesFin(month);
+              }}
+              required
+            />
+          </Grid>
+          <Grid item xs="auto">
+            <Typography variant="body1" sx={{ textAlign: 'center', lineHeight: '56px' }}>
+          /
+            </Typography>
+          </Grid>
+          <Grid item xs={2}>
+            <TextField
+              placeholder="YYYY"
+              fullWidth
+              value={anoFin}
+              onChange={(e) => {
+                const year = e.target.value.replace(/\D/g, ''); // Allow only numbers
+                setAnoFin(year.slice(0, 4)); // Limit to 4 digits
+              }}
+              required
+            />
+          </Grid>
+        </Grid>
+
+        <Link href="#" underline="hover" sx={{ color: '#0d6efd', mb: 3, display: 'inline-block' }}>
+          Vincular con Google Calendar
+        </Link>
+
+        <Button
+          fullWidth
+          variant="contained"
+          sx={{ bgcolor: '#0d6efd', textTransform: 'none', fontWeight: 'bold', mt: 2 }}
+          onClick={handleCrearAcceso}
+        >
+          Registrar acceso
+        </Button>
+      </Box>
     </Box>
   );
 };
