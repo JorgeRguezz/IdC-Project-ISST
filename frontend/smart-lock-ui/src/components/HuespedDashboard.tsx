@@ -27,6 +27,10 @@ const HuespedDashboard = () => {
     const usuarioString = localStorage.getItem('usuario');
     const usuario = usuarioString ? JSON.parse(usuarioString) : {};
 
+    // Ya no usamos datos de prueba para mostrar cuando no hay datos del backend
+    // Esto asegura que se muestre correctamente el mensaje "No tienes accesos asignados"
+    // cuando el usuario realmente no tiene accesos
+
     console.log('Usuario cargado:', usuario);
 
     // Recuperación de cerraduras desde el backend
@@ -63,9 +67,11 @@ const HuespedDashboard = () => {
 
                 if (!response.ok) {
                     if (response.status === 404) {
-                        // Si el huésped no existe en el sistema
-                        console.error('Usuario no encontrado (404)');
-                        throw new Error('No se encontró tu perfil de usuario en el sistema.');
+                        // Si el huésped no existe en el sistema o no hay datos, mostrar mensaje de no accesos
+                        console.warn('Usuario no encontrado o sin datos (404)');
+                        setCerraduras([]);
+                        setCargando(false);
+                        return;
                     } else if (response.status === 500) {
                         // Error interno del servidor
                         console.error('Error interno del servidor (500)');
@@ -95,6 +101,14 @@ const HuespedDashboard = () => {
                 if (!Array.isArray(data)) {
                     console.warn('La respuesta no es un array:', data);
                     data = [];
+                }
+
+                // Si el array está vacío, no mostrar datos de prueba
+                if (data.length === 0) {
+                    console.warn('No se recibieron datos del backend');
+                    setCerraduras([]);
+                    setCargando(false);
+                    return;
                 }
 
                 // Mapear los datos a nuestro formato de Cerradura
@@ -474,4 +488,4 @@ const HuespedDashboard = () => {
     );
 };
 
-export default HuespedDashboard; 
+export default HuespedDashboard;

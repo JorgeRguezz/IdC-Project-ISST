@@ -118,4 +118,10 @@ public class CerraduraController {
 
         return ResponseEntity.ok().body(Map.of("mensaje", "Puerta cerrada correctamente"));
     }
+
+    @GetMapping("/{id}/propiedad/nombre")
+    public ResponseEntity<String> obtenerNombrePropiedad(@PathVariable Long id) {
+        String nombrePropiedad = cerraduraService.obtenerNombrePropiedadPorCerradura(id);
+        return ResponseEntity.ok(nombrePropiedad);
+    }
 }

@@ -118,18 +118,34 @@ public class CerraduraService {
     public static class AperturaResult {
         private final boolean exito;
         private final String mensaje;
-        
+
         public AperturaResult(boolean exito, String mensaje) {
             this.exito = exito;
             this.mensaje = mensaje;
         }
-        
+
         public boolean isExito() {
             return exito;
         }
-        
+
         public String getMensaje() {
             return mensaje;
         }
     }
+    
+    public String obtenerNombrePropiedadPorCerradura(Long cerraduraId) {
+        Optional<Cerradura> optCerradura = cerraduraRepository.findById(cerraduraId);
+    
+        if (optCerradura.isPresent()) {
+            Cerradura cerradura = optCerradura.get();
+            Propiedad propiedad = cerradura.getPropiedad();
+    
+            if (propiedad != null) {
+                return propiedad.getNombre(); // Suponiendo que Propiedad tiene un atributo "nombre"
+            }
+        }
+    
+        return "Propiedad no encontrada";
+    }
+    
 } 
