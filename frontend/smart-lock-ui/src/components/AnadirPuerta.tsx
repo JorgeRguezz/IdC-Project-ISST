@@ -232,7 +232,7 @@ const AnadirPuerta = () => {
         };
 
         setStatusMessage(prevMsg => `${prevMsg}\n----- Creando cerradura -----`);
-        setStatusMessage(prevMsg => `${prevMsg}\nEnviando datos de cerradura:\n${JSON.stringify(cerraduraData, null, 2)}`);
+        setStatusMessage(prevMsg => `${prevMsg}\nEnviando datos de cerradura:\n${JSON.stringify(cerraduraData, null, 2)}`); //igual poner la contraseña por pantalla es mala idea
 
         // Llamar a la API para crear la cerradura
         setStatusMessage(prevMsg => `${prevMsg}\nRealizando petición POST a: http://localhost:8080/api/cerraduras/create`);

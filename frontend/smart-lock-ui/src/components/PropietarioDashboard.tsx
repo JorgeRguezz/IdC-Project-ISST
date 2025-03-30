@@ -121,11 +121,6 @@ const PropietarioDashboard = () => {
         navigate('/propiedades', { state: { propiedades } });
     };
 
-    const handleGestionarAcceso = (propiedad: Propiedad) => {
-        // Navegar a la vista de gestion de acceso, pasando los datos de la propiedad
-        navigate('/propiedades/gestionar-acceso', { state: { propiedad } });
-    };
-
     const handleAbrirPuerta = (propiedad: Propiedad) => {
         // Navegar a la vista de apertura de puerta, pasando los datos de la propiedad
         navigate(`/abrir-puerta/${propiedad.id}`, { state: { propiedad } });
@@ -392,34 +387,19 @@ const PropietarioDashboard = () => {
                                     {propiedad.numeroCerraduras} {propiedad.numeroCerraduras === 1 ? 'cerradura' : 'cerraduras'}
                                 </Typography>
                             </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
 
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    startIcon={<KeyIcon />}
-                                    onClick={() => handleAbrirPuerta(propiedad)}
-                                    sx={{
-                                        borderRadius: 1,
-                                        textTransform: 'none'
-                                        }}
-                                        >
-                                    Abrir puerta
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    startIcon={<KeyIcon />}
-                                    onClick={() => handleGestionarAcceso(propiedad)}
-                                    sx={{
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                startIcon={<KeyIcon />}
+                                onClick={() => handleAbrirPuerta(propiedad)}
+                                sx={{
                                     borderRadius: 1,
                                     textTransform: 'none'
                                     }}
                                     >
-                                    Gestionar Acceso
-                                </Button>
-
-                            </Box>
+                                Abrir puerta
+                            </Button>
                         </Paper>
                          ))}
                         </Box>

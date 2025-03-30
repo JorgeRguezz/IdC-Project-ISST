@@ -28,9 +28,14 @@ const Propiedades = () => {
     navigate('/propiedades/anadir');
   };
 
+  const handleGestionarAcceso = (propiedad: Propiedad) => {
+    // Navegar a la vista de gestion de acceso, pasando los datos de la propiedad
+    navigate('/propiedades/gestionar-acceso', { state: { propiedad }});
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', bgcolor: '#ebf5ff', p: 2 }}>
-      <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)} sx={{ alignSelf: 'flex-start', mb: 2 }}>
+      <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/propietario-dashboard')} sx={{ alignSelf: 'flex-start', mb: 2 }}>
         Volver
       </Button>
 
@@ -75,9 +80,31 @@ const Propiedades = () => {
                 >
                   {propiedad.direccion}
                 </Typography>
-                <Link href="#" underline="hover" sx={{ fontSize: 14, color: '#0d6efd', mr: 2 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<KeyIcon />}
+                  onClick={() => console.log('Generar token clicked')}
+                  sx={{
+                  borderRadius: 1,
+                  textTransform: 'none',
+                  mr: 2 // Add margin-bottom to separate the buttons
+                  }}
+                >
                   Generar token
-                </Link>
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<KeyIcon />}
+                  onClick={() => handleGestionarAcceso(propiedad)}
+                  sx={{
+                  borderRadius: 1,
+                  textTransform: 'none'
+                  }}
+                >
+                  Gestionar Acceso
+                </Button>
               </Box>
             </Box>
           </Paper>
