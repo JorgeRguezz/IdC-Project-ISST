@@ -27,13 +27,21 @@ const GestionarToken = () => {
       const cerradura = cerraduras[0];
 
       let repetido = true;
+      let fechaExpiracion = null;
       
       // 2. Crear horario
-      if (isNaN(new Date(fechaFin).getTime())) {
+      if (fechaFin && isNaN(new Date(fechaFin).getTime())) {
         alert('Las fechas y horas proporcionadas no son válidas.');
         return;
       }
-      const fechaExpiracion = `${fechaFin}:00`;
+      if (!fechaFin) {
+        const confirmar = window.confirm("La fecha de expiración no es válida o está vacía, ¿Estás seguro de que deseas crear un token sin fecha de expiración?");
+        if (confirmar) {
+          fechaExpiracion = fechaFin;
+        } else {return;}
+      } else {
+        fechaExpiracion = `${fechaFin}:00`;
+      }
       console.log("Fin:", `${fechaExpiracion}`);
 
       // 3. Poner el maximo de usos a 0 si no se ha introducido nada
@@ -56,7 +64,7 @@ const GestionarToken = () => {
           body: JSON.stringify(token)
         });
         if (resA.ok) {
-          alert('✅ Token registrado correctamente');
+            alert('✅ Token creado correctamente:\n' + code);
           repetido = false;
           irAMisPuertas();
         } else if (resA.status === 462) {
