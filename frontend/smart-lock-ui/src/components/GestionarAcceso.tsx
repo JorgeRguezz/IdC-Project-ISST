@@ -112,7 +112,7 @@ const GestionarAcceso = () => {
 };
 
 const irAMisPuertas = () => {
-    navigate('/propiedtario-dahsboard');
+    navigate('/propietario-dashboard');
 };
 
     const handleCerrarSesion = () => {
