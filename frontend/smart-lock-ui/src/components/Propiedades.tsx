@@ -33,6 +33,11 @@ const Propiedades = () => {
     navigate('/propiedades/gestionar-acceso', { state: { propiedad }});
   };
 
+  const handleGestionarToken = (propiedad: Propiedad) => {
+    // Navegar a la vista de gestion de token, pasando los datos de la propiedad
+    navigate('/propiedades/gestionar-token', { state: { propiedad }});
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', bgcolor: '#ebf5ff', p: 2 }}>
       <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/propietario-dashboard')} sx={{ alignSelf: 'flex-start', mb: 2 }}>
@@ -84,11 +89,11 @@ const Propiedades = () => {
                   variant="contained"
                   color="primary"
                   startIcon={<KeyIcon />}
-                  onClick={() => console.log('Generar token clicked')}
+                  onClick={() => handleGestionarToken(propiedad)}
                   sx={{
                   borderRadius: 1,
                   textTransform: 'none',
-                  mr: 2 // Add margin-bottom to separate the buttons
+                  mr: 2
                   }}
                 >
                   Generar token

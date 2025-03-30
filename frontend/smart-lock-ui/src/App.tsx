@@ -16,6 +16,7 @@ import Propiedades from './components/Propiedades';
 import MisAccesos from './components/MisAccesos';
 import AnadirPuerta from './components/AnadirPuerta';
 import GestionarAcceso from './components/GestionarAcceso';
+import GestionarToken from './components/GestionarToken';
 
 const theme = createTheme();
 
@@ -33,6 +34,7 @@ function App() {
           <Route path="/token" element={<TokenAccess />} />
           <Route path="/propiedades" element={<Propiedades />} />
           <Route path="/propiedades/gestionar-acceso" element={<GestionarAcceso />} />
+          <Route path="/propiedades/gestionar-token" element={<GestionarToken />} />
 
           <Route
             path="/propietario-dashboard"

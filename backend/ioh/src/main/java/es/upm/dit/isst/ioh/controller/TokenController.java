@@ -39,9 +39,15 @@ public class TokenController {
     // Crear nuevo token (propietario lo genera)
     @PostMapping
     public ResponseEntity<Token> create(@RequestBody Token token) {
-        token.setUsosActuales(0);
-        Token creado = tokenRepository.save(token);
-        return ResponseEntity.ok(creado);
+        // Verificar si el código ya existe
+        Optional<Token> existingToken = tokenRepository.findByCodigo(token.getCodigo());
+        if (existingToken.isPresent()) {
+            return ResponseEntity.status(462).body(null); // Código ya existe
+        } else{
+            token.setUsosActuales(0);
+            Token creado = tokenRepository.save(token);
+            return ResponseEntity.ok(creado);
+        }
     }
 
     // Validar token e intentar abrir cerradura

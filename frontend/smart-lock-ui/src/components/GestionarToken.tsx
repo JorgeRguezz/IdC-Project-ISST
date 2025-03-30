@@ -5,83 +5,69 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LogoutIcon from '@mui/icons-material/Logout';
 
-const GestionarAcceso = () => {
+const GestionarToken = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const propiedad = state?.propiedad || {};
 
-  const [huesped, setHuesped] = useState('');
-  const [email, setEmail] = useState('');
   const [fechaFin, setFechaFin] = useState('');
-  const [fechaInicio, setFechaInicio] = useState('');
+  const [usosMaximos, setUsosMaximos] = useState('');
+  const [codigo, setCodigo] = useState('');
 
-  const handleCrearAcceso = async () => {
+  const handleCrearToken = async () => {
    
     try {
-       /*
         
-      const response = await fetch('http://localhost:8080/api/accesos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(acceso)
-      });
+      // 1. Buscar cerradura de la propiedad
+      const resC = await fetch(`http://localhost:8080/api/cerraduras/propiedad/${propiedad.id}`);
+      if (!resC.ok) return alert('Cerradura no asignada a esta propiedad');
+      //Cerraduras es un array ya que una propiedad puede tener más de una
+      const cerraduras = await resC.json();
+      //Cojo la primera cerradura porque al pasar el objeto al backend no puede ser un array, tiene que ser un json
+      const cerradura = cerraduras[0];
 
-      if (response.ok) {
-        alert(' Acceso registrado correctamente');
-      } else {
-        const msg = await response.text();
-        alert(' Error al registrar acceso: ' + msg);
-      }   */
-
-        // 1. Buscar huésped
-        const resH = await fetch(`http://localhost:8080/api/usuarios/email?email=${encodeURIComponent(email)}`);
-        if (!resH.ok) return alert('Huésped no encontrado');
-         const huesped = await resH.json();
-
-         // 2. Buscar cerradura de la propiedad
-        const resC = await fetch(`http://localhost:8080/api/cerraduras/propiedad/${propiedad.id}`);
-        if (!resC.ok) return alert('Cerradura no asignada a esta propiedad');
-        //Cerraduras es un array ya que una propiedad puede tener más de una
-        const cerraduras = await resC.json();
-        //Cojo la primera cerradura porque al pasar el objeto al backend no puede ser un array, tiene que ser un json
-        const cerradura = cerraduras[0];
-
-        //3. Asegurarse de que las fechas/horas no estan vacias
-        if (!fechaInicio || !fechaFin) {
-          alert('Por favor, complete todos los campos.');
-          return;
-        }
-        
-        // 4. Crear horario
-        console.log("Inicio:", `${fechaInicio}:00`);	
-        console.log("Fin:", `${fechaFin}:00`);
-
-        if (isNaN(new Date(fechaInicio).getTime()) || isNaN(new Date(fechaFin).getTime())) {
-          alert('Las fechas y horas proporcionadas no son válidas.');
-          return;
-        }
-
-        const horario = {
-          inicio: `${fechaInicio}:00`,
-          fin: `${fechaFin}:00`
-        };
-        // 5. Construir acceso completo
-        const acceso = { huesped, cerradura:{id:cerradura.id,modelo:cerradura.modelo,bloqueada:cerradura.bloqueada,propiedad:{ id: propiedad.id}}, horario };
-        // 6. Enviar al backend
-        const resA = await fetch('http://localhost:8080/api/accesos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(acceso)
-      });
-      if (resA.ok) {
-        alert('✅ Acceso registrado correctamente');
-        irAMisPuertas();
-
-      } else {
-        const msg = await resA.text();
-        alert('❌ Error al registrar acceso: ' + msg);
+      let repetido = true;
+      
+      // 2. Crear horario
+      if (isNaN(new Date(fechaFin).getTime())) {
+        alert('Las fechas y horas proporcionadas no son válidas.');
+        return;
       }
-     } catch (error) {
+      const fechaExpiracion = `${fechaFin}:00`;
+      console.log("Fin:", `${fechaExpiracion}`);
+
+      // 3. Poner el maximo de usos a 0 si no se ha introducido nada
+      if (usosMaximos === '') {
+        setUsosMaximos('0');
+      }
+
+      // 4. Bucle para repetir la creación del código si está repetido
+      while (repetido) {
+        //let code = (Math.floor(Math.random() * 4) + 1).toString(); //para pruebas, genera tokens con valores del 1, 2, 3 o 4 para comprobar el funcionamiento si se repiten
+        let code = generateRandomString();
+
+        // 4.1. Construir token completo
+        const token = { codigo:code, fechaExpiracion, usosMaximos, cerradura:{id:cerradura.id,modelo:cerradura.modelo,bloqueada:cerradura.bloqueada,propiedad:{ id: propiedad.id}} };
+        
+        // 4.2. Enviar al backend
+        const resA = await fetch('http://localhost:8080/api/tokens', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(token)
+        });
+        if (resA.ok) {
+          alert('✅ Token registrado correctamente');
+          repetido = false;
+          irAMisPuertas();
+        } else if (resA.status === 462) {
+          repetido = true;
+        } else {
+          const msg = await resA.text();
+          alert('❌ Error al registrar token: ' + msg);
+        }
+      }
+
+    } catch (error) {
       console.error(error);
       alert(' Error al conectar con el servidor');
     }
@@ -94,16 +80,27 @@ const GestionarAcceso = () => {
     if (confirmar) {
       navigate(-1);
     }
-};
+  };
 
-const irAMisPuertas = () => {
-    navigate('/propietario-dashboard');
-};
+  const generateRandomString = () => {
+    const length = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    console.log('Codigo Token:' + result)
+    return result;
+  };
 
-    const handleCerrarSesion = () => {
-      localStorage.removeItem('usuario');
-      navigate('/login');
-    };
+  const irAMisPuertas = () => {
+      navigate('/propietario-dashboard');
+  };
+
+  const handleCerrarSesion = () => {
+    localStorage.removeItem('usuario');
+    navigate('/login');
+  };
 
   return (
         <Box
@@ -160,27 +157,23 @@ const irAMisPuertas = () => {
       >
 
         <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0d6efd', mb: 1 }}>
-          Gestionar acceso a:
+          Generar token para:
         </Typography>
         <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{propiedad.nombre}</Typography>
         <Typography variant="body1" sx={{ mb: 3, textDecoration: 'underline', color: '#0d6efd' }}>
           {propiedad.direccion}
         </Typography>
-      
-        <TextField
-          fullWidth
-          label="Email del huesped"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          sx={{ mb: 3 }}
-          InputLabelProps={{ shrink: true }}
-        />
 
         <TextField
-          label="Fecha de inicio"
-          type="datetime-local"
-          value={fechaInicio}
-          onChange={(e) => setFechaInicio(e.target.value)}
+          label="Número de usos máximos (dejar en blanco para ilimitado)"
+          type="number"
+          value={usosMaximos}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (/^\d*$/.test(value)) {
+              setUsosMaximos(value);
+            }
+          }}
           fullWidth
           sx={{ mb: 3 }}
           InputLabelProps={{ shrink: true }}
@@ -205,13 +198,13 @@ const irAMisPuertas = () => {
           fullWidth
           variant="contained"
           sx={{ bgcolor: '#0d6efd', textTransform: 'none', fontWeight: 'bold', mt: 2 }}
-          onClick={handleCrearAcceso}
+          onClick={handleCrearToken}
         >
-          Registrar acceso
+          Registrar token
         </Button>
       </Box>
     </Box>
   );
 };
 
-export default GestionarAcceso;
+export default GestionarToken;
