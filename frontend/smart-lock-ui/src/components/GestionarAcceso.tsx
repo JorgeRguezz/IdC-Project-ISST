@@ -90,7 +90,7 @@ const GestionarAcceso = () => {
       });
       if (resA.ok) {
         alert('✅ Acceso registrado correctamente');
-        irAlDashboard();
+        irAMisPuertas();
 
       } else {
         const msg = await resA.text();
@@ -104,21 +104,15 @@ const GestionarAcceso = () => {
   };
 
   const handleVolver = () => {
-    // Si estamos en cualquier otro estado, mostramos un diálogo de confirmación
-    const confirmar = window.confirm("¿Estás seguro de que deseas volver al inicio?");
+    // Mostramos un diálogo de confirmación para volver
+    const confirmar = window.confirm("¿Estás seguro de que deseas volver a tus puertas?");
     if (confirmar) {
-        irAlDashboard();
+      navigate(-1);
     }
 };
 
-const irAlDashboard = () => {
-    // Determinar a qué dashboard regresar según el tipo de usuario
-    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-    if (usuario.tipo === 'propietario') {
-        navigate('/propietario-dashboard');
-    } else {
-        navigate('/huesped-dashboard');
-    }
+const irAMisPuertas = () => {
+    navigate('/propiedtario-dahsboard');
 };
 
     const handleCerrarSesion = () => {
