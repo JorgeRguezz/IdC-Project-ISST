@@ -124,4 +124,16 @@ public class CerraduraController {
         String nombrePropiedad = cerraduraService.obtenerNombrePropiedadPorCerradura(id);
         return ResponseEntity.ok(nombrePropiedad);
     }
+
+    @GetMapping("/{id}/propiedad/direccion")
+    public ResponseEntity<String> obtenerDireccionPropiedad(@PathVariable Long id) {
+        String direccionPropiedad = cerraduraService.obtenerDireccionPropiedadPorCerradura(id);
+        return ResponseEntity.ok(direccionPropiedad);
+    }
+
+    @GetMapping("/{id}/propietario/nombre")
+    public ResponseEntity<String> obtenerNombrePropietario(@PathVariable Long id) {
+        String nombrePropietario = cerraduraService.obtenerNombrePropietarioPorCerradura(id);
+        return ResponseEntity.ok(nombrePropietario);
+    }
 }

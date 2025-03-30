@@ -180,184 +180,196 @@ const MisAccesos = () => {
                         }
 
                         // PASO 4: Obtener el nombre y dirección de la propiedad con manejo seguro
-                        // Intentar diferentes rutas para obtener el nombre de la propiedad
-                        if (typeof propiedad.nombre === 'string' && propiedad.nombre.trim() !== '') {
-                            propiedadNombre = propiedad.nombre.trim();
-                            console.log(`PASO 4A: Nombre de propiedad obtenido directamente: ${propiedadNombre}`);
-                        } else if (propiedadId) {
-                            // Si tenemos ID de propiedad pero no su nombre, intentar obtenerlo desde la API
+                        // // Intentar diferentes rutas para obtener el nombre de la propiedad
+                        // if (typeof propiedad.nombre === 'string' && propiedad.nombre.trim() !== '') {
+                        //     propiedadNombre = propiedad.nombre.trim();
+                        //     console.log(`PASO 4A: Nombre de propiedad obtenido directamente: ${propiedadNombre}`);
+                        // } else if (propiedadId) {
+                        //     // Si tenemos ID de propiedad pero no su nombre, intentar obtenerlo desde la API
+                        //     try {
+                        //         console.log(`PASO 4B: Intentando obtener nombre de propiedad por ID: ${propiedadId}`);
+                        //         const response = await fetch(`http://localhost:8080/api/propiedades/${propiedadId}`, {
+                        //             headers: {
+                        //                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        //                 'Content-Type': 'application/json'
+                        //             }
+                        //         });
+
+                        //         if (response.ok) {
+                        //             // Obtener la respuesta como texto primero para depuración
+                        //             const responseText = await response.text();
+                        //             console.log(`Respuesta de propiedad ${propiedadId}:`, responseText);
+
+                        //             // Intentar analizar el texto como JSON
+                        //             try {
+                        //                 const propiedadData = JSON.parse(responseText);
+                        //                 console.log(`Datos de propiedad ${propiedadId} parseados:`, propiedadData);
+
+                        //                 if (propiedadData && typeof propiedadData.nombre === 'string' && propiedadData.nombre.trim() !== '') {
+                        //                     propiedadNombre = propiedadData.nombre.trim();
+                        //                     console.log(`PASO 4C: Nombre de propiedad obtenido por API: ${propiedadNombre}`);
+
+                        //                     // Actualizar también la dirección si está disponible
+                        //                     if (typeof propiedadData.direccion === 'string' && propiedadData.direccion.trim() !== '') {
+                        //                         propiedadDireccion = propiedadData.direccion.trim();
+                        //                         console.log(`Dirección de propiedad obtenida por API: ${propiedadDireccion}`);
+                        //                     }
+
+                        //                     // Actualizar también el propietario si está disponible
+                        //                     if (propiedadData.propietario && typeof propiedadData.propietario.nombre === 'string') {
+                        //                         propietarioNombre = propiedadData.propietario.nombre.trim();
+                        //                         console.log(`Nombre de propietario obtenido desde propiedad: ${propietarioNombre}`);
+                        //                     } else if (typeof propiedadData.propietarioId === 'number') {
+                        //                         propietarioId = propiedadData.propietarioId;
+                        //                     }
+                        //                 }
+                        //             } catch (parseError) {
+                        //                 console.error(`Error al parsear datos de propiedad ${propiedadId}:`, parseError);
+                        //             }
+                        //         } else {
+                        //             console.warn(`No se pudo obtener la propiedad con ID ${propiedadId}, status: ${response.status}`);
+                        //         }
+                        //     } catch (error) {
+                        //         console.error('Error al obtener detalles de la propiedad:', error);
+                        //     }
+                        // } else if (cerraduraId) {
+                        //     // Si tenemos ID de cerradura pero no de propiedad, intentar obtener la propiedad asociada
+                        //     try {
+                        //         console.log(`PASO 4D: Intentando obtener propiedad por ID de cerradura: ${cerraduraId}`);
+                        //         const response = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}`, {
+                        //             headers: {
+                        //                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        //                 'Content-Type': 'application/json'
+                        //             }
+                        //         });
+
+                        //         if (response.ok) {
+                        //             // Obtener la respuesta como texto primero para depuración
+                        //             const responseText = await response.text();
+                        //             console.log(`Respuesta de cerradura ${cerraduraId}:`, responseText);
+
+                        //             // Intentar analizar el texto como JSON
+                        //             try {
+                        //                 const cerraduraData = JSON.parse(responseText);
+                        //                 console.log(`Datos de cerradura ${cerraduraId} parseados:`, cerraduraData);
+
+                        //                 // Verificar si la cerradura tiene una propiedad asociada
+                        //                 if (cerraduraData && cerraduraData.propiedad) {
+                        //                     // Guardar el ID de la propiedad para posibles consultas adicionales
+                        //                     if (typeof cerraduraData.propiedad.id === 'number') {
+                        //                         propiedadId = cerraduraData.propiedad.id;
+                        //                         console.log(`ID de propiedad obtenido desde cerradura: ${propiedadId}`);
+
+                        //                         // Intentar obtener detalles completos de la propiedad usando su ID
+                        //                         if (propiedadId) {
+                        //                             try {
+                        //                                 console.log(`Obteniendo detalles completos de propiedad ID: ${propiedadId}`);
+                        //                                 const propResponse = await fetch(`http://localhost:8080/api/propiedades/${propiedadId}`, {
+                        //                                     headers: {
+                        //                                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        //                                         'Content-Type': 'application/json'
+                        //                                     }
+                        //                                 });
+
+                        //                                 if (propResponse.ok) {
+                        //                                     const propText = await propResponse.text();
+                        //                                     try {
+                        //                                         const propiedadCompleta = JSON.parse(propText);
+                        //                                         console.log(`Datos completos de propiedad ${propiedadId}:`, propiedadCompleta);
+
+                        //                                         if (propiedadCompleta && typeof propiedadCompleta.nombre === 'string' && propiedadCompleta.nombre.trim() !== '') {
+                        //                                             propiedadNombre = propiedadCompleta.nombre.trim();
+                        //                                             console.log(`Nombre de propiedad obtenido desde consulta completa: ${propiedadNombre}`);
+
+                        //                                             // Actualizar también la dirección si está disponible
+                        //                                             if (typeof propiedadCompleta.direccion === 'string' && propiedadCompleta.direccion.trim() !== '') {
+                        //                                                 propiedadDireccion = propiedadCompleta.direccion.trim();
+                        //                                             }
+                        //                                         }
+                        //                                     } catch (parseErr) {
+                        //                                         console.error(`Error al parsear datos completos de propiedad:`, parseErr);
+                        //                                     }
+                        //                                 }
+                        //                             } catch (propError) {
+                        //                                 console.error(`Error al obtener detalles completos de propiedad:`, propError);
+                        //                             }
+                        //                         }
+                        //                     }
+
+                        //                     // Si no pudimos obtener el nombre desde la consulta completa, intentar desde la respuesta de cerradura
+                        //                     if (!propiedadNombre && typeof cerraduraData.propiedad.nombre === 'string' && cerraduraData.propiedad.nombre.trim() !== '') {
+                        //                         propiedadNombre = cerraduraData.propiedad.nombre.trim();
+                        //                         console.log(`PASO 4E: Nombre de propiedad obtenido desde cerradura por API: ${propiedadNombre}`);
+                        //                     }
+
+                        //                     // Actualizar también la dirección si está disponible
+                        //                     if (typeof cerraduraData.propiedad.direccion === 'string' && cerraduraData.propiedad.direccion.trim() !== '') {
+                        //                         propiedadDireccion = cerraduraData.propiedad.direccion.trim();
+                        //                     }
+                        //                 }
+                        //             } catch (parseError) {
+                        //                 console.error(`Error al parsear datos de cerradura ${cerraduraId}:`, parseError);
+                        //             }
+                        //         } else {
+                        //             console.warn(`No se pudo obtener la cerradura con ID ${cerraduraId}, status: ${response.status}`);
+                        //         }
+                        //     } catch (error) {
+                        //         console.error('Error al obtener detalles de la cerradura:', error);
+                        //     }
+                        // } else if (typeof cerradura.nombre === 'string' && cerradura.nombre.trim() !== '') {
+                        //     propiedadNombre = cerradura.nombre.trim();
+                        //     console.log(`PASO 4F: Nombre de propiedad obtenido desde nombre de cerradura: ${propiedadNombre}`);
+                        // } else if (typeof cerradura.modelo === 'string' && cerradura.modelo.trim() !== '') {
+                        //     // Como último recurso, usar el modelo de la cerradura para crear un nombre descriptivo
+                        //     propiedadNombre = `Propiedad con cerradura ${cerradura.modelo.trim()}`;
+                        //     console.log(`PASO 4G: Usando modelo de cerradura como nombre de propiedad: ${propiedadNombre}`);
+                        // }
+
+                        // // Intentar obtener la dirección de la propiedad
+                        // if (typeof propiedad.direccion === 'string' && propiedad.direccion.trim() !== '') {
+                        //     propiedadDireccion = propiedad.direccion.trim();
+                        //     console.log(`PASO 4D: Dirección de propiedad obtenida: ${propiedadDireccion}`);
+                        // }
+                        // Obtener dirección de la propiedad
+                        propiedadDireccion = "Dirección no disponible";
+
+                        if (cerraduraId) {
                             try {
-                                console.log(`PASO 4B: Intentando obtener nombre de propiedad por ID: ${propiedadId}`);
-                                const response = await fetch(`http://localhost:8080/api/propiedades/${propiedadId}`, {
+                                const direccionResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propiedad/direccion`, {
                                     headers: {
                                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
                                         'Content-Type': 'application/json'
                                     }
                                 });
 
-                                if (response.ok) {
-                                    // Obtener la respuesta como texto primero para depuración
-                                    const responseText = await response.text();
-                                    console.log(`Respuesta de propiedad ${propiedadId}:`, responseText);
-
-                                    // Intentar analizar el texto como JSON
-                                    try {
-                                        const propiedadData = JSON.parse(responseText);
-                                        console.log(`Datos de propiedad ${propiedadId} parseados:`, propiedadData);
-
-                                        if (propiedadData && typeof propiedadData.nombre === 'string' && propiedadData.nombre.trim() !== '') {
-                                            propiedadNombre = propiedadData.nombre.trim();
-                                            console.log(`PASO 4C: Nombre de propiedad obtenido por API: ${propiedadNombre}`);
-
-                                            // Actualizar también la dirección si está disponible
-                                            if (typeof propiedadData.direccion === 'string' && propiedadData.direccion.trim() !== '') {
-                                                propiedadDireccion = propiedadData.direccion.trim();
-                                                console.log(`Dirección de propiedad obtenida por API: ${propiedadDireccion}`);
-                                            }
-
-                                            // Actualizar también el propietario si está disponible
-                                            if (propiedadData.propietario && typeof propiedadData.propietario.nombre === 'string') {
-                                                propietarioNombre = propiedadData.propietario.nombre.trim();
-                                                console.log(`Nombre de propietario obtenido desde propiedad: ${propietarioNombre}`);
-                                            } else if (typeof propiedadData.propietarioId === 'number') {
-                                                propietarioId = propiedadData.propietarioId;
-                                            }
-                                        }
-                                    } catch (parseError) {
-                                        console.error(`Error al parsear datos de propiedad ${propiedadId}:`, parseError);
-                                    }
-                                } else {
-                                    console.warn(`No se pudo obtener la propiedad con ID ${propiedadId}, status: ${response.status}`);
+                                if (direccionResponse.ok) {
+                                    propiedadDireccion = await direccionResponse.text();
+                                    console.log(`Dirección obtenida: ${propiedadDireccion}`);
                                 }
                             } catch (error) {
-                                console.error('Error al obtener detalles de la propiedad:', error);
+                                console.error('Error al obtener dirección:', error);
                             }
-                        } else if (cerraduraId) {
-                            // Si tenemos ID de cerradura pero no de propiedad, intentar obtener la propiedad asociada
-                            try {
-                                console.log(`PASO 4D: Intentando obtener propiedad por ID de cerradura: ${cerraduraId}`);
-                                const response = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}`, {
-                                    headers: {
-                                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                                        'Content-Type': 'application/json'
-                                    }
-                                });
-
-                                if (response.ok) {
-                                    // Obtener la respuesta como texto primero para depuración
-                                    const responseText = await response.text();
-                                    console.log(`Respuesta de cerradura ${cerraduraId}:`, responseText);
-
-                                    // Intentar analizar el texto como JSON
-                                    try {
-                                        const cerraduraData = JSON.parse(responseText);
-                                        console.log(`Datos de cerradura ${cerraduraId} parseados:`, cerraduraData);
-
-                                        // Verificar si la cerradura tiene una propiedad asociada
-                                        if (cerraduraData && cerraduraData.propiedad) {
-                                            // Guardar el ID de la propiedad para posibles consultas adicionales
-                                            if (typeof cerraduraData.propiedad.id === 'number') {
-                                                propiedadId = cerraduraData.propiedad.id;
-                                                console.log(`ID de propiedad obtenido desde cerradura: ${propiedadId}`);
-
-                                                // Intentar obtener detalles completos de la propiedad usando su ID
-                                                if (propiedadId) {
-                                                    try {
-                                                        console.log(`Obteniendo detalles completos de propiedad ID: ${propiedadId}`);
-                                                        const propResponse = await fetch(`http://localhost:8080/api/propiedades/${propiedadId}`, {
-                                                            headers: {
-                                                                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                                                                'Content-Type': 'application/json'
-                                                            }
-                                                        });
-
-                                                        if (propResponse.ok) {
-                                                            const propText = await propResponse.text();
-                                                            try {
-                                                                const propiedadCompleta = JSON.parse(propText);
-                                                                console.log(`Datos completos de propiedad ${propiedadId}:`, propiedadCompleta);
-
-                                                                if (propiedadCompleta && typeof propiedadCompleta.nombre === 'string' && propiedadCompleta.nombre.trim() !== '') {
-                                                                    propiedadNombre = propiedadCompleta.nombre.trim();
-                                                                    console.log(`Nombre de propiedad obtenido desde consulta completa: ${propiedadNombre}`);
-
-                                                                    // Actualizar también la dirección si está disponible
-                                                                    if (typeof propiedadCompleta.direccion === 'string' && propiedadCompleta.direccion.trim() !== '') {
-                                                                        propiedadDireccion = propiedadCompleta.direccion.trim();
-                                                                    }
-                                                                }
-                                                            } catch (parseErr) {
-                                                                console.error(`Error al parsear datos completos de propiedad:`, parseErr);
-                                                            }
-                                                        }
-                                                    } catch (propError) {
-                                                        console.error(`Error al obtener detalles completos de propiedad:`, propError);
-                                                    }
-                                                }
-                                            }
-
-                                            // Si no pudimos obtener el nombre desde la consulta completa, intentar desde la respuesta de cerradura
-                                            if (!propiedadNombre && typeof cerraduraData.propiedad.nombre === 'string' && cerraduraData.propiedad.nombre.trim() !== '') {
-                                                propiedadNombre = cerraduraData.propiedad.nombre.trim();
-                                                console.log(`PASO 4E: Nombre de propiedad obtenido desde cerradura por API: ${propiedadNombre}`);
-                                            }
-
-                                            // Actualizar también la dirección si está disponible
-                                            if (typeof cerraduraData.propiedad.direccion === 'string' && cerraduraData.propiedad.direccion.trim() !== '') {
-                                                propiedadDireccion = cerraduraData.propiedad.direccion.trim();
-                                            }
-                                        }
-                                    } catch (parseError) {
-                                        console.error(`Error al parsear datos de cerradura ${cerraduraId}:`, parseError);
-                                    }
-                                } else {
-                                    console.warn(`No se pudo obtener la cerradura con ID ${cerraduraId}, status: ${response.status}`);
-                                }
-                            } catch (error) {
-                                console.error('Error al obtener detalles de la cerradura:', error);
-                            }
-                        } else if (typeof cerradura.nombre === 'string' && cerradura.nombre.trim() !== '') {
-                            propiedadNombre = cerradura.nombre.trim();
-                            console.log(`PASO 4F: Nombre de propiedad obtenido desde nombre de cerradura: ${propiedadNombre}`);
-                        } else if (typeof cerradura.modelo === 'string' && cerradura.modelo.trim() !== '') {
-                            // Como último recurso, usar el modelo de la cerradura para crear un nombre descriptivo
-                            propiedadNombre = `Propiedad con cerradura ${cerradura.modelo.trim()}`;
-                            console.log(`PASO 4G: Usando modelo de cerradura como nombre de propiedad: ${propiedadNombre}`);
-                        }
-
-                        // Intentar obtener la dirección de la propiedad
-                        if (typeof propiedad.direccion === 'string' && propiedad.direccion.trim() !== '') {
-                            propiedadDireccion = propiedad.direccion.trim();
-                            console.log(`PASO 4D: Dirección de propiedad obtenida: ${propiedadDireccion}`);
                         }
 
                         // PASO 5: Obtener información del propietario con manejo seguro
-                        // Intentar diferentes rutas para obtener el ID del propietario
-                        if (propiedad.propietario && typeof propiedad.propietario.id === 'number') {
-                            propietarioId = propiedad.propietario.id;
-                        } else if (typeof propiedad.propietarioId === 'number') {
-                            propietarioId = propiedad.propietarioId;
-                        }
-                        console.log(`PASO 5: ID de propietario obtenido: ${propietarioId}`);
+                        // Obtener nombre del propietario
+                        propietarioNombre = "Propietario desconocido";
 
-                        // Intentar diferentes rutas para obtener el nombre del propietario
-                        if (propiedad.propietario && typeof propiedad.propietario.nombre === 'string' && propiedad.propietario.nombre.trim() !== '') {
-                            propietarioNombre = propiedad.propietario.nombre.trim();
-                            console.log(`PASO 5A: Nombre de propietario obtenido desde objeto anidado: ${propietarioNombre}`);
-                        } else if (typeof propiedad.propietarioNombre === 'string' && propiedad.propietarioNombre.trim() !== '') {
-                            propietarioNombre = propiedad.propietarioNombre.trim();
-                            console.log(`PASO 5B: Nombre de propietario obtenido desde propietarioNombre: ${propietarioNombre}`);
-                        } else if (propietarioId) {
-                            // Si tenemos ID de propietario pero no su nombre, intentar obtenerlo
-                            console.log(`PASO 5C: Intentando obtener detalles del propietario ID: ${propietarioId}`);
+                        if (cerraduraId) {
                             try {
-                                const propietarioDetalle = await obtenerDetallesPropietario(propietarioId);
-                                if (propietarioDetalle && typeof propietarioDetalle.nombre === 'string' && propietarioDetalle.nombre.trim() !== '') {
-                                    propietarioNombre = propietarioDetalle.nombre.trim();
-                                    console.log(`PASO 5D: Nombre de propietario obtenido por API: ${propietarioNombre}`);
+                                const propietarioResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propietario/nombre`, {
+                                    headers: {
+                                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                        'Content-Type': 'application/json'
+                                    }
+                                });
+
+                                if (propietarioResponse.ok) {
+                                    propietarioNombre = await propietarioResponse.text();
+                                    console.log(`Nombre del propietario obtenido: ${propietarioNombre}`);
                                 }
                             } catch (error) {
-                                console.error('Error al obtener detalles del propietario:', error);
+                                console.error('Error al obtener nombre del propietario:', error);
                             }
                         }
 
