@@ -54,19 +54,35 @@ const GestionarAcceso = () => {
         //Cojo la primera cerradura porque al pasar el objeto al backend no puede ser un array, tiene que ser un json
         const cerradura = cerraduras[0];
 
-        // 3. Crear horario
-        const fechaInicio = `${añoInicio}-${mesInicio.padStart(2, '0')}-${diaInicio.padStart(2, '0')}T${horaInicio}:${minInicio.padStart(2, '0')}`;
-        const fechaFin = `${anoFin}-${mesFin.padStart(2, '0')}-${diaFin.padStart(2, '0')}T${horaFin}:${minFin.padStart(2, '0')}`;
+        //3. Asegurarse de que las fechas/horas no estan vacias
+        if (!añoInicio || !mesInicio || !diaInicio || !horaInicio || !minInicio) {
+          alert('Por favor, complete todos los campos de fecha y hora de entrada.');
+          return;
+        }
+      
+        if (!anoFin || !mesFin || !diaFin || !horaFin || !minFin) {
+          alert('Por favor, complete todos los campos de fecha y hora de salida.');
+          return;
+        }
+        
+        // 4. Crear horario
+        const fechaInicio = `${añoInicio.padStart(4, '0')}-${mesInicio.padStart(2, '0')}-${diaInicio.padStart(2, '0')}T${horaInicio.padStart(2, '0')}:${minInicio.padStart(2, '0')}:00`;
+        const fechaFin = `${anoFin.padStart(4, '0')}-${mesFin.padStart(2, '0')}-${diaFin.padStart(2, '0')}T${horaFin.padStart(2, '0')}:${minFin.padStart(2, '0')}:00`;
         console.log("Inicio:", `${fechaInicio}`);	
         console.log("Fin:", `${fechaFin}`);
+
+        if (isNaN(new Date(fechaInicio).getTime()) || isNaN(new Date(fechaFin).getTime())) {
+          alert('Las fechas y horas proporcionadas no son válidas.');
+          return;
+        }
 
         const horario = {
           inicio: `${fechaInicio}`,
           fin: `${fechaFin}`
         };
-        // 4. Construir acceso completo
+        // 5. Construir acceso completo
         const acceso = { huesped, cerradura:{id:cerradura.id,modelo:cerradura.modelo,bloqueada:cerradura.bloqueada,propiedad:{ id: propiedad.id}}, horario };
-        // 5. Enviar al backend
+        // 6. Enviar al backend
         const resA = await fetch('http://localhost:8080/api/accesos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,7 +90,7 @@ const GestionarAcceso = () => {
       });
       if (resA.ok) {
         alert('✅ Acceso registrado correctamente');
-        navigate('/PropietarioDashboard');
+        irAlDashboard();
 
       } else {
         const msg = await resA.text();
