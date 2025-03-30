@@ -151,23 +151,54 @@ const AbrirPuerta = () => {
         navigate('/login');
     };
 
+    const registrarIntentoAcceso = async (exitoso: boolean, motivo: string) => {
+        try {
+            await fetch('http://localhost:8080/api/registros-apertura', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    exitoso,
+                    motivo,
+                    usuario: { id: usuario.id },
+                    cerradura: { id: cerradura }
+                }),
+            });
+            console.log('Registrando intento:', {
+                exitoso,
+                motivo,
+                usuario: { id: usuario.id },
+                cerradura: { id: cerradura }
+              });
+           
+
+
+
+        } catch (error) {
+            console.error('Error al registrar intento de apertura:', error);
+        }
+    };
+    
+
     const handleAbrirPuerta = () => {
         if (!cerradura) {
             setError('No hay cerradura disponible para abrir');
             setEstado('error');
+            registrarIntentoAcceso(false, 'Cerradura no disponible');
             return;
         }
-
+    
         if (!usuario || !usuario.id) {
             setError('Usuario no autenticado');
             setEstado('sin_acceso');
+            registrarIntentoAcceso(false, 'Usuario no autenticado');
             return;
         }
-
+    
         setEstado('conectando');
         setError('');
-
-        // Llamada a la API para abrir la puerta
+    
         fetch(`http://localhost:8080/api/cerraduras/${cerradura}/abrir`, {
             method: 'POST',
             headers: {
@@ -177,20 +208,24 @@ const AbrirPuerta = () => {
         })
             .then(response => {
                 if (!response.ok) {
-                    if (response.status === 403) {
-                        setEstado('sin_acceso');
-                    } else {
-                        setEstado('error');
-                    }
+                    const motivo = response.status === 403
+                        ? 'Acceso denegado (sin permisos)'
+                        : 'Error de apertura';
+    
+                    setEstado(response.status === 403 ? 'sin_acceso' : 'error');
+    
                     return response.json().then(data => {
-                        throw new Error(data.error || 'Error al abrir la puerta');
+                        registrarIntentoAcceso(false, motivo);
+                        throw new Error(data.error || motivo);
                     });
                 }
+    
                 return response.json();
             })
             .then(data => {
                 setEstado('exito');
                 setMetodoAcceso('normal');
+                registrarIntentoAcceso(true, 'Acceso permitido');
             })
             .catch(error => {
                 console.error('Error al abrir puerta:', error);

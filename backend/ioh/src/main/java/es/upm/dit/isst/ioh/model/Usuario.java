@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password", "contrasena"})
-public abstract class Usuario {
+public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +43,8 @@ public abstract class Usuario {
     public Long getId() {
         return id;
     }
+    public void setId(Long id) { this.id = id; }
+
 
     public String getNombre() {
         return nombre;
