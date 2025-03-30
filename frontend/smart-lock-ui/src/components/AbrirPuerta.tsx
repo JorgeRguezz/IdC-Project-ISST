@@ -359,7 +359,7 @@ const AbrirPuerta = () => {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Error al validar el token');
             } catch (error) {
-                 throw new Error('Has superado el número de usos del tocken.');;
+                throw new Error('Has superado el número de usos del token.');
             }
         };
 
