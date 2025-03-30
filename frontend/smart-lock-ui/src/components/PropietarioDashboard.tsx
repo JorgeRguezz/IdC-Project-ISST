@@ -236,7 +236,7 @@ const PropietarioDashboard = () => {
                             }}
                         >
                             <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                Julio de 2025
+                                {new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' }).toUpperCase()}
                             </Typography>
 
                             {/* Días de la semana */}
