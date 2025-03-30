@@ -146,86 +146,38 @@ const MisAccesos = () => {
                         console.log(`PASO 1: ID de cerradura obtenido: ${cerraduraId}`);
                         console.log('Datos de cerradura:', JSON.stringify(cerradura, null, 2));
 
-                        // // PASO 2: Extraer información de la propiedad con manejo seguro
-                        // // Intentar obtener la propiedad desde diferentes rutas posibles
-                        // const propiedad = cerradura.propiedad || item.propiedad || {};
-                        // propiedadId = propiedad.id || null;
-                        // console.log(`PASO 2: ID de propiedad obtenido: ${propiedadId}`);
-                        // console.log('Datos de propiedad:', JSON.stringify(propiedad, null, 2));
-
-                        // // Si no tenemos ID de propiedad pero tenemos ID de cerradura, consultar directamente a la API
-                        // if (!propiedadId && cerraduraId) {
-                        //     try {
-                        //         console.log(`PASO 2B: No se encontró ID de propiedad. Consultando API para cerradura: ${cerraduraId}`);
-                        //         const cerraduraResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}`, {
-                        //             headers: {
-                        //                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        //                 'Content-Type': 'application/json'
-                        //             }
-                        //         });
-
-                        //         if (cerraduraResponse.ok) {
-                        //             const cerraduraText = await cerraduraResponse.text();
-                        //             console.log(`Respuesta detallada de cerradura ${cerraduraId}:`, cerraduraText);
-
-                        //             try {
-                        //                 const cerraduraDetallada = JSON.parse(cerraduraText);
-                        //                 console.log('Cerradura detallada parseada:', cerraduraDetallada);
-
-                        //                 // Intentar obtener el ID de propiedad directamente del objeto de cerradura
-                        //                 if (cerraduraDetallada.propiedadId) {
-                        //                     propiedadId = cerraduraDetallada.propiedadId;
-                        //                     console.log(`PASO 2C: ID de propiedad obtenido desde propiedadId: ${propiedadId}`);
-                        //                 } else if (cerraduraDetallada.propiedad && cerraduraDetallada.propiedad.id) {
-                        //                     propiedadId = cerraduraDetallada.propiedad.id;
-                        //                     console.log(`PASO 2D: ID de propiedad obtenido desde propiedad.id: ${propiedadId}`);
-                        //                 }
-                        //             } catch (parseError) {
-                        //                 console.error('Error al parsear respuesta de cerradura:', parseError);
-                        //             }
-                        //         } else {
-                        //             console.warn(`No se pudo obtener detalles de la cerradura ${cerraduraId}`);
-                        //         }
-                        //     } catch (error) {
-                        //         console.error('Error al consultar detalles de cerradura:', error);
-                        //     }
-                        // }
-                        // PASO 2: Extraer información de la propiedad con manejo seguro
+                        // PASO 2: Obtener el nombre de la propiedad con manejo seguro
                         const propiedad = cerradura.propiedad || item.propiedad || {};
                         propiedadId = propiedad.id || null;
                         
                         // PASO ÚNICO: Obtener el nombre de la propiedad directamente desde la API
                         let nombrePropiedad = "Propiedad no identificada";
 
-                        if (cerraduraId) {
+                        // Verifica primero si ya tienes el nombre en los datos locales
+                        if (propiedad && propiedad.nombre) {
+                            nombrePropiedad = propiedad.nombre;
+                            console.log('Nombre de propiedad obtenido localmente:', nombrePropiedad);
+                        } else if (cerraduraId) {
                             try {
-                                console.log(`Consultando nombre de propiedad para la cerradura: ${cerraduraId}`);
-                                const propiedadResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propiedad/nombre`, {
+                                console.log('Consultando nombre de propiedad para cerradura:', cerraduraId);
+                                const response = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propiedad/nombre`, {
                                     headers: {
                                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
                                         'Content-Type': 'application/json'
                                     }
                                 });
 
-                                if (propiedadResponse.ok) {
-                                    nombrePropiedad = await propiedadResponse.text();
-                                    console.log(`Nombre de propiedad obtenido: ${nombrePropiedad}`);
-                                } else {
-                                    console.warn(`No se pudo obtener el nombre de la propiedad para la cerradura ${cerraduraId}`);
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
                                 }
+                                
+                                nombrePropiedad = await response.text();
+                                console.log('Nombre de propiedad obtenido del servidor:', nombrePropiedad);
                             } catch (error) {
-                                console.error('Error al consultar el nombre de la propiedad:', error);
+                                console.error('Error al obtener nombre de propiedad:', error);
+                                nombrePropiedad = "Error al obtener propiedad";
                             }
                         }
-
-
-                        // PASO 3: Obtener el nombre de la cerradura con manejo seguro
-                        if (typeof cerradura.nombre === 'string' && cerradura.nombre.trim() !== '') {
-                            nombreCerradura = cerradura.nombre.trim();
-                        } else if (typeof cerradura.modelo === 'string' && cerradura.modelo.trim() !== '') {
-                            nombreCerradura = `Cerradura ${cerradura.modelo.trim()}`;
-                        }
-                        console.log(`PASO 3: Nombre de cerradura obtenido: ${nombreCerradura}`);
 
                         // PASO 4: Obtener el nombre y dirección de la propiedad con manejo seguro
                         // Intentar diferentes rutas para obtener el nombre de la propiedad
@@ -438,7 +390,7 @@ const MisAccesos = () => {
                         const accesoFormateado = {
                             id: typeof item.id === 'number' ? item.id : null,
                             cerraduraId: cerraduraId,
-                            propiedadNombre: propiedadNombre,
+                            propiedadNombre: nombrePropiedad,
                             nombreCerradura: nombreCerradura,
                             direccion: propiedadDireccion,
                             propietario: propietarioNombre,
@@ -730,15 +682,6 @@ const MisAccesos = () => {
                                     <Typography variant="body2" sx={{ ml: 4, color: '#555' }}>
                                         Hasta: {formatearFecha(acceso.fechaFin)}
                                     </Typography>
-
-                                    <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center' }}>
-                                        <Typography variant="body2" sx={{ fontWeight: 'medium', color: '#444' }}>
-                                            Cerradura:
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ ml: 1, color: '#555' }}>
-                                            {acceso.nombreCerradura}
-                                        </Typography>
-                                    </Box>
 
                                     <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center' }}>
                                         <Typography variant="body2" sx={{ fontWeight: 'medium', color: '#444' }}>
