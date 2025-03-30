@@ -35,24 +35,32 @@ const AbrirPuerta = () => {
 
     // Recuperar los datos de la propiedad desde location.state o hacer una llamada a la API
     useEffect(() => {
-        if (location.state?.propiedad) {
-            setPropiedad(location.state.propiedad);
-        } else if (propiedadId) {
-            // Aquí se haría una llamada a la API para obtener los detalles de la propiedad
-            // En este ejemplo, simularemos la respuesta
-            setIsLoading(true);
-            // Simulación de llamada a API
-            setTimeout(() => {
-                const propiedadEjemplo: PropiedadDetalle = {
-                    id: parseInt(propiedadId),
-                    nombre: `Propiedad ${propiedadId}`,
-                    direccion: 'Martini van Geffenstraat 25, Amsterdam'
-                };
-                setPropiedad(propiedadEjemplo);
-                setIsLoading(false);
-            }, 800);
-        }
+        const fetchPropiedad = async () => {
+            if (location.state?.propiedad) {
+                setPropiedad(location.state.propiedad);
+                return;
+            }
+    
+            if (propiedadId) {
+                setIsLoading(true);
+                try {
+                    const response = await fetch(`http://localhost:8080/api/propiedades/${propiedadId}`);
+                    if (!response.ok) {
+                        throw new Error('No se pudo recuperar la propiedad');
+                    }
+                    const data: PropiedadDetalle = await response.json();
+                    setPropiedad(data);
+                } catch (error) {
+                    console.error('Error al obtener la propiedad:', error);
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        };
+    
+        fetchPropiedad();
     }, [propiedadId, location.state]);
+    
 
     // Cuando se cargue la propiedad, obtener la información de las cerraduras
     useEffect(() => {
