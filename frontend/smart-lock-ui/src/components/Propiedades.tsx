@@ -39,17 +39,50 @@ const Propiedades = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', bgcolor: '#ebf5ff', p: 2 }}>
-      <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/propietario-dashboard')} sx={{ alignSelf: 'flex-start', mb: 2 }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        bgcolor: '#ebf5ff',
+        px: 2,
+        py: 3,
+        overflowY: 'auto'
+      }}
+    >
+      {/* Botón volver */}
+      <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate('/propietario-dashboard')}
+        sx={{
+          alignSelf: 'flex-start',
+          mb: 2,
+          textTransform: 'none',
+          fontWeight: 'medium'
+        }}
+      >
         Volver
       </Button>
-
-      <Typography variant="h5" sx={{ mb: 2, color: '#0d6efd', fontWeight: 'bold' }}>
+  
+      {/* Título */}
+      <Typography variant="h5" sx={{ mb: 3, color: '#0d6efd', fontWeight: 'bold' }}>
         Mis puertas
       </Typography>
-
+  
+      {/* Contenido */}
       {propiedades.length === 0 ? (
-        <Typography>No tienes propiedades registradas.</Typography>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            borderRadius: 2,
+            bgcolor: 'white',
+            border: '1px solid #e0e0e0',
+            textAlign: 'center'
+          }}
+        >
+          <Typography>No tienes propiedades registradas.</Typography>
+        </Paper>
       ) : (
         propiedades.map((propiedad) => (
           <Paper
@@ -59,73 +92,88 @@ const Propiedades = () => {
               p: 2,
               mb: 2,
               borderRadius: 2,
-              bgcolor: '#e3f2fd',
+              bgcolor: 'white',
+              border: '1px solid #e0e0e0',
               display: 'flex',
-              flexDirection: 'column'
+              gap: 2
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <img
-                src={propiedad.imagen || '/ciudad-default.jpg'}
-                alt={`Imagen de ${propiedad.nombre}`}
-                style={{ width: 90, height: 90, objectFit: 'cover', borderRadius: 8, marginRight: 16 }}
-              />
-              <Box sx={{ flex: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                    {propiedad.nombre || `Propiedad #${propiedad.id}`}
-                  </Typography>
-                  <IconButton size="small" onClick={() => handleEditarPropiedad(propiedad)}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Typography
-                  variant="body2"
-                  sx={{ color: '#0d6efd', textDecoration: 'underline', cursor: 'pointer', mb: 1 }}
-                >
-                  {propiedad.direccion}
+            {/* Imagen */}
+            <img
+              src={propiedad.imagen || '/ciudad-default.jpg'}
+              alt={`Imagen de ${propiedad.nombre}`}
+              style={{
+                width: 90,
+                height: 90,
+                objectFit: 'cover',
+                borderRadius: 8
+              }}
+            />
+  
+            {/* Info */}
+            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                  {propiedad.nombre || `Propiedad #${propiedad.id}`}
                 </Typography>
+                <IconButton size="small" onClick={() => handleEditarPropiedad(propiedad)}>
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Box>
+  
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#0d6efd',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  mb: 1
+                }}
+              >
+                {propiedad.direccion}
+              </Typography>
+  
+              <Box sx={{ display: 'flex', gap: 1 }}>
                 <Button
                   variant="contained"
                   color="primary"
                   startIcon={<KeyIcon />}
                   onClick={() => handleGestionarToken(propiedad)}
-                  sx={{
-                  borderRadius: 1,
-                  textTransform: 'none',
-                  mr: 2
-                  }}
+                  sx={{ borderRadius: 1, textTransform: 'none' }}
                 >
                   Generar token
                 </Button>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   color="primary"
                   startIcon={<KeyIcon />}
                   onClick={() => handleGestionarAcceso(propiedad)}
-                  sx={{
-                  borderRadius: 1,
-                  textTransform: 'none'
-                  }}
+                  sx={{ borderRadius: 1, textTransform: 'none' }}
                 >
-                  Gestionar Acceso
+                  Gestionar acceso
                 </Button>
               </Box>
             </Box>
           </Paper>
         ))
       )}
-
-      <Link
-        component="button"
+  
+      {/* CTA para añadir nueva puerta */}
+      <Button
         onClick={handleAnadirPuerta}
-        underline="hover"
-        sx={{ color: '#0d6efd', fontWeight: 'medium', mt: 2, alignSelf: 'flex-start' }}
+        sx={{
+          mt: 3,
+          textTransform: 'none',
+          alignSelf: 'flex-start',
+          fontWeight: 'medium',
+          color: '#0d6efd'
+        }}
       >
-        Añadir puerta
-      </Link>
+        + Añadir puerta
+      </Button>
     </Box>
   );
+  
 };
 
 export default Propiedades;

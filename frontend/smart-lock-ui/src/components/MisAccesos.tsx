@@ -361,9 +361,7 @@ const MisAccesos = () => {
                 flexDirection: 'column',
                 width: '100%',
                 height: '100vh',
-                bgcolor: '#ebf5ff',
-                m: 0,
-                p: 0,
+                bgcolor: '#f9f9f9',
                 overflow: 'hidden'
             }}
         >
@@ -373,10 +371,11 @@ const MisAccesos = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    p: 2,
-                    width: '98%',
-                    borderBottom: '1px solid rgba(0,0,0,0.05)',
-                    bgcolor: '#ebf5ff'
+                    px: 2,
+                    py: 1.5,
+                    bgcolor: '#ffffff',
+                    borderBottom: '1px solid #e0e0e0',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
                 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -388,7 +387,7 @@ const MisAccesos = () => {
                     </Typography>
                 </Box>
             </Box>
-
+    
             {/* Contenido principal */}
             <Box
                 sx={{
@@ -396,11 +395,9 @@ const MisAccesos = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     p: 2,
-                    overflowY: 'auto',
-                    bgcolor: '#ebf5ff'
+                    overflowY: 'auto'
                 }}
             >
-                {/* Mensaje informativo */}
                 <Paper
                     elevation={0}
                     sx={{
@@ -412,174 +409,118 @@ const MisAccesos = () => {
                     }}
                 >
                     <Typography variant="body2" color="text.secondary">
-                        Aquí puedes ver todos tus accesos a cerraduras. Los accesos activos te permiten abrir
-                        las puertas correspondientes durante el período indicado.
+                        Aquí puedes ver todos tus accesos activos o pasados. Los accesos activos te permiten abrir
+                        las puertas correspondientes durante el período autorizado por el propietario.
                     </Typography>
                 </Paper>
-
+    
                 {/* Lista de accesos */}
-                <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-                    {cargando ? (
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                p: 2,
-                                borderRadius: 2,
-                                bgcolor: 'white',
-                                border: '1px solid #e0e0e0',
-                                textAlign: 'center'
-                            }}
-                        >
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 2 }}>
-                                <CircularProgress size={40} sx={{ mb: 2, color: '#0d6efd' }} />
-                                <Typography variant="body1" sx={{ mb: 1 }}>
-                                    Cargando tus accesos...
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    Esto tomará solo unos segundos
-                                </Typography>
-                            </Box>
-                        </Paper>
-                    ) : error ? (
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                p: 2,
-                                borderRadius: 2,
-                                bgcolor: 'white',
-                                border: '1px solid #e0e0e0'
-                            }}
-                        >
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 2 }}>
-                                <Box
-                                    sx={{
-                                        width: 40,
-                                        height: 40,
-                                        borderRadius: '50%',
-                                        bgcolor: 'rgba(244, 67, 54, 0.1)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        mb: 2
-                                    }}
-                                >
-                                    <Typography sx={{ color: '#f44336', fontWeight: 'bold' }}>!</Typography>
-                                </Box>
-                                <Typography variant="body1" sx={{ mb: 1, fontWeight: 'medium', color: 'error.main' }}>
-                                    Error al cargar tus accesos
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
-                                    {error}
-                                </Typography>
-                                <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    size="small"
-                                    onClick={() => window.location.reload()}
-                                    sx={{ borderRadius: 1, textTransform: 'none' }}
-                                >
-                                    Intentar nuevamente
-                                </Button>
-                            </Box>
-                        </Paper>
-                    ) : accesos.length === 0 ? (
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                p: 2,
-                                borderRadius: 2,
-                                bgcolor: 'white',
-                                border: '1px solid #e0e0e0',
-                                textAlign: 'center'
-                            }}
-                        >
-                            <Typography variant="body1">No tienes accesos registrados</Typography>
-                        </Paper>
-                    ) : (
-                        accesos.map((acceso) => {
-                            const activo = esAccesoActivo(acceso.fechaInicio, acceso.fechaFin);
-                            return (
-                                <Paper
-                                    key={acceso.id}
-                                    elevation={0}
-                                    sx={{
-                                        p: 2,
-                                        mb: 2,
-                                        borderRadius: 2,
-                                        bgcolor: 'white',
-                                        border: '1px solid #e0e0e0'
-                                    }}
-                                >
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', width: '80%' }}>
-                                            <DoorFrontIcon sx={{ color: '#0d6efd', mr: 1, fontSize: 28 }} />
-                                            <Box>
-                                                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#333' }}>
-                                                    {acceso.propiedadNombre}
-                                                </Typography>
-                                                <Typography variant="subtitle1" sx={{ color: '#666', fontSize: '0.9rem' }}>
-                                                    {acceso.direccion}
-                                                </Typography>
-                                            </Box>
+                {cargando ? (
+                    <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
+                        <CircularProgress sx={{ mb: 2, color: '#0d6efd' }} />
+                        <Typography variant="body1">Cargando tus accesos...</Typography>
+                    </Paper>
+                ) : error ? (
+                    <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
+                        <Typography variant="h6" color="error" fontWeight="bold" mb={1}>
+                            Error al cargar tus accesos
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" mb={2}>
+                            {error}
+                        </Typography>
+                        <Button variant="outlined" color="primary" onClick={() => window.location.reload()}>
+                            Reintentar
+                        </Button>
+                    </Paper>
+                ) : accesos.length === 0 ? (
+                    <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
+                        <Typography variant="body1">No tienes accesos registrados</Typography>
+                    </Paper>
+                ) : (
+                    accesos.map((acceso) => {
+                        const activo = esAccesoActivo(acceso.fechaInicio, acceso.fechaFin);
+                        return (
+                            <Paper
+                                key={acceso.id}
+                                elevation={0}
+                                sx={{
+                                    p: 3,
+                                    mb: 2,
+                                    borderRadius: 3,
+                                    bgcolor: '#ffffff',
+                                    border: '1px solid #e0e0e0',
+                                    boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
+                                }}
+                            >
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <DoorFrontIcon sx={{ color: '#0d6efd', fontSize: 28, mr: 1.5 }} />
+                                        <Box>
+                                            <Typography variant="subtitle1" fontWeight="bold">
+                                                {acceso.propiedadNombre}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {acceso.direccion}
+                                            </Typography>
                                         </Box>
-                                        <Chip
-                                            label={activo ? "Activo" : "Inactivo"}
-                                            color={activo ? "success" : "default"}
-                                            size="small"
-                                            sx={{ height: 24 }}
-                                        />
                                     </Box>
-
-                                    <Divider sx={{ my: 1.5 }} />
-
-                                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 1.5 }}>
-                                        <AccessTimeIcon sx={{ color: '#0d6efd', fontSize: 20, mr: 1 }} />
-                                        <Typography variant="body2" sx={{ fontWeight: 'medium', color: '#444' }}>
-                                            Período de acceso:
-                                        </Typography>
-                                    </Box>
-                                    <Typography variant="body2" sx={{ ml: 4, color: '#555' }}>
-                                        Desde: {formatearFecha(acceso.fechaInicio)}
+                                    <Chip
+                                        label={activo ? 'Activo' : 'Inactivo'}
+                                        color={activo ? 'success' : 'default'}
+                                        size="small"
+                                        sx={{ height: 24 }}
+                                    />
+                                </Box>
+    
+                                <Divider sx={{ my: 2 }} />
+    
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                    <AccessTimeIcon sx={{ fontSize: 20, color: '#0d6efd', mr: 1 }} />
+                                    <Typography variant="body2" fontWeight="medium" color="text.primary">
+                                        Acceso válido:
                                     </Typography>
-                                    <Typography variant="body2" sx={{ ml: 4, color: '#555' }}>
-                                        Hasta: {formatearFecha(acceso.fechaFin)}
+                                </Box>
+                                <Box sx={{ pl: 4 }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Desde: <strong>{formatearFecha(acceso.fechaInicio)}</strong>
                                     </Typography>
-
-                                    <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center' }}>
-                                        <Typography variant="body2" sx={{ fontWeight: 'medium', color: '#444' }}>
-                                            Propietario:
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ ml: 1, color: '#555' }}>
-                                            {acceso.propietario}
-                                        </Typography>
-                                    </Box>
-
-                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            disabled={!activo}
-                                            onClick={() => navigate(`/abrir-puerta/${acceso.cerraduraId}`)}
-                                            sx={{
-                                                borderRadius: 1,
-                                                textTransform: 'none',
-                                                boxShadow: 'none',
-                                                '&:hover': {
-                                                    boxShadow: '0px 2px 4px rgba(0,0,0,0.2)'
-                                                }
-                                            }}
-                                        >
-                                            Ir a abrir puerta
-                                        </Button>
-                                    </Box>
-                                </Paper>
-                            );
-                        })
-                    )}
-                </Box>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Hasta: <strong>{formatearFecha(acceso.fechaFin)}</strong>
+                                    </Typography>
+                                </Box>
+    
+                                <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+                                    <Typography variant="body2" fontWeight="medium" color="text.primary">
+                                        Propietario:
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                                        {acceso.propietario}
+                                    </Typography>
+                                </Box>
+    
+                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        disabled={!activo}
+                                        onClick={() => navigate(`/abrir-puerta/${acceso.cerraduraId}`)}
+                                        sx={{
+                                            borderRadius: 2,
+                                            textTransform: 'none',
+                                            fontWeight: 'medium',
+                                            px: 3
+                                        }}
+                                    >
+                                        Ir a abrir puerta
+                                    </Button>
+                                </Box>
+                            </Paper>
+                        );
+                    })
+                )}
             </Box>
         </Box>
-    );
+    );    
 };
 
 export default MisAccesos;

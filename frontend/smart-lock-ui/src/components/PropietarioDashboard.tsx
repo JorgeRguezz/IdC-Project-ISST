@@ -7,6 +7,8 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import KeyIcon from '@mui/icons-material/Key';
+import { CircularProgress } from '@mui/material'; 
+
 
 interface Propiedad {
     id: number;
@@ -22,7 +24,17 @@ const PropietarioDashboard = () => {
     const [cargando, setCargando] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [notificaciones, setNotificaciones] = useState<number>(1);
-
+    const hoy = new Date();
+    const mes = hoy.getMonth();
+    const año = hoy.getFullYear();
+    const primerDia = new Date(año, mes, 1).getDay();
+    const diasEnMes = new Date(año, mes + 1, 0).getDate();
+    
+    const meses = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    
     // Datos del usuario (esto vendría del contexto de autenticación en una app real)
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 
@@ -128,21 +140,14 @@ const PropietarioDashboard = () => {
 
     // Función para generar fechas del calendario
     const generarCalendario = () => {
-        const hoy = new Date();
-        const mes = hoy.getMonth();
-        const año = hoy.getFullYear();
-        const diasEnMes = new Date(año, mes + 1, 0).getDate();
-
         const diasSemana = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
-        const primerDia = new Date(año, mes, 1).getDay();
-
-        // Días del mes anterior para completar la primera semana
         const diasPrevios = [];
         for (let i = 0; i < primerDia; i++) {
-            diasPrevios.push(<Box key={`prev-${i}`} sx={{ width: 24, height: 24, m: 0.5, color: '#ccc' }}></Box>);
+            diasPrevios.push(
+                <Box key={`prev-${i}`} sx={{ width: 24, height: 24, m: 0.5, color: '#ccc' }}></Box>
+            );
         }
-
-        // Días del mes actual
+    
         const dias = [];
         for (let i = 1; i <= diasEnMes; i++) {
             dias.push(
@@ -164,12 +169,10 @@ const PropietarioDashboard = () => {
                 </Box>
             );
         }
-
+    
         return { diasSemana, diasPrevios, dias };
     };
-
-    const { diasSemana, diasPrevios, dias } = generarCalendario();
-
+    
     return (
         <Box
             sx={{
@@ -178,8 +181,6 @@ const PropietarioDashboard = () => {
                 width: '100%',
                 height: '100vh',
                 bgcolor: '#ebf5ff',
-                m: 0,
-                p: 0,
                 overflow: 'hidden'
             }}
         >
@@ -189,9 +190,11 @@ const PropietarioDashboard = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    p: 2,
-                    width: '98%',
-                    borderBottom: '1px solid rgba(0,0,0,0.05)'
+                    px: 2,
+                    py: 1.5,
+                    bgcolor: '#ffffff',
+                    borderBottom: '1px solid #e0e0e0',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
                 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -213,155 +216,139 @@ const PropietarioDashboard = () => {
                     </IconButton>
                 </Box>
             </Box>
-
-            {/* Contenido principal */}
+    
+            {/* Contenido */}
             <Box
                 sx={{
                     flexGrow: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    p: 2,
+                    p: 3,
                     overflowY: 'auto'
                 }}
             >
-                {/* Calendario y Mis puertas */}
-                <Grid container spacing={2} sx={{ mb: 2 }}>
-                    <Grid item xs={6}>
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                p: 2,
-                                borderRadius: 2,
-                                bgcolor: '#e3f2fd'
-                            }}
-                        >
-                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                {new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' }).toUpperCase()}
-                            </Typography>
-
-                            {/* Días de la semana */}
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                                {diasSemana.map((dia, index) => (
-                                    <Box
-                                        key={index}
-                                        sx={{
-                                            width: 24,
-                                            height: 24,
-                                            m: 0.5,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 'bold',
-                                            color: '#666'
-                                        }}
-                                    >
-                                        {dia}
-                                    </Box>
-                                ))}
-
-                                {/* Espacios en blanco para los días previos */}
-                                {diasPrevios}
-
-                                {/* Días del mes */}
-                                {dias}
-                            </Box>
-                        </Paper>
-                    </Grid>
-
-                    <Grid item xs={6}>
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                p: 2,
-                                borderRadius: 2,
-                                bgcolor: '#e3f2fd',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                height: '100%'
-                            }}
-                        >
-                            <Box sx={{ mb: 1 }}>
-                                <img
-                                    src="/door-icon.svg"
-                                    alt="Puerta"
-                                    style={{ width: 60, height: 60 }}
-                                />
-                            </Box>
-                            <Button
-                                variant="contained"
-                                onClick={handleVerPropiedades}
+                {/* Calendario */}
+                <Paper
+                    sx={{
+                        borderRadius: 3,
+                        border: '2px solid #d1d1d1',
+                        bgcolor: '#ffffff',
+                        overflow: 'hidden',
+                        mb: 3
+                    }}
+                >
+                    <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'white' }}>
+                        {meses[mes]} {año}
+                        </Typography>
+                    </Box>
+    
+                    {/* Días de la semana */}
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(7, 1fr)',
+                            gap: 1,
+                            p: 1,
+                            bgcolor: '#fafafa',
+                            borderBottom: '1px solid #eee'
+                        }}
+                    >
+                        {['D', 'L', 'M', 'X', 'J', 'V', 'S'].map((dia, index) => (
+                            <Typography
+                                key={index}
                                 sx={{
-                                    bgcolor: '#0d6efd',
-                                    color: 'white',
-                                    borderRadius: 2,
-                                    textTransform: 'none'
+                                    textAlign: 'center',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 500,
+                                    color: '#616161'
                                 }}
                             >
-                                Mis puertas
-                            </Button>
-                        </Paper>
-                    </Grid>
-                </Grid>
-
+                                {dia}
+                            </Typography>
+                        ))}
+                    </Box>
+    
+                    {/* Días del mes */}
+                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, p: 1 }}>
+                        {[...Array(primerDia)].map((_, i) => (
+                            <Box key={`empty-${i}`} />
+                        ))}
+                        {[...Array(diasEnMes)].map((_, i) => {
+                            const dia = i + 1;
+                            const esHoy = dia === new Date().getDate();
+                            return (
+                                <Box
+                                    key={dia}
+                                    sx={{
+                                        width: 40,
+                                        height: 40,
+                                        margin: '0 auto',
+                                        borderRadius: '50%',
+                                        fontWeight: 500,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        bgcolor: esHoy ? '#0d6efd' : 'transparent',
+                                        color: esHoy ? 'white' : '#212121',
+                                        transition: 'all 0.2s ease',
+                                        '&:hover': {
+                                            cursor: 'pointer',
+                                            bgcolor: esHoy ? '#0b5ed7' : '#e3f2fd'
+                                        }
+                                    }}
+                                >
+                                    {dia}
+                                </Box>
+                            );
+                        })}
+                    </Box>
+                </Paper>
+    
+                {/* Botón Mis Puertas */}
+                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleVerPropiedades}
+                        sx={{
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 'medium',
+                            py: 1.5,
+                            px: 5
+                        }}
+                    >
+                       Gestionar Puertas
+                    </Button>
+                </Box>
+    
                 {/* Lista de propiedades */}
-                <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-                    {cargando && (
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                p: 2,
-                                mb: 2,
-                                borderRadius: 2,
-                                bgcolor: '#e3f2fd',
-                                textAlign: 'center'
-                            }}
+                <Typography variant="h6" fontWeight="bold" mb={2}>
+                    Tus propiedades
+                </Typography>
+    
+                {cargando ? (
+                    <Paper sx={{ p: 3, textAlign: 'center' }}>
+                        <CircularProgress sx={{ color: '#0d6efd' }} />
+                        <Typography sx={{ mt: 2 }}>Cargando propiedades...</Typography>
+                    </Paper>
+                ) : error ? (
+                    <Paper sx={{ p: 3, textAlign: 'center', bgcolor: '#ffebee' }}>
+                        <Typography color="error">Error: {error}</Typography>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            sx={{ mt: 2 }}
+                            onClick={() => window.location.reload()}
                         >
-                            <Typography>Cargando propiedades...</Typography>
-                        </Paper>
-                    )}
-
-                    {error && (
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                p: 2,
-                                mb: 2,
-                                borderRadius: 2,
-                                bgcolor: '#ffebee',
-                                textAlign: 'center'
-                            }}
-                        >
-                            <Typography color="error">Error: {error}</Typography>
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                sx={{ mt: 1 }}
-                                onClick={() => window.location.reload()}
-                            >
-                                Reintentar
-                            </Button>
-                        </Paper>
-                    )}
-
-                    {!cargando && !error && propiedades.length === 0 && (
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                p: 2,
-                                mb: 2,
-                                borderRadius: 2,
-                                bgcolor: '#e3f2fd',
-                                textAlign: 'center'
-                            }}
-                        >
-                            <Typography>No tienes propiedades registradas</Typography>
-                        </Paper>
-                    )}
-
-                    {propiedades.map((propiedad) => (
+                            Reintentar
+                        </Button>
+                    </Paper>
+                ) : propiedades.length === 0 ? (
+                    <Paper sx={{ p: 3, textAlign: 'center' }}>
+                        <Typography>No tienes propiedades registradas</Typography>
+                    </Paper>
+                ) : (
+                    propiedades.map((propiedad) => (
                         <Paper
                             key={propiedad.id}
                             elevation={0}
@@ -369,10 +356,11 @@ const PropietarioDashboard = () => {
                                 p: 2,
                                 mb: 2,
                                 borderRadius: 2,
-                                bgcolor: '#e3f2fd',
+                                bgcolor: 'white',
+                                border: '1px solid #e0e0e0',
                                 display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between'
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
                             }}
                         >
                             <Box>
@@ -384,52 +372,50 @@ const PropietarioDashboard = () => {
                                 </Typography>
                                 <Typography variant="body2" color="primary" sx={{ mt: 0.5 }}>
                                     <KeyIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />
-                                    {propiedad.numeroCerraduras} {propiedad.numeroCerraduras === 1 ? 'cerradura' : 'cerraduras'}
+                                    {propiedad.numeroCerraduras}{' '}
+                                    {propiedad.numeroCerraduras === 1 ? 'cerradura' : 'cerraduras'}
                                 </Typography>
                             </Box>
-
+    
                             <Button
                                 variant="contained"
                                 color="primary"
                                 startIcon={<KeyIcon />}
                                 onClick={() => handleAbrirPuerta(propiedad)}
-                                sx={{
-                                    borderRadius: 1,
-                                    textTransform: 'none'
-                                    }}
-                                    >
+                                sx={{ borderRadius: 1, textTransform: 'none' }}
+                            >
                                 Abrir puerta
                             </Button>
                         </Paper>
-                         ))}
-                        </Box>
+                    ))
+                )}
             </Box>
-
+    
             {/* Footer */}
             <Box
                 sx={{
                     display: 'flex',
-                    justifyContent: 'space-between',
-                    py: 2,
+                    justifyContent: 'space-around',
+                    py: 1.5,
                     px: 4,
-                    borderTop: '1px solid #eee',
+                    borderTop: '1px solid rgba(0,0,0,0.05)',
                     bgcolor: 'white'
-                    }}
-                 >
-                <IconButton>
+                }}
+            >
+                <IconButton color="primary">
                     <ClockIcon />
                 </IconButton>
-                <IconButton>
+                <IconButton color="primary">
                     <Badge badgeContent={notificaciones} color="error">
                         <NotificationsIcon />
                     </Badge>
                 </IconButton>
-                <IconButton>
+                <IconButton color="primary">
                     <SearchIcon />
                 </IconButton>
             </Box>
         </Box>
-    );
+    );    
 };
 
 export default PropietarioDashboard; 

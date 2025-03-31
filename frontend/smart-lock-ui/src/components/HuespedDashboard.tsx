@@ -172,55 +172,95 @@ const HuespedDashboard = () => {
         const primerDiaAjustado = primerDia === 0 ? 6 : primerDia - 1;
 
         return (
-            <Box sx={{ mt: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                    {meses[mes]} {año}
-                </Typography>
-
+            <Box
+                sx={{
+                    mt: 2,
+                    borderRadius: 3,
+                    border: '2px solid #d1d1d1',
+                    overflow: 'hidden',
+                    bgcolor: '#ffffff',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+                }}
+            >
+                {/* Cabecera estilo emoji */}
+                <Box
+                    sx={{
+                        bgcolor: '#e53935',
+                        p: 1.5,
+                        textAlign: 'center'
+                    }}
+                >
+                    <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+                        {meses[mes]} {año}
+                    </Typography>
+                </Box>
+        
                 {/* Días de la semana */}
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, mb: 1 }}>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(7, 1fr)',
+                        gap: 1,
+                        p: 1,
+                        bgcolor: '#fafafa',
+                        borderBottom: '1px solid #eee'
+                    }}
+                >
                     {diasSemana.map((dia, index) => (
-                        <Box
+                        <Typography
                             key={index}
                             sx={{
                                 textAlign: 'center',
-                                p: 1,
-                                color: '#666',
-                                fontWeight: 'bold'
+                                fontSize: '0.85rem',
+                                fontWeight: 500,
+                                color: '#616161'
                             }}
                         >
                             {dia}
-                        </Box>
+                        </Typography>
                     ))}
                 </Box>
-
+        
                 {/* Días del mes */}
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1 }}>
-                    {/* Espacios vacíos para ajustar el primer día */}
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(7, 1fr)',
+                        gap: 1,
+                        p: 1
+                    }}
+                >
                     {Array.from({ length: primerDiaAjustado }).map((_, i) => (
-                        <Box key={`empty-${i}`} sx={{ p: 1 }}></Box>
+                        <Box key={`empty-${i}`} />
                     ))}
-
-                    {/* Días del mes */}
+        
                     {Array.from({ length: diasEnMes }).map((_, i) => {
                         const diaActual = i + 1;
-                        const esDiaActual = diaActual === hoy.getDate();
-
+                        const esHoy = diaActual === hoy.getDate() && mes === hoy.getMonth() && año === hoy.getFullYear();
+        
                         return (
                             <Box
                                 key={diaActual}
+                                onClick={() => alert(`Has hecho clic en el día ${diaActual}`)}
                                 sx={{
-                                    p: 1,
-                                    textAlign: 'center',
-                                    borderRadius: '50%',
-                                    bgcolor: esDiaActual ? '#0d6efd' : 'transparent',
-                                    color: esDiaActual ? 'white' : 'inherit',
-                                    width: 36,
-                                    height: 36,
+                                    width: 40,
+                                    height: 40,
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    margin: '0 auto'
+                                    fontWeight: 500,
+                                    fontSize: '0.9rem',
+                                    borderRadius: 1,
+                                    margin: '0 auto',
+                                    cursor: 'pointer',
+                                    bgcolor: esHoy ? '#0d6efd' : 'transparent',
+                                    color: esHoy ? 'white' : '#212121',
+                                    border: esHoy ? 'none' : '1px solid transparent',
+                                    transition: 'all 0.2s ease',
+                                    '&:hover': {
+                                        bgcolor: esHoy ? '#0b5ed7' : '#e3f2fd',
+                                        border: '1px solid #90caf9'
+                                    }
                                 }}
                             >
                                 {diaActual}
@@ -230,262 +270,210 @@ const HuespedDashboard = () => {
                 </Box>
             </Box>
         );
-    };
+        }
 
-    return (
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100vh',
-                bgcolor: '#ebf5ff',
-                m: 0,
-                p: 0,
-                overflow: 'hidden'
-            }}
-        >
-            {/* Header */}
+        return (
             <Box
                 sx={{
                     display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    p: 2,
-                    width: '98%',
-                    borderBottom: '1px solid rgba(0,0,0,0.05)',
-                    bgcolor: '#ebf5ff'
+                    flexDirection: 'column',
+                    width: '100%',
+                    height: '100vh',
+                    bgcolor: '#f9f9f9',
+                    overflow: 'hidden'
                 }}
             >
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {/* Header */}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        px: 3,
+                        py: 2,
+                        bgcolor: '#ffffff',
+                        borderBottom: '1px solid #e0e0e0',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                        zIndex: 10
+                    }}
+                >
                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0d6efd' }}>
                         IOH
                     </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <IconButton color="primary">
+                            <SettingsIcon />
+                        </IconButton>
+                        <IconButton color="primary">
+                            <Badge badgeContent={notificaciones} color="error">
+                                <NotificationsIcon />
+                            </Badge>
+                        </IconButton>
+                        <IconButton color="primary">
+                            <SearchIcon />
+                        </IconButton>
+                        <Avatar
+                            sx={{
+                                width: 36,
+                                height: 36,
+                                ml: 1,
+                                bgcolor: '#0d6efd',
+                                fontWeight: 'bold',
+                                fontSize: '1rem',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {usuario?.nombre?.charAt(0) || 'U'}
+                        </Avatar>
+                    </Box>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <IconButton>
-                        <SettingsIcon />
-                    </IconButton>
-                    <IconButton>
-                        <Badge badgeContent={notificaciones} color="primary">
-                            <NotificationsIcon />
-                        </Badge>
-                    </IconButton>
-                    <IconButton>
-                        <SearchIcon />
-                    </IconButton>
-                    <Avatar
-                        sx={{
-                            width: 32,
-                            height: 32,
-                            ml: 1,
-                            bgcolor: '#0d6efd',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        {usuario?.nombre?.charAt(0) || 'U'}
-                    </Avatar>
-                </Box>
-            </Box>
-
-            {/* Contenido principal */}
-            <Box
-                sx={{
-                    flexGrow: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    p: 2,
-                    overflowY: 'auto',
-                    bgcolor: '#ebf5ff'
-                }}
-            >
-                {/* Saludo */}
-                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
-                    Hola, {usuario?.nombre || 'Invitado'}
-                </Typography>
-
-                {/* Calendario */}
-                <Paper
-                    elevation={0}
+        
+                {/* Contenido */}
+                <Box
                     sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        bgcolor: 'white',
-                        border: '1px solid #e0e0e0',
-                        mb: 2
+                        flexGrow: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        p: 3,
+                        overflowY: 'auto'
                     }}
                 >
-                    {generarCalendario()}
-                </Paper>
-
-                {/* Botón de Mis Puertas */}
-                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                    {/* Saludo */}
+                    <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
+                        Hola, {usuario?.nombre || 'Invitado'}
+                    </Typography>
+        
+                    {/* Calendario */}
+                    <Paper elevation={0} sx={{ borderRadius: 3, mb: 3 }}>
+                        {generarCalendario()}
+                    </Paper>
+        
+                    {/* Botón Mis Accesos */}
                     <Button
                         variant="contained"
                         color="primary"
                         onClick={handleMisPuertas}
+                        fullWidth
                         sx={{
-                            width: '100%',
-                            borderRadius: 1,
+                            borderRadius: 2,
                             textTransform: 'none',
-                            py: 1.5
+                            fontWeight: 'medium',
+                            py: 1.5,
+                            mb: 3
                         }}
                     >
                         Mis Accesos
                     </Button>
-                </Box>
-
-                {/* Lista de cerraduras */}
-                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                    Accesos activos
-                </Typography>
-
-                {cargando ? (
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: 2,
-                            borderRadius: 2,
-                            bgcolor: 'white',
-                            border: '1px solid #e0e0e0',
-                            textAlign: 'center'
-                        }}
-                    >
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 2 }}>
-                            <CircularProgress size={40} sx={{ mb: 2, color: '#0d6efd' }} />
-                            <Typography variant="body1" sx={{ mb: 1 }}>
-                                Cargando tus accesos...
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                Esto tomará solo unos segundos
-                            </Typography>
-                        </Box>
-                    </Paper>
-                ) : error ? (
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: 2,
-                            borderRadius: 2,
-                            bgcolor: 'white',
-                            border: '1px solid #e0e0e0'
-                        }}
-                    >
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 2 }}>
+        
+                    {/* Lista de Accesos Activos */}
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+                        Accesos activos
+                    </Typography>
+        
+                    {cargando ? (
+                        <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
+                            <CircularProgress sx={{ mb: 2, color: '#0d6efd' }} />
+                            <Typography>Cargando tus accesos...</Typography>
+                        </Paper>
+                    ) : error ? (
+                        <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
                             <ErrorOutlineIcon sx={{ color: '#f44336', fontSize: 48, mb: 2 }} />
-                            <Typography variant="body1" sx={{ mb: 1, fontWeight: 'medium', color: 'error.main' }}>
+                            <Typography variant="body1" color="error" sx={{ fontWeight: 'medium', mb: 1 }}>
                                 Error al cargar tus accesos
                             </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                                 {error}
                             </Typography>
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                size="small"
-                                onClick={() => window.location.reload()}
-                                sx={{ borderRadius: 1, textTransform: 'none' }}
-                            >
-                                Intentar nuevamente
+                            <Button variant="outlined" color="primary" onClick={() => window.location.reload()}>
+                                Reintentar
                             </Button>
-                        </Box>
-                    </Paper>
-                ) : cerraduras.length === 0 ? (
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: 2,
-                            borderRadius: 2,
-                            bgcolor: 'white',
-                            border: '1px solid #e0e0e0',
-                            textAlign: 'center'
-                        }}
-                    >
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 2 }}>
+                        </Paper>
+                    ) : cerraduras.length === 0 ? (
+                        <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
                             <DoorFrontIcon sx={{ color: '#9e9e9e', fontSize: 48, mb: 2 }} />
-                            <Typography variant="body1" sx={{ mb: 1, fontWeight: 'medium' }}>
+                            <Typography variant="body1" fontWeight="medium" mb={1}>
                                 No tienes accesos asignados
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Por ahora no tienes ningún acceso activo a cerraduras.
                                 Contacta con el propietario para obtener acceso.
                             </Typography>
-                        </Box>
-                    </Paper>
-                ) : (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        {cerraduras.map((cerradura) => (
-                            <Paper
-                                key={cerradura.id}
-                                elevation={0}
-                                sx={{
-                                    p: 2,
-                                    borderRadius: 2,
-                                    bgcolor: 'white',
-                                    border: '1px solid #e0e0e0',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center'
-                                }}
-                            >
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <DoorFrontIcon sx={{ color: '#0d6efd', mr: 2 }} />
-                                    <Typography variant="subtitle1">{cerradura.nombre}</Typography>
-                                </Box>
-                                <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    onClick={() => handleAbrirPuerta(cerradura.id)}
-                                    endIcon={<KeyboardArrowRightIcon />}
-                                    sx={{ borderRadius: 1, textTransform: 'none' }}
+                        </Paper>
+                    ) : (
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            {cerraduras.map((cerradura) => (
+                                <Paper
+                                    key={cerradura.id}
+                                    sx={{
+                                        p: 2,
+                                        borderRadius: 2,
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        bgcolor: 'white',
+                                        border: '1px solid #e0e0e0'
+                                    }}
                                 >
-                                    Abrir
-                                </Button>
-                            </Paper>
-                        ))}
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                        <DoorFrontIcon sx={{ color: '#0d6efd' }} />
+                                        <Typography variant="subtitle1" fontWeight="medium">
+                                            {cerradura.nombre}
+                                        </Typography>
+                                    </Box>
+                                    <Button
+                                        variant="outlined"
+                                        color="primary"
+                                        onClick={() => handleAbrirPuerta(cerradura.id)}
+                                        endIcon={<KeyboardArrowRightIcon />}
+                                        sx={{ borderRadius: 1, textTransform: 'none' }}
+                                    >
+                                        Abrir
+                                    </Button>
+                                </Paper>
+                            ))}
+                        </Box>
+                    )}
+        
+                    {/* Cerrar sesión */}
+                    <Box sx={{ mt: 4 }}>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            fullWidth
+                            onClick={handleLogout}
+                            startIcon={<LogoutIcon />}
+                            sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 'medium' }}
+                        >
+                            Cerrar sesión
+                        </Button>
                     </Box>
-                )}
-
-                {/* Botón de cerrar sesión */}
-                <Box sx={{ mt: 'auto', pt: 2 }}>
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={handleLogout}
-                        startIcon={<LogoutIcon />}
-                        fullWidth
-                        sx={{ borderRadius: 1, textTransform: 'none' }}
-                    >
-                        Cerrar Sesión
-                    </Button>
+                </Box>
+        
+                {/* Footer */}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-around',
+                        alignItems: 'center',
+                        py: 1.5,
+                        px: 3,
+                        borderTop: '1px solid #e0e0e0',
+                        bgcolor: '#ffffff'
+                    }}
+                >
+                    <IconButton color="primary">
+                        <SettingsIcon />
+                    </IconButton>
+                    <IconButton color="primary">
+                        <Badge badgeContent={notificaciones} color="error">
+                            <NotificationsIcon />
+                        </Badge>
+                    </IconButton>
+                    <IconButton color="primary">
+                        <SearchIcon />
+                    </IconButton>
                 </Box>
             </Box>
-
-            {/* Footer */}
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    py: 1.5,
-                    px: 4,
-                    borderTop: '1px solid rgba(0,0,0,0.05)',
-                    bgcolor: 'white'
-                }}
-            >
-                <IconButton color="primary">
-                    <SettingsIcon />
-                </IconButton>
-                <IconButton color="primary">
-                    <Badge badgeContent={notificaciones} color="primary">
-                        <NotificationsIcon />
-                    </Badge>
-                </IconButton>
-                <IconButton color="primary">
-                    <SearchIcon />
-                </IconButton>
-            </Box>
-        </Box>
-    );
-};
+        );
+    }        
 
 export default HuespedDashboard;
