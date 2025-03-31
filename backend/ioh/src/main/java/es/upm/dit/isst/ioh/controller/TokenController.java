@@ -8,6 +8,7 @@ import es.upm.dit.isst.ioh.repository.CerraduraRepository;
 import es.upm.dit.isst.ioh.repository.UsuarioRepository;
 import es.upm.dit.isst.ioh.service.CerraduraService;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +44,7 @@ public class TokenController {
         Optional<Token> existingToken = tokenRepository.findByCodigo(token.getCodigo());
         if (existingToken.isPresent()) {
             return ResponseEntity.status(462).body(null); // Código ya existe
-        } else{
+        } else {
             token.setUsosActuales(0);
             Token creado = tokenRepository.save(token);
             return ResponseEntity.ok(creado);
@@ -104,5 +105,22 @@ public class TokenController {
     @GetMapping
     public Iterable<Token> getAll() {
         return tokenRepository.findAll();
+    }
+
+        @PutMapping("/{id}")
+    public ResponseEntity<?> updateToken(@PathVariable Long id, @RequestBody Token updatedToken) {
+        Optional<Token> existingToken = tokenRepository.findById(id);
+        if (existingToken.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Token no encontrado");
+        }
+
+        Token token = existingToken.get();
+        token.setUsosActuales(updatedToken.getUsosActuales());
+        token.setFechaExpiracion(updatedToken.getFechaExpiracion());
+        token.setUsosMaximos(updatedToken.getUsosMaximos());
+        // Update other fields as needed
+
+        tokenRepository.save(token); // Save the updated token
+        return ResponseEntity.ok("Token actualizado correctamente");
     }
 }

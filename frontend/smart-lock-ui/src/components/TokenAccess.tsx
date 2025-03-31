@@ -46,6 +46,11 @@ const TokenAccess = () => {
         throw new Error('Token sin usos disponibles');
       }
 
+      // Verificar si el toke ha expirado
+      if (new Date(tokenObj.fechaExpiracion) < new Date() || tokenObj.fechaExpiracion === null) {
+        throw new Error('El token ha expirado');
+      }
+
       // Si llegamos aquí, el token es válido
       // Intentamos obtener el ID del propietario para abrir la puerta
       let usuarioIdParaAbrir;
@@ -89,16 +94,23 @@ const TokenAccess = () => {
       try {
         const updatedToken = {
           ...tokenObj,
-          usosActuales: (tokenObj.usosActuales || 0) + 1
+          usosActuales: (tokenObj.usosActuales || 0) + 1,
         };
+        
+        console.log('Actualizando usos del token. Usos actuales:', updatedToken.usosActuales);
 
-        await fetch(`${API_BASE_URL}/api/tokens`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updatedToken),
+        const resA = await fetch(`${API_BASE_URL}/api/tokens/${tokenObj.id}`, {
+          method: 'PUT', // Use PUT to update the existing token
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedToken), // Send the updated token data
         });
+        
+        if (!resA.ok) {
+          console.log('No se ha actualizado los usos del token');
+        } else {
+          console.log('Usos del token actualizados correctamente');
+        }
+        
       } catch (e) {
         console.warn('No se pudo actualizar el uso del token, pero la puerta ya se abrió');
       }
