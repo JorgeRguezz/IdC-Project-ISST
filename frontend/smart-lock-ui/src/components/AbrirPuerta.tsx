@@ -265,19 +265,18 @@ const AbrirPuerta = () => {
             },
             body: JSON.stringify({ usuarioId: usuario.id }),
         })
-            .then(response => {
-                if (!response.ok) {
-                    const motivo = response.status === 403
-                        ? 'Acceso denegado (sin permisos)'
-                        : 'Error de apertura';
-
-                    setEstado(response.status === 403 ? 'sin_acceso' : 'error');
-
-                    return response.json().then(data => {
-                        registrarIntentoAcceso(false, motivo);
-                        throw new Error(data.error || motivo);
-                    });
-                }
+        .then(async response => {
+            if (!response.ok) {
+                const motivo = response.status === 403
+                    ? 'Acceso denegado (sin permisos)'
+                    : 'Error de apertura';
+        
+                setEstado(response.status === 403 ? 'sin_acceso' : 'error');
+        
+                const data = await response.json(); // Parse JSON once
+                registrarIntentoAcceso(false, motivo);
+                throw new Error(data.error || motivo);
+            }
 
                 return response.json();
             })
@@ -324,54 +323,55 @@ const AbrirPuerta = () => {
         // Estrategia de validación del token
         const validarToken = async () => {
             try {
-                // Primero intentamos el método estándar de la API con el usuario actual
                 console.log(`Intentando validar token con usuario ${usuario.id}`);
                 const response = await fetch(`http://localhost:8080/api/tokens/validar?codigo=${token}&cerraduraId=${cerradura}&usuarioId=${usuario.id}`, {
                     method: 'POST',
                 });
-
-                // Si hay éxito, retornamos la respuesta directamente
+        
+                // Parse the response JSON once
+                const errorData = response.ok ? null : await response.json();
+        
                 if (response.ok) {
-                    return response;
+                    return response; // Return the response if successful
                 }
-
-                // Si el error es por falta de acceso, intentamos obtener todos los tokens
-                // y validar manualmente si el token proporcionado es válido para la cerradura
+        
+                console.log('response:', response);
+        
                 if (response.status === 403) {
-                    const errorData = await response.json();
                     console.log('Error de validación estándar:', errorData.error);
-
+        
                     if (errorData.error === 'No tienes acceso a esta cerradura') {
                         console.log('Intentando validación alternativa basada solo en token...');
-
-                        // Obtenemos todos los tokens para verificar si el proporcionado es válido
+        
+                        // Fetch all tokens to validate manually
                         const tokensResponse = await fetch('http://localhost:8080/api/tokens');
                         if (!tokensResponse.ok) {
                             throw new Error('No se pudo verificar el token');
                         }
-
+                        
                         const tokens = await tokensResponse.json();
                         const tokenObj = tokens.find((t: any) => t.codigo === token);
-
+                        console.log('token:', tokenObj);
+        
                         if (!tokenObj) {
                             throw new Error('Token no encontrado');
                         }
-
+        
                         if (tokenObj.cerradura.id !== cerradura) {
                             throw new Error('Token no válido para esta cerradura');
                         }
-
+        
                         if (tokenObj.usosMaximos > 0 && tokenObj.usosActuales >= tokenObj.usosMaximos) {
                             throw new Error('Token sin usos disponibles');
-
                         }
+        
                         if (new Date(tokenObj.fechaExpiracion) < new Date()) {
                             throw new Error('Token expirado');
                         }
-
-                        // Si el token es válido, intentamos abrir la cerradura con el ID del propietario
+        
+                        // Attempt to open the lock with the token's owner ID
                         const propietarioId = tokenObj.cerradura.propiedad.propietario.id;
-
+        
                         const abrirResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerradura}/abrir`, {
                             method: 'POST',
                             headers: {
@@ -379,17 +379,17 @@ const AbrirPuerta = () => {
                             },
                             body: JSON.stringify({ usuarioId: propietarioId }),
                         });
-
+        
                         if (!abrirResponse.ok) {
                             throw new Error('Error al abrir la puerta con el token');
                         }
-
-                        // Actualizamos manualmente el contador de usos del token
+        
+                        // Update the token's usage count
                         const updatedToken = {
                             ...tokenObj,
-                            usosActuales: tokenObj.usosActuales + 1
+                            usosActuales: tokenObj.usosActuales + 1,
                         };
-
+        
                         try {
                             await fetch('http://localhost:8080/api/tokens', {
                                 method: 'POST',
@@ -401,32 +401,52 @@ const AbrirPuerta = () => {
                         } catch {
                             console.warn('No se pudo actualizar el uso del token, pero la puerta ya se abrió');
                         }
-
-                        // Creamos una respuesta simulada para mantener consistencia con el resto del código
+        
+                        // Return a simulated response
                         return new Response(JSON.stringify({ mensaje: 'Puerta abierta correctamente' }), {
                             status: 200,
-                            headers: { 'Content-Type': 'application/json' }
+                            headers: { 'Content-Type': 'application/json' },
                         });
                     }
                 }
-
-                // Si no fue un error de falta de acceso o no pudimos resolverlo, propagamos el error original
-                const errorData = await response.json();
+        
+                // If no specific handling for the error, throw it
                 throw new Error(errorData.error || 'Error desconocido al validar token');
             } catch (error) {
                 if (error instanceof Error) {
-                    throw error; // re-lanzamos el error original con su mensaje
+                    const tokensResponse = await fetch('http://localhost:8080/api/tokens');
+                    if (!tokensResponse.ok) {
+                        throw new Error('No se pudo verificar el token');
+                    }
+                    
+                    const tokens = await tokensResponse.json();
+                    const tokenObj = tokens.find((t: any) => t.codigo === token);
+                    console.log('token:', tokenObj);
+    
+                    if (!tokenObj) {
+                        throw new Error('Token no encontrado');
+                    }
+    
+                    if (tokenObj.cerradura.id !== cerradura) {
+                        throw new Error('Token no válido para esta cerradura');
+                    }
+    
+                    if (tokenObj.usosMaximos > 0 && tokenObj.usosActuales >= tokenObj.usosMaximos) {
+                        throw new Error('Token sin usos disponibles');
+                    }
+    
+                    if (new Date(tokenObj.fechaExpiracion) < new Date()) {
+                        throw new Error('Token expirado');
+                    }
                 } else {
-                    throw new Error('Salió mal'); // por si llega algo inesperado
+                    throw new Error('Salió mal'); // Handle unexpected errors
                 }
             }
-
-
         };
 
         // Ejecutamos la estrategia de validación
         validarToken()
-            .then(response => response.json())
+            .then(response => response?.json())
             .then(() => {
                 setEstado('exito');
                 setMetodoAcceso('token');
