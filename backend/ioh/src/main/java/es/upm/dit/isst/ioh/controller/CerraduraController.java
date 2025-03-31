@@ -5,6 +5,7 @@ import es.upm.dit.isst.ioh.repository.CerraduraRepository;
 import es.upm.dit.isst.ioh.repository.AccesoRepository;
 import es.upm.dit.isst.ioh.service.CerraduraService;
 import es.upm.dit.isst.ioh.service.CerraduraService.AperturaResult;
+import es.upm.dit.isst.ioh.dto.CerraduraInfoDTO;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -111,41 +112,73 @@ public class CerraduraController {
         }
 
         Cerradura cerradura = optCerradura.get();
-
-        // Cambiar estado de la cerradura
         cerradura.setBloqueada(true);
         cerraduraRepository.save(cerradura);
 
         return ResponseEntity.ok().body(Map.of("mensaje", "Puerta cerrada correctamente"));
     }
 
+    /**
+     * Obtiene el nombre de la propiedad asociada a una cerradura
+     * 
+     * @param id ID de la cerradura
+     * @return Nombre de la propiedad
+     */
     @GetMapping("/{id}/propiedad/nombre")
-    public ResponseEntity<String> obtenerNombrePropiedad(@PathVariable Long id) {
+    public ResponseEntity<String> getNombrePropiedad(@PathVariable Long id) {
         String nombrePropiedad = cerraduraService.obtenerNombrePropiedadPorCerradura(id);
         return ResponseEntity.ok(nombrePropiedad);
     }
 
+    /**
+     * Obtiene la dirección de la propiedad asociada a una cerradura
+     * 
+     * @param id ID de la cerradura
+     * @return Dirección de la propiedad
+     */
     @GetMapping("/{id}/propiedad/direccion")
-    public ResponseEntity<String> obtenerDireccionPropiedad(@PathVariable Long id) {
+    public ResponseEntity<String> getDireccionPropiedad(@PathVariable Long id) {
         String direccionPropiedad = cerraduraService.obtenerDireccionPropiedadPorCerradura(id);
         return ResponseEntity.ok(direccionPropiedad);
     }
 
+    /**
+     * Obtiene el nombre del propietario asociado a una cerradura
+     * 
+     * @param id ID de la cerradura
+     * @return Nombre del propietario
+     */
     @GetMapping("/{id}/propietario/nombre")
-    public ResponseEntity<String> obtenerNombrePropietario(@PathVariable Long id) {
+    public ResponseEntity<String> getNombrePropietario(@PathVariable Long id) {
         String nombrePropietario = cerraduraService.obtenerNombrePropietarioPorCerradura(id);
         return ResponseEntity.ok(nombrePropietario);
     }
 
     /**
-     * Endpoint para obtener el nombre de una cerradura por su ID
+     * Obtiene el nombre o modelo de la cerradura
      * 
      * @param id ID de la cerradura
-     * @return Nombre de la cerradura
+     * @return Nombre o modelo de la cerradura
      */
     @GetMapping("/{id}/nombre")
-    public ResponseEntity<String> obtenerNombreCerradura(@PathVariable Long id) {
+    public ResponseEntity<String> getNombreCerradura(@PathVariable Long id) {
         String nombreCerradura = cerraduraService.obtenerNombreCerradura(id);
         return ResponseEntity.ok(nombreCerradura);
+    }
+
+    /**
+     * Obtiene toda la información de una cerradura en un solo objeto
+     * 
+     * @param id        ID de la cerradura
+     * @param usuarioId ID del usuario que solicita la información (opcional)
+     * @return DTO con toda la información de la cerradura, propiedad y propietario
+     */
+    @GetMapping("/{id}/info")
+    public ResponseEntity<?> getInformacionCerradura(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long usuarioId) {
+
+        CerraduraInfoDTO info = cerraduraService.obtenerInformacionCerradura(id, usuarioId);
+        return ResponseEntity.ok(info);
     }
 }

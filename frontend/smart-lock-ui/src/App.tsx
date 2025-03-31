@@ -77,6 +77,7 @@ function App() {
               </AuthGuard>
             }
           />
+          <Route path="/abrir-puerta/cerradura/:cerraduraId" element={<AbrirPuerta />} />
           {/* Additional routes will be added later */}
           <Route path="*" element={<Home />} />
         </Routes>

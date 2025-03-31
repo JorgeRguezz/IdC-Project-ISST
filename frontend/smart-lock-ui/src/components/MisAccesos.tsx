@@ -149,7 +149,7 @@ const MisAccesos = () => {
                         // PASO 2: Obtener el nombre de la propiedad con manejo seguro
                         const propiedad = cerradura.propiedad || item.propiedad || {};
                         propiedadId = propiedad.id || null;
-                        
+
                         // PASO ÚNICO: Obtener el nombre de la propiedad directamente desde la API
                         let nombrePropiedad = "Propiedad no identificada";
 
@@ -170,7 +170,7 @@ const MisAccesos = () => {
                                 if (!response.ok) {
                                     throw new Error(`HTTP error! status: ${response.status}`);
                                 }
-                                
+
                                 nombrePropiedad = await response.text();
                                 console.log('Nombre de propiedad obtenido del servidor:', nombrePropiedad);
                             } catch (error) {
@@ -387,7 +387,7 @@ const MisAccesos = () => {
                     </Typography>
                 </Box>
             </Box>
-    
+
             {/* Contenido principal */}
             <Box
                 sx={{
@@ -413,7 +413,7 @@ const MisAccesos = () => {
                         las puertas correspondientes durante el período autorizado por el propietario.
                     </Typography>
                 </Paper>
-    
+
                 {/* Lista de accesos */}
                 {cargando ? (
                     <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
@@ -471,9 +471,9 @@ const MisAccesos = () => {
                                         sx={{ height: 24 }}
                                     />
                                 </Box>
-    
+
                                 <Divider sx={{ my: 2 }} />
-    
+
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                     <AccessTimeIcon sx={{ fontSize: 20, color: '#0d6efd', mr: 1 }} />
                                     <Typography variant="body2" fontWeight="medium" color="text.primary">
@@ -488,7 +488,7 @@ const MisAccesos = () => {
                                         Hasta: <strong>{formatearFecha(acceso.fechaFin)}</strong>
                                     </Typography>
                                 </Box>
-    
+
                                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
                                     <Typography variant="body2" fontWeight="medium" color="text.primary">
                                         Propietario:
@@ -497,13 +497,13 @@ const MisAccesos = () => {
                                         {acceso.propietario}
                                     </Typography>
                                 </Box>
-    
+
                                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
                                     <Button
                                         variant="contained"
                                         color="primary"
                                         disabled={!activo}
-                                        onClick={() => navigate(`/abrir-puerta/${acceso.cerraduraId}`)}
+                                        onClick={() => navigate(`/abrir-puerta/cerradura/${acceso.cerraduraId}`)}
                                         sx={{
                                             borderRadius: 2,
                                             textTransform: 'none',
@@ -520,7 +520,7 @@ const MisAccesos = () => {
                 )}
             </Box>
         </Box>
-    );    
+    );
 };
 
 export default MisAccesos;

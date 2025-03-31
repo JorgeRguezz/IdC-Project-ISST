@@ -13,15 +13,22 @@ interface PropiedadDetalle {
     direccion: string;
 }
 
+interface CerraduraDetalle {
+    id: number;
+    nombre: string;
+    propiedad?: PropiedadDetalle;
+}
+
 // Estados posibles para la vista de apertura
 type EstadoApertura = 'inicial' | 'conectando' | 'error' | 'tokenForm' | 'exito' | 'sin_acceso';
 
 const AbrirPuerta = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { propiedadId } = useParams();
+    const { propiedadId, cerraduraId } = useParams<{ propiedadId?: string; cerraduraId?: string }>();
     const [propiedad, setPropiedad] = useState<PropiedadDetalle | null>(null);
     const [cerradura, setCerradura] = useState<number | null>(null);
+    const [cerraduraDetalle, setCerraduraDetalle] = useState<CerraduraDetalle | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [estado, setEstado] = useState<EstadoApertura>('inicial');
     const [error, setError] = useState<string>('');
@@ -33,41 +40,85 @@ const AbrirPuerta = () => {
     // Obtener usuario del almacenamiento local
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 
-    // Recuperar los datos de la propiedad desde location.state o hacer una llamada a la API
+    // Recuperar los datos de la propiedad o cerradura según corresponda
     useEffect(() => {
-        const fetchPropiedad = async () => {
+        const fetchData = async () => {
+            // Si tenemos datos de la propiedad en el state, los usamos directamente
             if (location.state?.propiedad) {
                 setPropiedad(location.state.propiedad);
                 return;
             }
-    
-            if (propiedadId) {
-                setIsLoading(true);
-                try {
+
+            setIsLoading(true);
+
+            try {
+                // Caso 1: Tenemos un ID de cerradura (navegación desde HuespedDashboard o MisAccesos)
+                if (cerraduraId) {
+                    console.log('Obteniendo información de cerradura:', cerraduraId);
+
+                    // Obtener información de la cerradura
+                    const cerraduraResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}`);
+                    if (!cerraduraResponse.ok) {
+                        throw new Error('No se pudo recuperar la información de la cerradura');
+                    }
+
+                    const cerraduraData = await cerraduraResponse.json();
+                    setCerraduraDetalle(cerraduraData);
+                    setCerradura(parseInt(cerraduraId));
+
+                    // Obtener información de la propiedad asociada a la cerradura
+                    const propiedadNombreResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propiedad/nombre`);
+                    const propiedadDireccionResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propiedad/direccion`);
+
+                    if (propiedadNombreResponse.ok && propiedadDireccionResponse.ok) {
+                        const nombre = await propiedadNombreResponse.text();
+                        const direccion = await propiedadDireccionResponse.text();
+
+                        // Crear un objeto de propiedad con la información obtenida
+                        const propiedadData: PropiedadDetalle = {
+                            id: cerraduraData.propiedadId || 0,
+                            nombre: nombre,
+                            direccion: direccion
+                        };
+
+                        setPropiedad(propiedadData);
+
+                        // Verificar acceso del usuario a la cerradura
+                        verificarAccesoUsuario(parseInt(cerraduraId));
+                    } else {
+                        throw new Error('No se pudo recuperar la información de la propiedad');
+                    }
+                }
+                // Caso 2: Tenemos un ID de propiedad (navegación desde PropietarioDashboard)
+                else if (propiedadId) {
                     const response = await fetch(`http://localhost:8080/api/propiedades/${propiedadId}`);
                     if (!response.ok) {
                         throw new Error('No se pudo recuperar la propiedad');
                     }
                     const data: PropiedadDetalle = await response.json();
                     setPropiedad(data);
-                } catch (error) {
-                    console.error('Error al obtener la propiedad:', error);
-                } finally {
-                    setIsLoading(false);
                 }
+                else {
+                    throw new Error('No se proporcionó un ID de propiedad o cerradura');
+                }
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
+                setError(error instanceof Error ? error.message : 'Error desconocido');
+                setEstado('error');
+            } finally {
+                setIsLoading(false);
             }
         };
-    
-        fetchPropiedad();
-    }, [propiedadId, location.state]);
-    
 
-    // Cuando se cargue la propiedad, obtener la información de las cerraduras
+        fetchData();
+    }, [propiedadId, cerraduraId, location.state]);
+
+
+    // Cuando se cargue la propiedad pero no tengamos cerradura, obtener la información de las cerraduras
     useEffect(() => {
-        if (propiedad) {
+        // Solo ejecutar si tenemos propiedad pero no cerradura (caso de navegación desde PropietarioDashboard)
+        if (propiedad && !cerradura) {
             setIsLoading(true);
-            // En una app real, haríamos una llamada a la API para obtener las cerraduras de esta propiedad
-            // Simulamos que obtenemos la primera cerradura de la propiedad
             fetch(`http://localhost:8080/api/cerraduras/propiedad/${propiedad.id}`)
                 .then(response => {
                     if (!response.ok) {
@@ -94,7 +145,7 @@ const AbrirPuerta = () => {
                     setIsLoading(false);
                 });
         }
-    }, [propiedad]);
+    }, [propiedad, cerradura]);
 
     // Verificar si el usuario tiene acceso a la cerradura
     const verificarAccesoUsuario = (cerraduraId: number) => {
@@ -178,8 +229,8 @@ const AbrirPuerta = () => {
                 motivo,
                 usuario: { id: usuario.id },
                 cerradura: { id: cerradura }
-              });
-           
+            });
+
 
 
 
@@ -187,7 +238,7 @@ const AbrirPuerta = () => {
             console.error('Error al registrar intento de apertura:', error);
         }
     };
-    
+
 
     const handleAbrirPuerta = () => {
         if (!cerradura) {
@@ -196,17 +247,17 @@ const AbrirPuerta = () => {
             registrarIntentoAcceso(false, 'Cerradura no disponible');
             return;
         }
-    
+
         if (!usuario || !usuario.id) {
             setError('Usuario no autenticado');
             setEstado('sin_acceso');
             registrarIntentoAcceso(false, 'Usuario no autenticado');
             return;
         }
-    
+
         setEstado('conectando');
         setError('');
-    
+
         fetch(`http://localhost:8080/api/cerraduras/${cerradura}/abrir`, {
             method: 'POST',
             headers: {
@@ -219,15 +270,15 @@ const AbrirPuerta = () => {
                     const motivo = response.status === 403
                         ? 'Acceso denegado (sin permisos)'
                         : 'Error de apertura';
-    
+
                     setEstado(response.status === 403 ? 'sin_acceso' : 'error');
-    
+
                     return response.json().then(data => {
                         registrarIntentoAcceso(false, motivo);
                         throw new Error(data.error || motivo);
                     });
                 }
-    
+
                 return response.json();
             })
             .then(data => {
@@ -312,7 +363,7 @@ const AbrirPuerta = () => {
 
                         if (tokenObj.usosMaximos > 0 && tokenObj.usosActuales >= tokenObj.usosMaximos) {
                             throw new Error('Token sin usos disponibles');
-                            
+
                         }
                         if (new Date(tokenObj.fechaExpiracion) < new Date()) {
                             throw new Error('Token expirado');
@@ -369,8 +420,8 @@ const AbrirPuerta = () => {
                     throw new Error('Salió mal'); // por si llega algo inesperado
                 }
             }
-            
-            
+
+
         };
 
         // Ejecutamos la estrategia de validación
@@ -1045,4 +1096,4 @@ const AbrirPuerta = () => {
     );
 };
 
-export default AbrirPuerta; 
+export default AbrirPuerta;

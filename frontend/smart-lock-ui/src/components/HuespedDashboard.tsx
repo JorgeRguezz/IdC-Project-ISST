@@ -144,7 +144,7 @@ const HuespedDashboard = () => {
     // Función para abrir una puerta
     const handleAbrirPuerta = (cerraduraId: number) => {
         console.log('Navegando a abrir puerta:', cerraduraId);
-        navigate(`/abrir-puerta/${cerraduraId}`);
+        navigate(`/abrir-puerta/cerradura/${cerraduraId}`);
     };
 
     // Función para ir a la página de mis accesos
@@ -194,7 +194,7 @@ const HuespedDashboard = () => {
                         {meses[mes]} {año}
                     </Typography>
                 </Box>
-        
+
                 {/* Días de la semana */}
                 <Box
                     sx={{
@@ -220,7 +220,7 @@ const HuespedDashboard = () => {
                         </Typography>
                     ))}
                 </Box>
-        
+
                 {/* Días del mes */}
                 <Box
                     sx={{
@@ -233,11 +233,11 @@ const HuespedDashboard = () => {
                     {Array.from({ length: primerDiaAjustado }).map((_, i) => (
                         <Box key={`empty-${i}`} />
                     ))}
-        
+
                     {Array.from({ length: diasEnMes }).map((_, i) => {
                         const diaActual = i + 1;
                         const esHoy = diaActual === hoy.getDate() && mes === hoy.getMonth() && año === hoy.getFullYear();
-        
+
                         return (
                             <Box
                                 key={diaActual}
@@ -270,196 +270,37 @@ const HuespedDashboard = () => {
                 </Box>
             </Box>
         );
-        }
+    }
 
-        return (
+    return (
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100vh',
+                bgcolor: '#f9f9f9',
+                overflow: 'hidden'
+            }}
+        >
+            {/* Header */}
             <Box
                 sx={{
                     display: 'flex',
-                    flexDirection: 'column',
-                    width: '100%',
-                    height: '100vh',
-                    bgcolor: '#f9f9f9',
-                    overflow: 'hidden'
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    px: 3,
+                    py: 2,
+                    bgcolor: '#ffffff',
+                    borderBottom: '1px solid #e0e0e0',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                    zIndex: 10
                 }}
             >
-                {/* Header */}
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        px: 3,
-                        py: 2,
-                        bgcolor: '#ffffff',
-                        borderBottom: '1px solid #e0e0e0',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                        zIndex: 10
-                    }}
-                >
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0d6efd' }}>
-                        IOH
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <IconButton color="primary">
-                            <SettingsIcon />
-                        </IconButton>
-                        <IconButton color="primary">
-                            <Badge badgeContent={notificaciones} color="error">
-                                <NotificationsIcon />
-                            </Badge>
-                        </IconButton>
-                        <IconButton color="primary">
-                            <SearchIcon />
-                        </IconButton>
-                        <Avatar
-                            sx={{
-                                width: 36,
-                                height: 36,
-                                ml: 1,
-                                bgcolor: '#0d6efd',
-                                fontWeight: 'bold',
-                                fontSize: '1rem',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            {usuario?.nombre?.charAt(0) || 'U'}
-                        </Avatar>
-                    </Box>
-                </Box>
-        
-                {/* Contenido */}
-                <Box
-                    sx={{
-                        flexGrow: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        p: 3,
-                        overflowY: 'auto'
-                    }}
-                >
-                    {/* Saludo */}
-                    <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
-                        Hola, {usuario?.nombre || 'Invitado'}
-                    </Typography>
-        
-                    {/* Calendario */}
-                    <Paper elevation={0} sx={{ borderRadius: 3, mb: 3 }}>
-                        {generarCalendario()}
-                    </Paper>
-        
-                    {/* Botón Mis Accesos */}
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleMisPuertas}
-                        fullWidth
-                        sx={{
-                            borderRadius: 2,
-                            textTransform: 'none',
-                            fontWeight: 'medium',
-                            py: 1.5,
-                            mb: 3
-                        }}
-                    >
-                        Mis Accesos
-                    </Button>
-        
-                    {/* Lista de Accesos Activos */}
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
-                        Accesos activos
-                    </Typography>
-        
-                    {cargando ? (
-                        <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
-                            <CircularProgress sx={{ mb: 2, color: '#0d6efd' }} />
-                            <Typography>Cargando tus accesos...</Typography>
-                        </Paper>
-                    ) : error ? (
-                        <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
-                            <ErrorOutlineIcon sx={{ color: '#f44336', fontSize: 48, mb: 2 }} />
-                            <Typography variant="body1" color="error" sx={{ fontWeight: 'medium', mb: 1 }}>
-                                Error al cargar tus accesos
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                {error}
-                            </Typography>
-                            <Button variant="outlined" color="primary" onClick={() => window.location.reload()}>
-                                Reintentar
-                            </Button>
-                        </Paper>
-                    ) : cerraduras.length === 0 ? (
-                        <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
-                            <DoorFrontIcon sx={{ color: '#9e9e9e', fontSize: 48, mb: 2 }} />
-                            <Typography variant="body1" fontWeight="medium" mb={1}>
-                                No tienes accesos asignados
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                Contacta con el propietario para obtener acceso.
-                            </Typography>
-                        </Paper>
-                    ) : (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            {cerraduras.map((cerradura) => (
-                                <Paper
-                                    key={cerradura.id}
-                                    sx={{
-                                        p: 2,
-                                        borderRadius: 2,
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        bgcolor: 'white',
-                                        border: '1px solid #e0e0e0'
-                                    }}
-                                >
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <DoorFrontIcon sx={{ color: '#0d6efd' }} />
-                                        <Typography variant="subtitle1" fontWeight="medium">
-                                            {cerradura.nombre}
-                                        </Typography>
-                                    </Box>
-                                    <Button
-                                        variant="outlined"
-                                        color="primary"
-                                        onClick={() => handleAbrirPuerta(cerradura.id)}
-                                        endIcon={<KeyboardArrowRightIcon />}
-                                        sx={{ borderRadius: 1, textTransform: 'none' }}
-                                    >
-                                        Abrir
-                                    </Button>
-                                </Paper>
-                            ))}
-                        </Box>
-                    )}
-        
-                    {/* Cerrar sesión */}
-                    <Box sx={{ mt: 4 }}>
-                        <Button
-                            variant="outlined"
-                            color="primary"
-                            fullWidth
-                            onClick={handleLogout}
-                            startIcon={<LogoutIcon />}
-                            sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 'medium' }}
-                        >
-                            Cerrar sesión
-                        </Button>
-                    </Box>
-                </Box>
-        
-                {/* Footer */}
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-around',
-                        alignItems: 'center',
-                        py: 1.5,
-                        px: 3,
-                        borderTop: '1px solid #e0e0e0',
-                        bgcolor: '#ffffff'
-                    }}
-                >
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0d6efd' }}>
+                    IOH
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <IconButton color="primary">
                         <SettingsIcon />
                     </IconButton>
@@ -471,9 +312,168 @@ const HuespedDashboard = () => {
                     <IconButton color="primary">
                         <SearchIcon />
                     </IconButton>
+                    <Avatar
+                        sx={{
+                            width: 36,
+                            height: 36,
+                            ml: 1,
+                            bgcolor: '#0d6efd',
+                            fontWeight: 'bold',
+                            fontSize: '1rem',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        {usuario?.nombre?.charAt(0) || 'U'}
+                    </Avatar>
                 </Box>
             </Box>
-        );
-    }        
+
+            {/* Contenido */}
+            <Box
+                sx={{
+                    flexGrow: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    p: 3,
+                    overflowY: 'auto'
+                }}
+            >
+                {/* Saludo */}
+                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
+                    Hola, {usuario?.nombre || 'Invitado'}
+                </Typography>
+
+                {/* Calendario */}
+                <Paper elevation={0} sx={{ borderRadius: 3, mb: 3 }}>
+                    {generarCalendario()}
+                </Paper>
+
+                {/* Botón Mis Accesos */}
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleMisPuertas}
+                    fullWidth
+                    sx={{
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontWeight: 'medium',
+                        py: 1.5,
+                        mb: 3
+                    }}
+                >
+                    Mis Accesos
+                </Button>
+
+                {/* Lista de Accesos Activos */}
+                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+                    Accesos activos
+                </Typography>
+
+                {cargando ? (
+                    <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
+                        <CircularProgress sx={{ mb: 2, color: '#0d6efd' }} />
+                        <Typography>Cargando tus accesos...</Typography>
+                    </Paper>
+                ) : error ? (
+                    <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
+                        <ErrorOutlineIcon sx={{ color: '#f44336', fontSize: 48, mb: 2 }} />
+                        <Typography variant="body1" color="error" sx={{ fontWeight: 'medium', mb: 1 }}>
+                            Error al cargar tus accesos
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                            {error}
+                        </Typography>
+                        <Button variant="outlined" color="primary" onClick={() => window.location.reload()}>
+                            Reintentar
+                        </Button>
+                    </Paper>
+                ) : cerraduras.length === 0 ? (
+                    <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
+                        <DoorFrontIcon sx={{ color: '#9e9e9e', fontSize: 48, mb: 2 }} />
+                        <Typography variant="body1" fontWeight="medium" mb={1}>
+                            No tienes accesos asignados
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Contacta con el propietario para obtener acceso.
+                        </Typography>
+                    </Paper>
+                ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {cerraduras.map((cerradura) => (
+                            <Paper
+                                key={cerradura.id}
+                                sx={{
+                                    p: 2,
+                                    borderRadius: 2,
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    bgcolor: 'white',
+                                    border: '1px solid #e0e0e0'
+                                }}
+                            >
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                    <DoorFrontIcon sx={{ color: '#0d6efd' }} />
+                                    <Typography variant="subtitle1" fontWeight="medium">
+                                        {cerradura.nombre}
+                                    </Typography>
+                                </Box>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={() => handleAbrirPuerta(cerradura.id)}
+                                    endIcon={<KeyboardArrowRightIcon />}
+                                    sx={{ borderRadius: 1, textTransform: 'none' }}
+                                >
+                                    Abrir
+                                </Button>
+                            </Paper>
+                        ))}
+                    </Box>
+                )}
+
+                {/* Cerrar sesión */}
+                <Box sx={{ mt: 4 }}>
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        fullWidth
+                        onClick={handleLogout}
+                        startIcon={<LogoutIcon />}
+                        sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 'medium' }}
+                    >
+                        Cerrar sesión
+                    </Button>
+                </Box>
+            </Box>
+
+            {/* Footer */}
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-around',
+                    alignItems: 'center',
+                    py: 1.5,
+                    px: 3,
+                    borderTop: '1px solid #e0e0e0',
+                    bgcolor: '#ffffff'
+                }}
+            >
+                <IconButton color="primary">
+                    <SettingsIcon />
+                </IconButton>
+                <IconButton color="primary">
+                    <Badge badgeContent={notificaciones} color="error">
+                        <NotificationsIcon />
+                    </Badge>
+                </IconButton>
+                <IconButton color="primary">
+                    <SearchIcon />
+                </IconButton>
+            </Box>
+        </Box>
+    );
+}
 
 export default HuespedDashboard;

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.upm.dit.isst.ioh.dto.CerraduraInfoDTO;
 import es.upm.dit.isst.ioh.model.Acceso;
 import es.upm.dit.isst.ioh.model.Cerradura;
 import es.upm.dit.isst.ioh.model.Huesped;
@@ -230,5 +231,63 @@ public class CerraduraService {
         Cerradura cerradura = optCerradura.get();
         System.out.println("Modelo de cerradura encontrado: " + cerradura.getModelo());
         return cerradura.getModelo() != null ? cerradura.getModelo() : "Cerradura sin nombre";
+    }
+
+    /**
+     * Obtiene toda la información necesaria de una cerradura en un solo objeto
+     * 
+     * @param cerraduraId ID de la cerradura
+     * @param usuarioId   ID del usuario que solicita la información
+     * @return DTO con toda la información de la cerradura, propiedad y propietario
+     */
+    public CerraduraInfoDTO obtenerInformacionCerradura(Long cerraduraId, Long usuarioId) {
+        System.out.println("Obteniendo información completa para cerradura ID: " + cerraduraId);
+
+        // Inicializar DTO con valores por defecto
+        CerraduraInfoDTO dto = new CerraduraInfoDTO();
+        dto.setCerraduraId(cerraduraId);
+        dto.setCerraduraNombre("Cerradura sin identificar");
+        dto.setCerraduraModelo("Modelo desconocido");
+        dto.setPropiedadNombre("Propiedad no encontrada");
+        dto.setPropiedadDireccion("Dirección no disponible");
+        dto.setPropietarioNombre("Propietario desconocido");
+        dto.setTieneAcceso(false);
+
+        // Buscar la cerradura
+        Optional<Cerradura> optCerradura = cerraduraRepository.findById(cerraduraId);
+        if (optCerradura.isEmpty()) {
+            System.out.println("Cerradura no encontrada");
+            return dto;
+        }
+
+        Cerradura cerradura = optCerradura.get();
+
+        // Información de la cerradura
+        dto.setCerraduraNombre(cerradura.getModelo());
+        dto.setCerraduraModelo(cerradura.getModelo() != null ? cerradura.getModelo() : "Modelo desconocido");
+
+        // Información de la propiedad
+        Propiedad propiedad = cerradura.getPropiedad();
+        if (propiedad != null) {
+            dto.setPropiedadId(propiedad.getId());
+            dto.setPropiedadNombre(propiedad.getNombre() != null ? propiedad.getNombre() : "Propiedad sin nombre");
+            dto.setPropiedadDireccion(
+                    propiedad.getDireccion() != null ? propiedad.getDireccion() : "Dirección no disponible");
+
+            // Información del propietario
+            Propietario propietario = propiedad.getPropietario();
+            if (propietario != null) {
+                dto.setPropietarioId(propietario.getId());
+                dto.setPropietarioNombre(
+                        propietario.getNombre() != null ? propietario.getNombre() : "Propietario desconocido");
+            }
+        }
+
+        // Verificar si el usuario tiene acceso a esta cerradura
+        if (usuarioId != null) {
+            dto.setTieneAcceso(verificarAccesoUsuario(usuarioId, cerraduraId));
+        }
+
+        return dto;
     }
 }
