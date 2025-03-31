@@ -237,7 +237,7 @@ const AbrirPuerta = () => {
             })
             .catch(error => {
                 console.error('Error al abrir puerta:', error);
-                setError(error.message);
+                setError('Error al abrir puerta');
             });
     };
 
@@ -312,6 +312,10 @@ const AbrirPuerta = () => {
 
                         if (tokenObj.usosMaximos > 0 && tokenObj.usosActuales >= tokenObj.usosMaximos) {
                             throw new Error('Token sin usos disponibles');
+                            
+                        }
+                        if (new Date(tokenObj.fechaExpiracion) < new Date()) {
+                            throw new Error('Token expirado');
                         }
 
                         // Si el token es válido, intentamos abrir la cerradura con el ID del propietario
@@ -343,7 +347,7 @@ const AbrirPuerta = () => {
                                 },
                                 body: JSON.stringify(updatedToken),
                             });
-                        } catch (e) {
+                        } catch {
                             console.warn('No se pudo actualizar el uso del token, pero la puerta ya se abrió');
                         }
 
@@ -357,10 +361,16 @@ const AbrirPuerta = () => {
 
                 // Si no fue un error de falta de acceso o no pudimos resolverlo, propagamos el error original
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Error al validar el token');
+                throw new Error(errorData.error || 'Error desconocido al validar token');
             } catch (error) {
-                throw new Error('Has superado el número de usos del token.');
+                if (error instanceof Error) {
+                    throw error; // re-lanzamos el error original con su mensaje
+                } else {
+                    throw new Error('Salió mal'); // por si llega algo inesperado
+                }
             }
+            
+            
         };
 
         // Ejecutamos la estrategia de validación

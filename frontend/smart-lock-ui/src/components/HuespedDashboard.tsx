@@ -331,13 +331,13 @@ const HuespedDashboard = () => {
                             py: 1.5
                         }}
                     >
-                        Mis Puertas
+                        Mis Accesos
                     </Button>
                 </Box>
 
                 {/* Lista de cerraduras */}
                 <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                    Puertas
+                    Accesos activos
                 </Typography>
 
                 {cargando ? (
