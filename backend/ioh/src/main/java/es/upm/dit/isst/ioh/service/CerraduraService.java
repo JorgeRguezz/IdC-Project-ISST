@@ -43,7 +43,7 @@ public class CerraduraService {
     /**
      * Verifica si un usuario tiene acceso a una cerradura en este momento
      * 
-     * @param usuarioId ID del usuario
+     * @param usuarioId   ID del usuario
      * @param cerraduraId ID de la cerradura
      * @return true si tiene acceso, false de lo contrario
      */
@@ -87,7 +87,7 @@ public class CerraduraService {
     /**
      * Intenta abrir una cerradura verificando que el usuario tenga acceso
      * 
-     * @param usuarioId ID del usuario que intenta abrir
+     * @param usuarioId   ID del usuario que intenta abrir
      * @param cerraduraId ID de la cerradura a abrir
      * @return Resultado de la operación con un mensaje
      */
@@ -133,19 +133,20 @@ public class CerraduraService {
         }
     }
 
-    //     public String obtenerNombrePropiedadPorCerradura(Long cerraduraId) {
-    //     Optional<Cerradura> optCerradura = cerraduraRepository.findById(cerraduraId);
+    // public String obtenerNombrePropiedadPorCerradura(Long cerraduraId) {
+    // Optional<Cerradura> optCerradura = cerraduraRepository.findById(cerraduraId);
 
-    //     if (optCerradura.isPresent()) {
-    //         Cerradura cerradura = optCerradura.get();
-    //         Propiedad propiedad = cerradura.getPropiedad();
+    // if (optCerradura.isPresent()) {
+    // Cerradura cerradura = optCerradura.get();
+    // Propiedad propiedad = cerradura.getPropiedad();
 
-    //         if (propiedad != null) {
-    //             return propiedad.getNombre(); // Suponiendo que Propiedad tiene un atributo "nombre"
-    //         }
-    //     }
+    // if (propiedad != null) {
+    // return propiedad.getNombre(); // Suponiendo que Propiedad tiene un atributo
+    // "nombre"
+    // }
+    // }
 
-    //     return "Propiedad no encontrada";
+    // return "Propiedad no encontrada";
     // }
     public String obtenerNombrePropiedadPorCerradura(Long cerraduraId) {
         System.out.println("Buscando cerradura con ID: " + cerraduraId); // Debug
@@ -167,7 +168,7 @@ public class CerraduraService {
         System.out.println("Propiedad encontrada: " + propiedad.getNombre()); // Debug
         return propiedad.getNombre() != null ? propiedad.getNombre() : "Propiedad sin nombre";
     }
-    
+
     public String obtenerDireccionPropiedadPorCerradura(Long cerraduraId) {
         System.out.println("Buscando dirección para cerradura con ID: " + cerraduraId);
         Optional<Cerradura> optCerradura = cerraduraRepository.findById(cerraduraId);
@@ -188,26 +189,46 @@ public class CerraduraService {
         System.out.println("Dirección encontrada: " + propiedad.getDireccion());
         return propiedad.getDireccion() != null ? propiedad.getDireccion() : "Dirección no disponible";
     }
-    
+
     public String obtenerNombrePropietarioPorCerradura(Long cerraduraId) {
         System.out.println("Buscando propietario para cerradura ID: " + cerraduraId);
         Optional<Cerradura> optCerradura = cerraduraRepository.findById(cerraduraId);
-    
+
         if (optCerradura.isEmpty()) {
             System.out.println("Cerradura no encontrada");
             return "Propietario desconocido";
         }
-    
+
         Cerradura cerradura = optCerradura.get();
         Propiedad propiedad = cerradura.getPropiedad();
-    
+
         if (propiedad == null || propiedad.getPropietario() == null) {
             System.out.println("Propiedad o propietario no asociado");
             return "Propietario desconocido";
         }
-    
+
         Propietario propietario = propiedad.getPropietario();
         System.out.println("Propietario encontrado: " + propietario.getNombre());
         return propietario.getNombre() != null ? propietario.getNombre() : "Propietario desconocido";
+    }
+
+    /**
+     * Obtiene el nombre de una cerradura por su ID
+     * 
+     * @param cerraduraId ID de la cerradura
+     * @return Nombre de la cerradura o un mensaje por defecto si no se encuentra
+     */
+    public String obtenerNombreCerradura(Long cerraduraId) {
+        System.out.println("Buscando nombre para cerradura ID: " + cerraduraId);
+        Optional<Cerradura> optCerradura = cerraduraRepository.findById(cerraduraId);
+
+        if (optCerradura.isEmpty()) {
+            System.out.println("Cerradura no encontrada");
+            return "Cerradura sin identificar";
+        }
+
+        Cerradura cerradura = optCerradura.get();
+        System.out.println("Modelo de cerradura encontrado: " + cerradura.getModelo());
+        return cerradura.getModelo() != null ? cerradura.getModelo() : "Cerradura sin nombre";
     }
 }

@@ -17,6 +17,7 @@ import MisAccesos from './components/MisAccesos';
 import AnadirPuerta from './components/AnadirPuerta';
 import GestionarAcceso from './components/GestionarAcceso';
 import GestionarToken from './components/GestionarToken';
+import AccesosPropietario from './components/AccesosPropietario';
 
 const theme = createTheme();
 
@@ -45,6 +46,14 @@ function App() {
             }
           />
           <Route
+            path="/accesos-propietario"
+            element={
+              <AuthGuard userType="PROPIETARIO">
+                <AccesosPropietario />
+              </AuthGuard>
+            }
+          />
+          <Route
             path="/huesped-dashboard"
             element={
               <AuthGuard userType="HUESPED">
@@ -61,7 +70,7 @@ function App() {
             }
           />
           <Route
-            path="/abrir-puerta/:propiedadId"
+            path="/abrir-puerta/:cerraduraId"
             element={
               <AuthGuard>
                 <AbrirPuerta />

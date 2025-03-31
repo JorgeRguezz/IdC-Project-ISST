@@ -1,12 +1,15 @@
 package es.upm.dit.isst.ioh.controller;
 
+import es.upm.dit.isst.ioh.model.Acceso;
 import es.upm.dit.isst.ioh.model.Propietario;
 import es.upm.dit.isst.ioh.repository.PropietarioRepository;
+import es.upm.dit.isst.ioh.service.PropietarioService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -14,9 +17,11 @@ import java.util.Optional;
 public class PropietarioController {
 
     private final PropietarioRepository propietarioRepository;
+    private final PropietarioService propietarioService;
 
-    public PropietarioController(PropietarioRepository propietarioRepository) {
+    public PropietarioController(PropietarioRepository propietarioRepository, PropietarioService propietarioService) {
         this.propietarioRepository = propietarioRepository;
+        this.propietarioService = propietarioService;
     }
 
     @PostMapping
@@ -33,5 +38,19 @@ public class PropietarioController {
     @GetMapping
     public Iterable<Propietario> getAll() {
         return propietarioRepository.findAll();
+    }
+
+    /**
+     * Obtiene todos los accesos asociados a las cerraduras de las propiedades de un
+     * propietario
+     * 
+     * @param propietarioId ID del propietario
+     * @return Lista de accesos asociados a las cerraduras de las propiedades del
+     *         propietario
+     */
+    @GetMapping("/{propietarioId}/accesos")
+    public ResponseEntity<List<Acceso>> obtenerAccesosPorPropietario(@PathVariable Long propietarioId) {
+        List<Acceso> accesos = propietarioService.obtenerAccesosPorPropietario(propietarioId);
+        return ResponseEntity.ok(accesos);
     }
 }

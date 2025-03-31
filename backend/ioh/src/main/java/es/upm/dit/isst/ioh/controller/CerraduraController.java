@@ -24,7 +24,7 @@ public class CerraduraController {
     private final CerraduraService cerraduraService;
 
     public CerraduraController(
-            CerraduraRepository cerraduraRepository, 
+            CerraduraRepository cerraduraRepository,
             AccesoRepository accesoRepository,
             CerraduraService cerraduraService) {
         this.cerraduraRepository = cerraduraRepository;
@@ -58,7 +58,7 @@ public class CerraduraController {
     /**
      * Endpoint para abrir una puerta verificando que el usuario tenga acceso
      * 
-     * @param id ID de la cerradura
+     * @param id    ID de la cerradura
      * @param datos Datos con el ID del usuario que intenta abrir la puerta
      * @return Respuesta con el resultado de la operación
      */
@@ -68,12 +68,12 @@ public class CerraduraController {
         if (!datos.containsKey("usuarioId")) {
             return ResponseEntity.badRequest().body(Map.of("error", "Se requiere el ID del usuario"));
         }
-        
+
         Long usuarioId = datos.get("usuarioId");
-        
+
         // Utilizar el servicio para intentar abrir la puerta
         AperturaResult resultado = cerraduraService.abrirPuerta(usuarioId, id);
-        
+
         if (resultado.isExito()) {
             return ResponseEntity.ok().body(Map.of("mensaje", resultado.getMensaje()));
         } else {
@@ -85,7 +85,7 @@ public class CerraduraController {
      * Endpoint para verificar si un usuario tiene acceso a una cerradura
      * 
      * @param cerraduraId ID de la cerradura
-     * @param usuarioId ID del usuario
+     * @param usuarioId   ID del usuario
      * @return true si tiene acceso, false de lo contrario
      */
     @GetMapping("/{id}/verificar-acceso")
@@ -135,5 +135,17 @@ public class CerraduraController {
     public ResponseEntity<String> obtenerNombrePropietario(@PathVariable Long id) {
         String nombrePropietario = cerraduraService.obtenerNombrePropietarioPorCerradura(id);
         return ResponseEntity.ok(nombrePropietario);
+    }
+
+    /**
+     * Endpoint para obtener el nombre de una cerradura por su ID
+     * 
+     * @param id ID de la cerradura
+     * @return Nombre de la cerradura
+     */
+    @GetMapping("/{id}/nombre")
+    public ResponseEntity<String> obtenerNombreCerradura(@PathVariable Long id) {
+        String nombreCerradura = cerraduraService.obtenerNombreCerradura(id);
+        return ResponseEntity.ok(nombreCerradura);
     }
 }

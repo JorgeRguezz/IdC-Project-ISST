@@ -7,7 +7,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import KeyIcon from '@mui/icons-material/Key';
-import { CircularProgress } from '@mui/material'; 
+import { CircularProgress } from '@mui/material';
 
 
 interface Propiedad {
@@ -29,12 +29,12 @@ const PropietarioDashboard = () => {
     const año = hoy.getFullYear();
     const primerDia = new Date(año, mes, 1).getDay();
     const diasEnMes = new Date(año, mes + 1, 0).getDate();
-    
+
     const meses = [
         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
-    
+
     // Datos del usuario (esto vendría del contexto de autenticación en una app real)
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 
@@ -133,6 +133,10 @@ const PropietarioDashboard = () => {
         navigate('/propiedades', { state: { propiedades } });
     };
 
+    const handleVerAccesos = () => {
+        navigate('/accesos-propietario');
+    };
+
     const handleAbrirPuerta = (propiedad: Propiedad) => {
         // Navegar a la vista de apertura de puerta, pasando los datos de la propiedad
         navigate(`/abrir-puerta/${propiedad.id}`, { state: { propiedad } });
@@ -147,7 +151,7 @@ const PropietarioDashboard = () => {
                 <Box key={`prev-${i}`} sx={{ width: 24, height: 24, m: 0.5, color: '#ccc' }}></Box>
             );
         }
-    
+
         const dias = [];
         for (let i = 1; i <= diasEnMes; i++) {
             dias.push(
@@ -169,10 +173,10 @@ const PropietarioDashboard = () => {
                 </Box>
             );
         }
-    
+
         return { diasSemana, diasPrevios, dias };
     };
-    
+
     return (
         <Box
             sx={{
@@ -216,7 +220,7 @@ const PropietarioDashboard = () => {
                     </IconButton>
                 </Box>
             </Box>
-    
+
             {/* Contenido */}
             <Box
                 sx={{
@@ -237,10 +241,10 @@ const PropietarioDashboard = () => {
                 >
                     <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
                         <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'white' }}>
-                        {meses[mes]} {año}
+                            {meses[mes]} {año}
                         </Typography>
                     </Box>
-    
+
                     {/* Días de la semana */}
                     <Box
                         sx={{
@@ -266,7 +270,7 @@ const PropietarioDashboard = () => {
                             </Typography>
                         ))}
                     </Box>
-    
+
                     {/* Días del mes */}
                     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, p: 1 }}>
                         {[...Array(primerDia)].map((_, i) => (
@@ -302,7 +306,7 @@ const PropietarioDashboard = () => {
                         })}
                     </Box>
                 </Paper>
-    
+
                 {/* Botón Mis Puertas */}
                 <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
                     <Button
@@ -314,18 +318,33 @@ const PropietarioDashboard = () => {
                             textTransform: 'none',
                             fontWeight: 'medium',
                             py: 1.5,
-                            px: 5
+                            px: 5,
+                            mr: 2
                         }}
                     >
                        Gestionar Puertas
                     </Button>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={handleVerAccesos}
+                        sx={{
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 'medium',
+                            py: 1.5,
+                            px: 5
+                        }}
+                    >
+                       Accesos
+                    </Button>
                 </Box>
-    
+
                 {/* Lista de propiedades */}
                 <Typography variant="h6" fontWeight="bold" mb={2}>
                     Tus propiedades
                 </Typography>
-    
+
                 {cargando ? (
                     <Paper sx={{ p: 3, textAlign: 'center' }}>
                         <CircularProgress sx={{ color: '#0d6efd' }} />
@@ -376,7 +395,7 @@ const PropietarioDashboard = () => {
                                     {propiedad.numeroCerraduras === 1 ? 'cerradura' : 'cerraduras'}
                                 </Typography>
                             </Box>
-    
+
                             <Button
                                 variant="contained"
                                 color="primary"
@@ -390,7 +409,7 @@ const PropietarioDashboard = () => {
                     ))
                 )}
             </Box>
-    
+
             {/* Footer */}
             <Box
                 sx={{
@@ -415,7 +434,7 @@ const PropietarioDashboard = () => {
                 </IconButton>
             </Box>
         </Box>
-    );    
+    );
 };
 
-export default PropietarioDashboard; 
+export default PropietarioDashboard;
