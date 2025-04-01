@@ -142,7 +142,7 @@ const AnadirPuerta = () => {
 
       // Verificar que el usuario sea propietario (soporta mayúsculas o minúsculas)
       const tipoUsuario = usuario.tipo?.toUpperCase();
-      setStatusMessage(prevMsg => `${prevMsg}\nTipo de usuario: ${tipoUsuario}`);
+      console.log('Tipo de usuario: ', tipoUsuario);
 
       if (tipoUsuario !== 'PROPIETARIO') {
         setErrorMessage(`Error: Solo los propietarios pueden crear propiedades. Tipo actual: ${tipoUsuario}`);
