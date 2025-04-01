@@ -361,7 +361,7 @@ const MisAccesos = () => {
                 flexDirection: 'column',
                 width: '100%',
                 height: '100vh',
-                bgcolor: '#f9f9f9',
+                bgcolor: '#E4F4FF',
                 overflow: 'hidden'
             }}
         >
@@ -373,7 +373,7 @@ const MisAccesos = () => {
                     alignItems: 'center',
                     px: 2,
                     py: 1.5,
-                    bgcolor: '#ffffff',
+                    bgcolor: '#E4F4FF',
                     borderBottom: '1px solid #e0e0e0',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
                 }}

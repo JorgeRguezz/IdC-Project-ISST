@@ -349,7 +349,7 @@ const AnadirPuerta = () => {
       )}
 
       {/* Sección de datos de la propiedad */}
-      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mt: 2, mb: 1 }}>
+      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mt: 2, mb: 1 }} color='black'>
         Datos de la propiedad
       </Typography>
 
@@ -404,7 +404,7 @@ const AnadirPuerta = () => {
       {/* Sección de datos de la cerradura */}
       <Divider sx={{ my: 3 }} />
 
-      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mt: 2, mb: 1 }}>
+      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mt: 2, mb: 1 }} color='black'>
         Datos de la cerradura
       </Typography>
 

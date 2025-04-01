@@ -343,7 +343,7 @@ const PropietarioDashboard = () => {
 
                 {/* Lista de propiedades */}
                 <Typography variant="h6" fontWeight="bold" mb={2} color='black'>
-                    Tus propiedades
+                    Tus puertas
                 </Typography>
 
                 {cargando ? (

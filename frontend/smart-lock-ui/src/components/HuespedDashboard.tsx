@@ -347,7 +347,7 @@ const HuespedDashboard = () => {
                 }}
             >
                 {/* Saludo */}
-                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
+                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }} color='black'>
                     Hola, {usuario?.nombre || 'Invitado'}
                 </Typography>
 
@@ -374,7 +374,7 @@ const HuespedDashboard = () => {
                 </Button>
 
                 {/* Lista de Accesos Activos */}
-                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }} color='black'>
                     Accesos activos
                 </Typography>
 
