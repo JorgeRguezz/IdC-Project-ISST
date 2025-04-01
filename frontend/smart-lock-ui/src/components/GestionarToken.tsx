@@ -143,7 +143,7 @@ const GestionarToken = () => {
       <Typography variant="h5" sx={{ mt: 2, mb: 3, color: '#0d6efd', fontWeight: 'bold' }}>
         Generar token para:
       </Typography>
-      <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{propiedad.nombre}</Typography>
+      <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color='black'>{propiedad.nombre}</Typography>
       <Typography variant="body1" sx={{ mb: 3, textDecoration: 'underline', color: '#0d6efd' }}>
         {propiedad.direccion}
       </Typography>
