@@ -100,116 +100,90 @@ const irAMisPuertas = () => {
     navigate('/propietario-dashboard');
 };
 
-    const handleCerrarSesion = () => {
-      localStorage.removeItem('usuario');
-      navigate('/login');
-    };
-
   return (
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100vh',
-                bgcolor: '#ebf5ff',
-                m: 0,
-                p: 0,
-                overflow: 'hidden'
-            }}
-        >
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        bgcolor: '#ebf5ff',
+        px: 2,
+        py: 2,
+        overflowY: 'auto'
+      }}
+    >
       
       {/* Header */}
       <Box
-          sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              p: 2,
-              width: '98%',
-              borderBottom: '1px solid rgba(0,0,0,0.05)'
-          }}
+        sx={{
+          borderBottom: '1px solid #e0e0e0',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+        }}
       >
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton color="primary" onClick={handleVolver}>
-                  <ArrowBackIcon />
-              </IconButton>
-              <Typography variant="h6" sx={{ ml: 1, fontWeight: 'bold', color: '#0d6efd' }}>
-                  Volver
-              </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton color="primary" sx={{ mr: 1 }}>
-                  <SettingsIcon />
-              </IconButton>
-              <IconButton color="primary" onClick={handleCerrarSesion}>
-                  <LogoutIcon />
-              </IconButton>
-          </Box>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => handleVolver()}
+          sx={{
+            alignSelf: 'flex-start',
+            textTransform: 'none',
+            fontWeight: 'medium'
+          }}
+        >
+          Volver
+        </Button>
       </Box>
 
       {/*Body*/}
-      <Box
-          sx={{
-              flexGrow: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              p: 2,
-              overflowY: 'auto'
-          }}
+
+      <Typography variant="h5" sx={{ mt: 2, mb: 3, color: '#0d6efd', fontWeight: 'bold' }}>
+        Gestionar acceso a:
+      </Typography>
+      <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{propiedad.nombre}</Typography>
+      <Typography variant="body1" sx={{ mb: 3, textDecoration: 'underline', color: '#0d6efd' }}>
+        {propiedad.direccion}
+      </Typography>
+    
+      <TextField
+        fullWidth
+        label="Email del huesped"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        sx={{ mb: 3 }}
+      />
+
+      <TextField
+        label="Fecha de inicio"
+        type="datetime-local"
+        value={fechaInicio}
+        onChange={(e) => setFechaInicio(e.target.value)}
+        fullWidth
+        sx={{ mb: 3 }}
+        InputLabelProps={{ shrink: true }}
+      />
+
+      <TextField
+        label="Fecha de fin"
+        type="datetime-local"
+        value={fechaFin}
+        onChange={(e) => setFechaFin(e.target.value)}
+        fullWidth
+        sx={{ mb: 3 }}
+        InputLabelProps={{ shrink: true }}
+      />
+
+      <Link href="#" underline="hover" sx={{ color: '#0d6efd', mb: 2, display: 'inline-block' }}>
+        Vincular con Google Calendar
+      </Link>
+
+
+      <Button
+        fullWidth
+        variant="contained"
+        sx={{ bgcolor: '#0d6efd', textTransform: 'none', fontWeight: 'bold', mt: 2 }}
+        onClick={handleCrearAcceso}
       >
-
-        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0d6efd', mb: 1 }}>
-          Gestionar acceso a:
-        </Typography>
-        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{propiedad.nombre}</Typography>
-        <Typography variant="body1" sx={{ mb: 3, textDecoration: 'underline', color: '#0d6efd' }}>
-          {propiedad.direccion}
-        </Typography>
-      
-        <TextField
-          fullWidth
-          label="Email del huesped"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          sx={{ mb: 3 }}
-          InputLabelProps={{ shrink: true }}
-        />
-
-        <TextField
-          label="Fecha de inicio"
-          type="datetime-local"
-          value={fechaInicio}
-          onChange={(e) => setFechaInicio(e.target.value)}
-          fullWidth
-          sx={{ mb: 3 }}
-          InputLabelProps={{ shrink: true }}
-        />
-
-        <TextField
-          label="Fecha de fin"
-          type="datetime-local"
-          value={fechaFin}
-          onChange={(e) => setFechaFin(e.target.value)}
-          fullWidth
-          sx={{ mb: 3 }}
-          InputLabelProps={{ shrink: true }}
-        />
-
-        <Link href="#" underline="hover" sx={{ color: '#0d6efd', mb: 2, display: 'inline-block' }}>
-          Vincular con Google Calendar
-        </Link>
-
-
-        <Button
-          fullWidth
-          variant="contained"
-          sx={{ bgcolor: '#0d6efd', textTransform: 'none', fontWeight: 'bold', mt: 2 }}
-          onClick={handleCrearAcceso}
-        >
-          Registrar acceso
-        </Button>
-      </Box>
+        Registrar acceso
+      </Button>
     </Box>
   );
 };

@@ -310,20 +310,30 @@ const AnadirPuerta = () => {
   };
 
   return (
-    <Box sx={{ bgcolor: '#ebf5ff', height: '100vh', p: 3, overflow: 'auto' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        bgcolor: '#ebf5ff',
+        px: 2,
+        py: 3,
+        overflowY: 'auto'
+      }}
+    >
+
       {/* Encabezado con título y botón de volver */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={handleVolver}
-          sx={{ mr: 2, color: '#0d6efd' }}
-        >
-          Volver
-        </Button>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0d6efd' }}>
-          Añadir puerta
-        </Typography>
-      </Box>
+      <Button
+        startIcon={<ArrowBackIcon />}
+        onClick={handleVolver}
+        sx={{ mb: 2, color: '#0d6efd', alignSelf: 'flex-start' }}
+      >
+        Volver
+      </Button>
+
+      <Typography variant="h5" sx={{ mb: 3, color: '#0d6efd', fontWeight: 'bold' }}>
+        Añadir puerta
+      </Typography>
 
       {errorMessage && (
         <Alert severity="error" sx={{ mb: 2 }}>

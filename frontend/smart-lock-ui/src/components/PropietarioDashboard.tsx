@@ -326,7 +326,7 @@ const PropietarioDashboard = () => {
                     </Button>
                     <Button
                         variant="contained"
-                        color="secondary"
+                        color="primary"
                         onClick={handleVerAccesos}
                         sx={{
                             borderRadius: 2,

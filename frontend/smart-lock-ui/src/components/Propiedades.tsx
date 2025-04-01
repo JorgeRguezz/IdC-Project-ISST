@@ -46,26 +46,34 @@ const Propiedades = () => {
         height: '100vh',
         bgcolor: '#ebf5ff',
         px: 2,
-        py: 3,
+        py: 2,
         overflowY: 'auto'
       }}
     >
       {/* Botón volver */}
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate('/propietario-dashboard')}
+      <Box
         sx={{
-          alignSelf: 'flex-start',
-          mb: 2,
-          textTransform: 'none',
-          fontWeight: 'medium'
+          borderBottom: '1px solid #e0e0e0',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
         }}
       >
-        Volver
-      </Button>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate('/propietario-dashboard')}
+          sx={{
+            alignSelf: 'flex-start',
+            mb: 0,
+            textTransform: 'none',
+            fontWeight: 'medium'
+          }}
+        >
+          Volver
+        </Button>
+      </Box>
+  
   
       {/* Título */}
-      <Typography variant="h5" sx={{ mb: 3, color: '#0d6efd', fontWeight: 'bold' }}>
+      <Typography variant="h5" sx={{ mt: 2, mb: 3, color: '#0d6efd', fontWeight: 'bold' }}>
         Mis puertas
       </Typography>
   
