@@ -12,7 +12,6 @@ const GestionarToken = () => {
 
   const [fechaFin, setFechaFin] = useState('');
   const [usosMaximos, setUsosMaximos] = useState('');
-  const [codigo, setCodigo] = useState('');
 
   const handleCrearToken = async () => {
    

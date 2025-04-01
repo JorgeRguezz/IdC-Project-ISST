@@ -53,38 +53,39 @@ const AnadirPuerta = () => {
   // Función para verificar si un propietario existe
   const verificarPropietario = async (): Promise<boolean> => {
     try {
-      setStatusMessage(prevMsg => `${prevMsg}\n----- Verificando propietario -----`);
-      setStatusMessage(prevMsg => `${prevMsg}\nConsultando endpoint: http://localhost:8080/api/usuarios/email?email=${usuario.email}`);
+      console.log('----- Verificando propietario -----');
+      console.log('Consultando endpoint: http://localhost:8080/api/usuarios/email?email=', usuario.email);
 
       const response = await fetch(`http://localhost:8080/api/usuarios/email?email=${usuario.email}`);
 
-      setStatusMessage(prevMsg => `${prevMsg}\nRespuesta status: ${response.status}`);
+      console.log('Respuesta status: ', response.status);
 
       if (!response.ok) {
-        setStatusMessage(prevMsg => `${prevMsg}\nError al verificar propietario: Status ${response.status}`);
+        const msg = await response.text();
+        alert('❌ Error al registrar acceso: ' + msg);
         return false;
       }
 
       const data = await response.json();
-      setStatusMessage(prevMsg => `${prevMsg}\nDatos obtenidos: ${JSON.stringify(data, null, 2)}`);
+      console.log('Datos obtenidos: ', JSON.stringify(data, null, 2));
 
       if (data && data.id) {
-        setStatusMessage(prevMsg => `${prevMsg}\nPropietario verificado: ID ${data.id}`);
+        console.log('Propietario verificado: ID ', data.id);
         return true;
       } else {
-        setStatusMessage(prevMsg => `${prevMsg}\nNo se encontró el propietario`);
+        console.log('No se encontró el propietario');
         return false;
       }
     } catch (error) {
       console.error("Error al verificar propietario:", error);
-      setStatusMessage(prevMsg => `${prevMsg}\nError al verificar propietario: ${error}`);
+      console.log('Error al verificar propietario: ', error);
       return false;
     }
   };
 
   const handleCrearPuerta = async () => {
     // Limpiar mensajes anteriores
-    setStatusMessage('Comenzando proceso de creación de propiedad y cerradura');
+    console.log('Comenzando proceso de creación de propiedad y cerradura');
     setErrorMessage('');
     setIsLoading(true);
 
@@ -176,8 +177,8 @@ const AnadirPuerta = () => {
           }
         };
 
-        setStatusMessage(prevMsg => `${prevMsg}\n----- Creando propiedad -----`);
-        setStatusMessage(prevMsg => `${prevMsg}\nEnviando datos de propiedad:\n${JSON.stringify(propiedadData, null, 2)}`);
+        console.log('----- Creando propiedad -----');
+        console.log('Enviando datos de propiedad: ', JSON.stringify(propiedadData, null, 2));
 
         // Usar FormData para enviar los datos y la imagen si existe
         const formData = new FormData();
@@ -188,19 +189,18 @@ const AnadirPuerta = () => {
         // Si hay una imagen, la añadimos
         if (imagenFile) {
           formData.append("imagen", imagenFile);
-          setStatusMessage(prevMsg => `${prevMsg}\nAñadiendo imagen: ${imagenFile.name} (${imagenFile.size} bytes)`);
+          console.log('Añadiendo imagen: ', imagenFile.name, imagenFile.size, 'bytes');
         } else {
-          setStatusMessage(prevMsg => `${prevMsg}\nNo se ha seleccionado ninguna imagen`);
+          console.log('No se ha seleccionado ninguna imagen');
         }
 
         // Crear la propiedad primero
-        setStatusMessage(prevMsg => `${prevMsg}\nRealizando petición POST a: http://localhost:8080/api/propiedades-con-imagen`);
         const propiedadResponse = await fetch("http://localhost:8080/api/propiedades-con-imagen", {
           method: "POST",
           body: formData
         });
 
-        setStatusMessage(prevMsg => `${prevMsg}\nRespuesta status: ${propiedadResponse.status}`);
+        console.log('Respuesta status: ', propiedadResponse.status);
 
         if (!propiedadResponse.ok) {
           let errorMsg = await manejarErrorRespuesta(propiedadResponse);
@@ -211,7 +211,7 @@ const AnadirPuerta = () => {
 
         // Si llegamos aquí, la propiedad se creó correctamente
         const propiedadCreada = await propiedadResponse.json();
-        setStatusMessage(prevMsg => `${prevMsg}\nPropiedad creada: ${JSON.stringify(propiedadCreada, null, 2)}`);
+        console.log('Propiedad creada: ', JSON.stringify(propiedadCreada, null, 2));
 
         // Obtener el ID de la propiedad creada
         const propiedadId = propiedadCreada.id;
@@ -231,18 +231,17 @@ const AnadirPuerta = () => {
           }
         };
 
-        setStatusMessage(prevMsg => `${prevMsg}\n----- Creando cerradura -----`);
-        setStatusMessage(prevMsg => `${prevMsg}\nEnviando datos de cerradura:\n${JSON.stringify(cerraduraData, null, 2)}`); //igual poner la contraseña por pantalla es mala idea
+        console.log('----- Creando cerradura -----');
+        console.log('Enviando datos de cerradura:\n', JSON.stringify(cerraduraData, null, 2));
 
         // Llamar a la API para crear la cerradura
-        setStatusMessage(prevMsg => `${prevMsg}\nRealizando petición POST a: http://localhost:8080/api/cerraduras/create`);
         const cerraduraResponse = await fetch("http://localhost:8080/api/cerraduras/create", {
           method: "POST",
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(cerraduraData)
         });
 
-        setStatusMessage(prevMsg => `${prevMsg}\nRespuesta status: ${cerraduraResponse.status}`);
+        console.log('Respuesta status: ', cerraduraResponse.status);
 
         if (!cerraduraResponse.ok) {
           let errorMsg = await manejarErrorRespuesta(cerraduraResponse);
@@ -252,10 +251,10 @@ const AnadirPuerta = () => {
         }
 
         const cerraduraCreada = await cerraduraResponse.json();
-        setStatusMessage(prevMsg => `${prevMsg}\nCerradura creada: ${JSON.stringify(cerraduraCreada, null, 2)}`);
+        console.log('Cerradura creada: ', JSON.stringify(cerraduraCreada, null, 2));
 
         // Todo se completó correctamente
-        setStatusMessage(prevMsg => `${prevMsg}\n----- Proceso completado con éxito -----`);
+        console.log('----- Proceso completado con éxito -----');
         alert('Puerta y cerradura añadidas correctamente');
         navigate('/propietario-dashboard');
       } catch (error: any) {
@@ -275,7 +274,7 @@ const AnadirPuerta = () => {
     let errorMsg = `Error ${response.status}: ${response.statusText}`;
     try {
       const contentType = response.headers.get('content-type');
-      setStatusMessage(prevMsg => `${prevMsg}\nContent-Type: ${contentType}`);
+      console.log('Content-Type: ', contentType);
 
       if (contentType && contentType.includes('application/json')) {
         // Si es JSON, intentar parsear
@@ -294,17 +293,17 @@ const AnadirPuerta = () => {
           }
         }
 
-        setStatusMessage(prevMsg => `${prevMsg}\nError JSON: ${JSON.stringify(errorData, null, 2)}`);
+        console.log('Error JSON: ', JSON.stringify(errorData, null, 2));
       } else {
         // Si no es JSON, obtener como texto
         const text = await response.text();
         console.error('Error del servidor (texto):', text);
         errorMsg = text || errorMsg;
-        setStatusMessage(prevMsg => `${prevMsg}\nError texto: ${text}`);
+        console.log('Error texto: ', text);
       }
     } catch (e) {
       console.error('Error al analizar la respuesta de error:', e);
-      setStatusMessage(prevMsg => `${prevMsg}\nError al procesar respuesta: ${e}`);
+      console.log('Error al procesar respuesta: ', e);
     }
     return errorMsg;
   };

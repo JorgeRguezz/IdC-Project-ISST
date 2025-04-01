@@ -10,7 +10,6 @@ const GestionarAcceso = () => {
   const { state } = useLocation();
   const propiedad = state?.propiedad || {};
 
-  const [huesped, setHuesped] = useState('');
   const [email, setEmail] = useState('');
   const [fechaFin, setFechaFin] = useState('');
   const [fechaInicio, setFechaInicio] = useState('');
