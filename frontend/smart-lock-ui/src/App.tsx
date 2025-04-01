@@ -18,6 +18,7 @@ import AnadirPuerta from './components/AnadirPuerta';
 import GestionarAcceso from './components/GestionarAcceso';
 import GestionarToken from './components/GestionarToken';
 import AccesosPropietario from './components/AccesosPropietario';
+import AccesosPropietarioToken from './components/AccesosPropietarioToken';
 
 const theme = createTheme();
 
@@ -50,6 +51,14 @@ function App() {
             element={
               <AuthGuard userType="PROPIETARIO">
                 <AccesosPropietario />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/accesos-propietario/token"
+            element={
+              <AuthGuard userType="PROPIETARIO">
+                <AccesosPropietarioToken />
               </AuthGuard>
             }
           />
