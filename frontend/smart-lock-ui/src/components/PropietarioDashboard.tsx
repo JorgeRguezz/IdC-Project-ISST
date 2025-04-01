@@ -8,6 +8,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import KeyIcon from '@mui/icons-material/Key';
 import { CircularProgress } from '@mui/material';
+import homeBluetooth from '../assets/home-bluetooth.png';
 
 
 interface Propiedad {
@@ -196,16 +197,16 @@ const PropietarioDashboard = () => {
                     alignItems: 'center',
                     px: 2,
                     py: 1.5,
-                    bgcolor: '#ffffff',
+                    bgcolor: '#E4F4FF',
                     borderBottom: '1px solid #e0e0e0',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
                 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <img
-                        src="/home-bluetooth.svg"
+                        src={homeBluetooth}
                         alt="Logo"
-                        style={{ height: 30, marginRight: 10 }}
+                        style={{ height: 40, marginRight: 10 }}
                     />
                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0d6efd' }}>
                         Inicio
@@ -322,7 +323,7 @@ const PropietarioDashboard = () => {
                             mr: 2
                         }}
                     >
-                       Gestionar Puertas
+                        Gestionar Puertas
                     </Button>
                     <Button
                         variant="contained"
@@ -336,12 +337,12 @@ const PropietarioDashboard = () => {
                             px: 5
                         }}
                     >
-                       Accesos
+                        Accesos
                     </Button>
                 </Box>
 
                 {/* Lista de propiedades */}
-                <Typography variant="h6" fontWeight="bold" mb={2}>
+                <Typography variant="h6" fontWeight="bold" mb={2} color='black'>
                     Tus propiedades
                 </Typography>
 

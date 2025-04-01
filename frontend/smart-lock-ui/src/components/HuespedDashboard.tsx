@@ -8,6 +8,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useNavigate } from 'react-router-dom';
+import homeBluetooth from '../assets/home-bluetooth.png';
 
 interface Cerradura {
     id: number;
@@ -279,7 +280,7 @@ const HuespedDashboard = () => {
                 flexDirection: 'column',
                 width: '100%',
                 height: '100vh',
-                bgcolor: '#f9f9f9',
+                bgcolor: '#E4F4FF',
                 overflow: 'hidden'
             }}
         >
@@ -291,15 +292,22 @@ const HuespedDashboard = () => {
                     alignItems: 'center',
                     px: 3,
                     py: 2,
-                    bgcolor: '#ffffff',
+                    bgcolor: '#E4F4FF',
                     borderBottom: '1px solid #e0e0e0',
                     boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
                     zIndex: 10
                 }}
             >
-                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0d6efd' }}>
-                    IOH
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <img
+                        src={homeBluetooth}
+                        alt="Logo"
+                        style={{ height: 40, marginRight: 10 }}
+                    />
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0d6efd' }}>
+                        Inicio
+                    </Typography>
+                </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <IconButton color="primary">
                         <SettingsIcon />

@@ -106,17 +106,6 @@ const Propiedades = () => {
               gap: 2
             }}
           >
-            {/* Imagen */}
-            <img
-              src={propiedad.imagen || '/ciudad-default.jpg'}
-              alt={`Imagen de ${propiedad.nombre}`}
-              style={{
-                width: 90,
-                height: 90,
-                objectFit: 'cover',
-                borderRadius: 8
-              }}
-            />
   
             {/* Info */}
             <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -152,7 +141,7 @@ const Propiedades = () => {
                   Generar token
                 </Button>
                 <Button
-                  variant="outlined"
+                  variant="contained"
                   color="primary"
                   startIcon={<KeyIcon />}
                   onClick={() => handleGestionarAcceso(propiedad)}

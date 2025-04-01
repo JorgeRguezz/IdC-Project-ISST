@@ -896,9 +896,9 @@ const AbrirPuerta = () => {
                             onClick={handleAbrirPuerta}
                         >
                             <img
-                                src="/bluetooth-icon.svg"
+                                src="\src\assets\bluetooth-icono.png"
                                 alt="Bluetooth"
-                                style={{ width: '80%', height: '80%' }}
+                                style={{ width: '130%', height: '130%' }}
                             />
                         </Box>
 
