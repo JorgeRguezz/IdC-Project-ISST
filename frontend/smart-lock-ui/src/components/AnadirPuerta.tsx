@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Box, Button, TextField, Typography, Paper, CircularProgress, Alert, Divider } from '@mui/material';
+import { Box, Button, TextField, Typography, Paper, CircularProgress, Alert, Divider, Select, MenuItem, FormControl, InputLabel, SelectChangeEvent, FormHelperText, IconButton, InputAdornment } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import StarIcon from '@mui/icons-material/Star';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
 
 const AnadirPuerta = () => {
   const navigate = useNavigate();
@@ -44,6 +46,22 @@ const AnadirPuerta = () => {
     // Marcar el campo como tocado cuando el usuario lo modifique
     setTouchedFields({ ...touchedFields, [name]: true });
   };
+
+  // Manejador específico para el Select de modelo de cerradura
+  const handleSelectChange = (e: SelectChangeEvent<string>) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    // Marcar el campo como tocado cuando el usuario lo modifique
+    setTouchedFields({ ...touchedFields, [name as keyof typeof touchedFields]: true });
+  };
+
+  // Lista de modelos de cerraduras disponibles
+  const modelosCerradura = [
+    "Nuki Smart Lock Ultra",
+    "HomeTec Pro Bluetooth® de ABUS",
+    "Danalock V3",
+    "TTLock"
+  ];
 
   // Función para volver a la vista anterior
   const handleVolver = () => {
@@ -408,18 +426,34 @@ const AnadirPuerta = () => {
         Datos de la cerradura
       </Typography>
 
-      <TextField
+      <FormControl
         fullWidth
-        label="Modelo de cerradura"
-        name="modeloCerradura"
-        value={form.modeloCerradura}
-        onChange={handleChange}
-        placeholder="Ej. Smart Lock X1000"
-        sx={{ mb: 2 }}
         required
         error={touchedFields.modeloCerradura && !form.modeloCerradura}
-        helperText={touchedFields.modeloCerradura && !form.modeloCerradura ? "Este campo es obligatorio" : ""}
-      />
+        sx={{ mb: 2 }}
+      >
+        <InputLabel id="modelo-cerradura-label">Modelo de cerradura</InputLabel>
+        <Select
+          labelId="modelo-cerradura-label"
+          id="modeloCerradura"
+          name="modeloCerradura"
+          value={form.modeloCerradura}
+          onChange={handleSelectChange}
+          label="Modelo de cerradura"
+        >
+          {modelosCerradura.map((modelo) => (
+            <MenuItem key={modelo} value={modelo}>
+              {modelo}
+              {modelo === "Nuki Smart Lock Ultra" && (
+                <StarIcon sx={{ ml: 1, color: '#FFD700', fontSize: 18 }} />
+              )}
+            </MenuItem>
+          ))}
+        </Select>
+        {touchedFields.modeloCerradura && !form.modeloCerradura && (
+          <FormHelperText>Este campo es obligatorio</FormHelperText>
+        )}
+      </FormControl>
 
       <TextField
         fullWidth
@@ -432,6 +466,19 @@ const AnadirPuerta = () => {
         sx={{ mb: 3 }}
         required
         error={touchedFields.codigoConexion && !form.codigoConexion}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                edge="end"
+                aria-label="escanear código QR"
+                title="Escanear QR"
+              >
+                <CameraAltIcon />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
       />
 
       <Button
