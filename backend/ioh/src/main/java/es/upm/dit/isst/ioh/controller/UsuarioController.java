@@ -1,30 +1,33 @@
 package es.upm.dit.isst.ioh.controller;
 
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import es.upm.dit.isst.ioh.model.Huesped;
 import es.upm.dit.isst.ioh.model.Propietario;
 import es.upm.dit.isst.ioh.model.Usuario;
-import es.upm.dit.isst.ioh.repository.HuespedRepository;
-import es.upm.dit.isst.ioh.repository.PropietarioRepository;
 import es.upm.dit.isst.ioh.repository.UsuarioRepository;
 import es.upm.dit.isst.ioh.service.UsuarioService;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/usuarios")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:5173") // Permitir solicitudes desde el frontend
 public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
 
     public UsuarioController(UsuarioRepository usuarioRepository,
-            UsuarioService usuarioService) {
+                             UsuarioService usuarioService) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioService = usuarioService;
     }
@@ -72,17 +75,17 @@ public class UsuarioController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     // Endpoint para login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credenciales) {
         String email = credenciales.get("email");
         String contrasena = credenciales.get("password");
-        
+
         if (email == null || contrasena == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Email y contraseña son requeridos"));
         }
-        
+
         return usuarioService.autenticarUsuario(email, contrasena)
                 .map(usuario -> {
                     String tipo = usuario instanceof Propietario ? "propietario" : "huesped";

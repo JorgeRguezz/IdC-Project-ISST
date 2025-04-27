@@ -3,6 +3,13 @@
 // backend.
 package es.upm.dit.isst.ioh.service;
 
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.upm.dit.isst.ioh.model.Huesped;
 import es.upm.dit.isst.ioh.model.Propietario;
 import es.upm.dit.isst.ioh.model.Usuario;
@@ -10,25 +17,23 @@ import es.upm.dit.isst.ioh.repository.HuespedRepository;
 import es.upm.dit.isst.ioh.repository.PropietarioRepository;
 import es.upm.dit.isst.ioh.repository.UsuarioRepository;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
-import java.util.Optional;
-
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final HuespedRepository huespedRepository;
     private final PropietarioRepository propietarioRepository;
+    private final PasswordEncoder passwordEncoder; // Declara el PasswordEncoder
 
+    // Constructor actualizado para inyectar PasswordEncoder
     public UsuarioService(UsuarioRepository usuarioRepository,
-            HuespedRepository huespedRepository,
-            PropietarioRepository propietarioRepository) {
+                          HuespedRepository huespedRepository,
+                          PropietarioRepository propietarioRepository,
+                          PasswordEncoder passwordEncoder) { // Recibe PasswordEncoder como parámetro
         this.usuarioRepository = usuarioRepository;
         this.huespedRepository = huespedRepository;
         this.propietarioRepository = propietarioRepository;
+        this.passwordEncoder = passwordEncoder; // Asigna el PasswordEncoder
     }
 
     /**
@@ -54,12 +59,15 @@ public class UsuarioService {
             throw new IllegalArgumentException("Ya existe un usuario con ese email");
         }
 
+        // Cifrar la contraseña
+        String passwordCifrada = passwordEncoder.encode(datos.get("contrasena"));
+
         // Crear nuevo huésped
         Huesped nuevoHuesped = new Huesped(
                 datos.get("nombre"),
                 datos.get("email"),
                 datos.get("telefono"),
-                datos.get("contrasena"));
+                passwordCifrada);
 
         return huespedRepository.save(nuevoHuesped);
     }
@@ -77,12 +85,15 @@ public class UsuarioService {
             throw new IllegalArgumentException("Ya existe un usuario con ese email");
         }
 
+        // Cifrar la contraseña
+        String passwordCifrada = passwordEncoder.encode(datos.get("contrasena"));
+
         // Crear nuevo propietario
         Propietario nuevoPropietario = new Propietario(
                 datos.get("nombre"),
                 datos.get("email"),
                 datos.get("telefono"),
-                datos.get("contrasena"));
+                passwordCifrada);
 
         return propietarioRepository.save(nuevoPropietario);
     }
@@ -106,15 +117,15 @@ public class UsuarioService {
      */
     public Optional<Usuario> autenticarUsuario(String email, String contrasena) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
-        
+
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
-            // Comprobación directa de contraseña (en un caso real se usaría bcrypt o similar)
-            if (usuario.getContrasena().equals(contrasena)) {
+            // Verificar la contraseña cifrada
+            if (passwordEncoder.matches(contrasena, usuario.getContrasena())) {
                 return Optional.of(usuario);
             }
         }
-        
+
         return Optional.empty();
     }
 }
