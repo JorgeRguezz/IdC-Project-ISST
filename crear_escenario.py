@@ -74,7 +74,7 @@ headers = {
 def crear_propietario():
     """Crea un propietario o recupera su ID si ya existe"""
     print("\n🔍 Creando propietario...")
-    response = requests.post(f"{BASE_URL}/propietarios", json=propietario, headers=headers)
+    response = requests.post(f"{BASE_URL}usuarios/propietario", json=propietario, headers=headers)
     if response.status_code == 200 or response.status_code == 201:
         data = response.json()
         print("✅ Propietario creado:")
@@ -82,28 +82,20 @@ def crear_propietario():
         return data['id']
     elif response.status_code == 409:
         print("⚠️ Propietario ya existe. Intentando recuperar ID...")
-        # Usar el endpoint de usuario por email
-        user_response = requests.get(f"{BASE_URL}/usuarios/email", params={"email": propietario["email"]})
-        if user_response.status_code == 200:
-            user_data = user_response.json()
-            print(f"✅ Propietario encontrado con ID: {user_data['id']}")
-            return user_data["id"]
-        else:
-            # Intentar alternativa: registrar a través del endpoint de registro
-            register_response = requests.post(
-                f"{BASE_URL}/usuarios/propietario",
-                json={
-                    "nombre": propietario["nombre"],
-                    "email": propietario["email"],
-                    "telefono": propietario["telefono"],
-                    "contrasena": propietario["contrasena"]
-                },
-                headers=headers
-            )
-            if register_response.status_code == 200:
-                register_data = register_response.json()
-                print(f"✅ Propietario registrado con ID: {register_data['id']}")
-                return register_data["id"]
+    register_response = requests.post(
+        f"{BASE_URL}/usuarios/propietario",
+        json={
+            "nombre": propietario["nombre"],
+            "email": propietario["email"],
+            "telefono": propietario["telefono"],
+            "contrasena": propietario["contrasena"]
+        },
+        headers=headers
+    )
+    if register_response.status_code == 200:
+        register_data = register_response.json()
+        print(f"✅ Propietario registrado con ID: {register_data['id']}")
+        return register_data["id"]
     else:
         print("❌ Error al crear propietario:", response.text)
     return None
