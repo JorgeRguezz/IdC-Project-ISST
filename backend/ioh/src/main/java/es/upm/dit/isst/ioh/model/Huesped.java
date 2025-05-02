@@ -8,6 +8,6 @@ public class Huesped extends Usuario {
     }
 
     public Huesped(String nombre, String email, String telefono, String contrasena) {
-        super(nombre, email, telefono, contrasena);
+        super(nombre, email, telefono, contrasena, "ROLE_HUESPED");
     }
 }

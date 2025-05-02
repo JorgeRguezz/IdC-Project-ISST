@@ -13,7 +13,9 @@ propietario = {
     "nombre": "Carlos Ruiz",
     "email": "carlos@email.com",
     "telefono": "600111222",
-    "contrasena": "abc123"
+    "contrasena": "abc123",
+    "authority": "ROLE_PROPIETARIO",
+    "enabled": True
 }
 
 # Datos de las propiedades (3 propiedades)
@@ -54,13 +56,17 @@ huespedes = [
         "nombre": "Ana García",
         "email": "ana@email.com",
         "telefono": "600333444",
-        "contrasena": "password123"
+        "contrasena": "password123",
+        "authority": "ROLE_HUESPED",
+        "enabled": True
     },
     {
         "nombre": "Luis Martínez",
         "email": "luis@email.com",
         "telefono": "600555666",
-        "contrasena": "securepass456"
+        "contrasena": "securepass456",
+        "authority": "ROLE_HUESPED",
+        "enabled": True
     }
 ]
 
@@ -74,7 +80,7 @@ headers = {
 def crear_propietario():
     """Crea un propietario o recupera su ID si ya existe"""
     print("\n🔍 Creando propietario...")
-    response = requests.post(f"{BASE_URL}usuarios/propietario", json=propietario, headers=headers)
+    response = requests.post(f"{BASE_URL}/usuarios/propietario", json=propietario, headers=headers)
     if response.status_code == 200 or response.status_code == 201:
         data = response.json()
         print("✅ Propietario creado:")
@@ -88,7 +94,8 @@ def crear_propietario():
             "nombre": propietario["nombre"],
             "email": propietario["email"],
             "telefono": propietario["telefono"],
-            "contrasena": propietario["contrasena"]
+            "contrasena": propietario["contrasena"],
+            "authority": propietario["authority"],
         },
         headers=headers
     )
@@ -111,7 +118,9 @@ def crear_huesped(huesped_data):
                 "nombre": huesped_data["nombre"],
                 "email": huesped_data["email"],
                 "telefono": huesped_data["telefono"],
-                "contrasena": huesped_data["contrasena"]
+                "contrasena": huesped_data["contrasena"],
+                "authority": huesped_data["authority"],
+                "enabled": huesped_data["enabled"]
             },
             headers=headers
         )

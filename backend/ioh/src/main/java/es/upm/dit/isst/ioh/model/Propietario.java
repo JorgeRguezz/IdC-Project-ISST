@@ -21,7 +21,7 @@ public class Propietario extends Usuario {
     }
 
     public Propietario(String nombre, String email, String telefono, String contrasena) {
-        super(nombre, email, telefono, contrasena);
+        super(nombre, email, telefono, contrasena, "ROLE_PROPIETARIO");
     }
     
     public List<Propiedad> getPropiedades() {

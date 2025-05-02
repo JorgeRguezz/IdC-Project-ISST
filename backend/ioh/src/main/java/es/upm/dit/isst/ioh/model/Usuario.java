@@ -3,6 +3,8 @@ package es.upm.dit.isst.ioh.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -28,15 +30,23 @@ public class Usuario {
     @NotEmpty
     private String contrasena;
 
+    @NotNull
+    private Boolean enabled; //siempre true, pero lo necesita SB security
+
+    @NotEmpty
+    private String authority; //Rol del usuario (ROLE_HUESPED o ROLE_PROPIETARIO)
+
     // Constructor vacío requerido por JPA
     public Usuario() {
     }
 
-    public Usuario(String nombre, String email, String telefono, String contrasena) {
+    public Usuario(String nombre, String email, String telefono, String contrasena, String authority) {
         this.nombre = nombre;
         this.email = email;
         this.telefono = telefono;
         this.contrasena = contrasena;
+        this.enabled = true;
+        this.authority = authority;
     }
 
     // Getters y setters
