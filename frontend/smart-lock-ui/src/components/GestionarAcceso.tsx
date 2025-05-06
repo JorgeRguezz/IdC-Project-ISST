@@ -19,7 +19,7 @@ const GestionarAcceso = () => {
     try {
        /*
         
-      const response = await fetch('http://localhost:8080/api/accesos', {
+      const response = await fetch('https://localhost:8443/api/accesos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(acceso)
@@ -33,12 +33,12 @@ const GestionarAcceso = () => {
       }   */
 
         // 1. Buscar huésped
-        const resH = await fetch(`http://localhost:8080/api/usuarios/email?email=${encodeURIComponent(email)}`);
+        const resH = await fetch(`https://localhost:8443/api/usuarios/email?email=${encodeURIComponent(email)}`);
         if (!resH.ok) return alert('Huésped no encontrado');
          const huesped = await resH.json();
 
          // 2. Buscar cerradura de la propiedad
-        const resC = await fetch(`http://localhost:8080/api/cerraduras/propiedad/${propiedad.id}`);
+        const resC = await fetch(`https://localhost:8443/api/cerraduras/propiedad/${propiedad.id}`);
         if (!resC.ok) return alert('Cerradura no asignada a esta propiedad');
         //Cerraduras es un array ya que una propiedad puede tener más de una
         const cerraduras = await resC.json();
@@ -67,7 +67,7 @@ const GestionarAcceso = () => {
         // 5. Construir acceso completo
         const acceso = { huesped, cerradura:{id:cerradura.id,modelo:cerradura.modelo,bloqueada:cerradura.bloqueada,propiedad:{ id: propiedad.id}}, horario };
         // 6. Enviar al backend
-        const resA = await fetch('http://localhost:8080/api/accesos', {
+        const resA = await fetch('https://localhost:8443/api/accesos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(acceso)

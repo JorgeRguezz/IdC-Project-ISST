@@ -41,7 +41,7 @@ const MisAccesos = () => {
                 }
 
                 console.log('Obteniendo accesos para el huésped con ID:', usuario.id);
-                const url = `http://localhost:8080/api/accesos/huesped/${usuario.id}`;
+                const url = `https://localhost:8443/api/accesos/huesped/${usuario.id}`;
                 console.log('URL de la solicitud:', url);
 
                 const response = await fetch(url, {
@@ -99,7 +99,7 @@ const MisAccesos = () => {
                 const obtenerDetallesPropietario = async (propietarioId: number) => {
                     try {
                         console.log(`Obteniendo detalles de propietario ID: ${propietarioId}`);
-                        const response = await fetch(`http://localhost:8080/api/usuarios/${propietarioId}`, {
+                        const response = await fetch(`https://localhost:8443/api/usuarios/${propietarioId}`, {
                             headers: {
                                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                                 'Content-Type': 'application/json'
@@ -160,7 +160,7 @@ const MisAccesos = () => {
                         } else if (cerraduraId) {
                             try {
                                 console.log('Consultando nombre de propiedad para cerradura:', cerraduraId);
-                                const response = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propiedad/nombre`, {
+                                const response = await fetch(`https://localhost:8443/api/cerraduras/${cerraduraId}/propiedad/nombre`, {
                                     headers: {
                                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
                                         'Content-Type': 'application/json'
@@ -185,7 +185,7 @@ const MisAccesos = () => {
 
                         if (cerraduraId) {
                             try {
-                                const direccionResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propiedad/direccion`, {
+                                const direccionResponse = await fetch(`https://localhost:8443/api/cerraduras/${cerraduraId}/propiedad/direccion`, {
                                     headers: {
                                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
                                         'Content-Type': 'application/json'
@@ -207,7 +207,7 @@ const MisAccesos = () => {
 
                         if (cerraduraId) {
                             try {
-                                const propietarioResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propietario/nombre`, {
+                                const propietarioResponse = await fetch(`https://localhost:8443/api/cerraduras/${cerraduraId}/propietario/nombre`, {
                                     headers: {
                                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
                                         'Content-Type': 'application/json'

@@ -44,7 +44,7 @@ const AccesosPropietario = () => {
                 }
 
                 console.log('Obteniendo accesos para el propietario con ID:', usuario.id);
-                const url = `http://localhost:8080/api/propietarios/${usuario.id}/accesos`;
+                const url = `https://localhost:8443/api/propietarios/${usuario.id}/accesos`;
                 console.log('URL de la solicitud:', url);
 
                 const response = await fetch(url, {
@@ -134,7 +134,7 @@ const AccesosPropietario = () => {
                                 if (propiedadNombre === 'Propiedad no identificada' || propiedadNombre === 'Propiedad sin nombre') {
                                     try {
                                         console.log('Consultando nombre de propiedad para cerradura:', cerraduraId);
-                                        const response = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propiedad/nombre`, {
+                                        const response = await fetch(`https://localhost:8443/api/cerraduras/${cerraduraId}/propiedad/nombre`, {
                                             headers: {
                                                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                                                 'Content-Type': 'application/json'
@@ -154,7 +154,7 @@ const AccesosPropietario = () => {
                                 if (propiedadDireccion === 'Sin dirección') {
                                     try {
                                         console.log('Consultando dirección de propiedad para cerradura:', cerraduraId);
-                                        const response = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propiedad/direccion`, {
+                                        const response = await fetch(`https://localhost:8443/api/cerraduras/${cerraduraId}/propiedad/direccion`, {
                                             headers: {
                                                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                                                 'Content-Type': 'application/json'
@@ -174,7 +174,7 @@ const AccesosPropietario = () => {
                                 if (nombreCerradura === 'Cerradura sin identificar' || nombreCerradura === 'Cerradura sin nombre') {
                                     try {
                                         console.log('Consultando nombre de cerradura:', cerraduraId);
-                                        const response = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/nombre`, {
+                                        const response = await fetch(`https://localhost:8443/api/cerraduras/${cerraduraId}/nombre`, {
                                             headers: {
                                                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                                                 'Content-Type': 'application/json'

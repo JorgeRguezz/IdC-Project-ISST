@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import iconoPuerta from '../assets/icono-puerta.png';
 
 // Base URL para todas las llamadas a la API
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'https://localhost:8443';
 
 const TokenAccess = () => {
   const [token, setToken] = useState('');

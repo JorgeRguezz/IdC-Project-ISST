@@ -44,8 +44,8 @@ const Register = () => {
     try {
       // Determinar la URL del endpoint según el rol seleccionado
       const endpoint = role === 'propietario'
-        ? 'http://localhost:8080/api/usuarios/propietario'
-        : 'http://localhost:8080/api/usuarios/huesped';
+        ? 'https://localhost:8443/api/usuarios/propietario'
+        : 'https://localhost:8443/api/usuarios/huesped';
 
       const response = await fetch(endpoint, {
         method: 'POST',

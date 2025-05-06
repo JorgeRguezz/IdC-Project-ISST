@@ -57,7 +57,7 @@ const AbrirPuerta = () => {
                     console.log('Obteniendo información de cerradura:', cerraduraId);
 
                     // Obtener información de la cerradura
-                    const cerraduraResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}`);
+                    const cerraduraResponse = await fetch(`https://localhost:8443/api/cerraduras/${cerraduraId}`);
                     if (!cerraduraResponse.ok) {
                         throw new Error('No se pudo recuperar la información de la cerradura');
                     }
@@ -67,8 +67,8 @@ const AbrirPuerta = () => {
                     setCerradura(parseInt(cerraduraId));
 
                     // Obtener información de la propiedad asociada a la cerradura
-                    const propiedadNombreResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propiedad/nombre`);
-                    const propiedadDireccionResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/propiedad/direccion`);
+                    const propiedadNombreResponse = await fetch(`https://localhost:8443/api/cerraduras/${cerraduraId}/propiedad/nombre`);
+                    const propiedadDireccionResponse = await fetch(`https://localhost:8443/api/cerraduras/${cerraduraId}/propiedad/direccion`);
 
                     if (propiedadNombreResponse.ok && propiedadDireccionResponse.ok) {
                         const nombre = await propiedadNombreResponse.text();
@@ -91,7 +91,7 @@ const AbrirPuerta = () => {
                 }
                 // Caso 2: Tenemos un ID de propiedad (navegación desde PropietarioDashboard)
                 else if (propiedadId) {
-                    const response = await fetch(`http://localhost:8080/api/propiedades/${propiedadId}`);
+                    const response = await fetch(`https://localhost:8443/api/propiedades/${propiedadId}`);
                     if (!response.ok) {
                         throw new Error('No se pudo recuperar la propiedad');
                     }
@@ -119,7 +119,7 @@ const AbrirPuerta = () => {
         // Solo ejecutar si tenemos propiedad pero no cerradura (caso de navegación desde PropietarioDashboard)
         if (propiedad && !cerradura) {
             setIsLoading(true);
-            fetch(`http://localhost:8080/api/cerraduras/propiedad/${propiedad.id}`)
+            fetch(`https://localhost:8443/api/cerraduras/propiedad/${propiedad.id}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('No se pudieron obtener las cerraduras');
@@ -157,7 +157,7 @@ const AbrirPuerta = () => {
 
         setVerificandoAcceso(true);
         // Llamar a la API para verificar acceso
-        fetch(`http://localhost:8080/api/cerraduras/${cerraduraId}/verificar-acceso?usuarioId=${usuario.id}`)
+        fetch(`https://localhost:8443/api/cerraduras/${cerraduraId}/verificar-acceso?usuarioId=${usuario.id}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Error al verificar acceso');
@@ -212,7 +212,7 @@ const AbrirPuerta = () => {
 
     const registrarIntentoAcceso = async (exitoso: boolean, motivo: string) => {
         try {
-            await fetch('http://localhost:8080/api/registros-apertura', {
+            await fetch('https://localhost:8443/api/registros-apertura', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -258,7 +258,7 @@ const AbrirPuerta = () => {
         setEstado('conectando');
         setError('');
 
-        fetch(`http://localhost:8080/api/cerraduras/${cerradura}/abrir`, {
+        fetch(`https://localhost:8443/api/cerraduras/${cerradura}/abrir`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -324,7 +324,7 @@ const AbrirPuerta = () => {
         const validarToken = async () => {
             try {
                 console.log(`Intentando validar token con usuario ${usuario.id}`);
-                const response = await fetch(`http://localhost:8080/api/tokens/validar?codigo=${token}&cerraduraId=${cerradura}&usuarioId=${usuario.id}`, {
+                const response = await fetch(`https://localhost:8443/api/tokens/validar?codigo=${token}&cerraduraId=${cerradura}&usuarioId=${usuario.id}`, {
                     method: 'POST',
                 });
         
@@ -344,7 +344,7 @@ const AbrirPuerta = () => {
                         console.log('Intentando validación alternativa basada solo en token...');
         
                         // Fetch all tokens to validate manually
-                        const tokensResponse = await fetch('http://localhost:8080/api/tokens');
+                        const tokensResponse = await fetch('https://localhost:8443/api/tokens');
                         if (!tokensResponse.ok) {
                             throw new Error('No se pudo verificar el token');
                         }
@@ -372,7 +372,7 @@ const AbrirPuerta = () => {
                         // Attempt to open the lock with the token's owner ID
                         const propietarioId = tokenObj.cerradura.propiedad.propietario.id;
         
-                        const abrirResponse = await fetch(`http://localhost:8080/api/cerraduras/${cerradura}/abrir`, {
+                        const abrirResponse = await fetch(`https://localhost:8443/api/cerraduras/${cerradura}/abrir`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -391,7 +391,7 @@ const AbrirPuerta = () => {
                         };
         
                         try {
-                            await fetch('http://localhost:8080/api/tokens', {
+                            await fetch('https://localhost:8443/api/tokens', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -414,7 +414,7 @@ const AbrirPuerta = () => {
                 throw new Error(errorData.error || 'Error desconocido al validar token');
             } catch (error) {
                 if (error instanceof Error) {
-                    const tokensResponse = await fetch('http://localhost:8080/api/tokens');
+                    const tokensResponse = await fetch('https://localhost:8443/api/tokens');
                     if (!tokensResponse.ok) {
                         throw new Error('No se pudo verificar el token');
                     }

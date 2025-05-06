@@ -18,7 +18,7 @@ const GestionarToken = () => {
     try {
         
       // 1. Buscar cerradura de la propiedad
-      const resC = await fetch(`http://localhost:8080/api/cerraduras/propiedad/${propiedad.id}`);
+      const resC = await fetch(`https://localhost:8443/api/cerraduras/propiedad/${propiedad.id}`);
       if (!resC.ok) return alert('Cerradura no asignada a esta propiedad');
       //Cerraduras es un array ya que una propiedad puede tener más de una
       const cerraduras = await resC.json();
@@ -57,7 +57,7 @@ const GestionarToken = () => {
         const token = { codigo:code, fechaExpiracion, usosMaximos, cerradura:{id:cerradura.id,modelo:cerradura.modelo,bloqueada:cerradura.bloqueada,propiedad:{ id: propiedad.id}} };
         
         // 4.2. Enviar al backend
-        const resA = await fetch('http://localhost:8080/api/tokens', {
+        const resA = await fetch('https://localhost:8443/api/tokens', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(token)

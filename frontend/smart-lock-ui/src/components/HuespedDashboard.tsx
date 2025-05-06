@@ -52,7 +52,7 @@ const HuespedDashboard = () => {
                 }
 
                 console.log('Obteniendo cerraduras para el huésped con ID:', id);
-                const url = `http://localhost:8080/api/huespedes/${id}/cerraduras`;
+                const url = `https://localhost:8443/api/huespedes/${id}/cerraduras`;
                 console.log('URL de la solicitud:', url);
 
                 // Llamada a la API para obtener las cerraduras del huésped

@@ -72,9 +72,9 @@ const AnadirPuerta = () => {
   const verificarPropietario = async (): Promise<boolean> => {
     try {
       console.log('----- Verificando propietario -----');
-      console.log('Consultando endpoint: http://localhost:8080/api/usuarios/email?email=', usuario.email);
+      console.log('Consultando endpoint: https://localhost:8443/api/usuarios/email?email=', usuario.email);
 
-      const response = await fetch(`http://localhost:8080/api/usuarios/email?email=${usuario.email}`);
+      const response = await fetch(`https://localhost:8443/api/usuarios/email?email=${usuario.email}`);
 
       console.log('Respuesta status: ', response.status);
 
@@ -213,7 +213,7 @@ const AnadirPuerta = () => {
         }
 
         // Crear la propiedad primero
-        const propiedadResponse = await fetch("http://localhost:8080/api/propiedades-con-imagen", {
+        const propiedadResponse = await fetch("https://localhost:8443/api/propiedades-con-imagen", {
           method: "POST",
           body: formData
         });
@@ -253,7 +253,7 @@ const AnadirPuerta = () => {
         console.log('Enviando datos de cerradura:\n', JSON.stringify(cerraduraData, null, 2));
 
         // Llamar a la API para crear la cerradura
-        const cerraduraResponse = await fetch("http://localhost:8080/api/cerraduras/create", {
+        const cerraduraResponse = await fetch("https://localhost:8443/api/cerraduras/create", {
           method: "POST",
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(cerraduraData)

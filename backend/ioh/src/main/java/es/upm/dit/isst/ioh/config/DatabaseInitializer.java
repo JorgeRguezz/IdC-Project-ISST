@@ -11,7 +11,7 @@ import es.upm.dit.isst.ioh.repository.UsuarioRepository; // Import the UsuarioRe
 @Configuration
 public class DatabaseInitializer {
 
-    //Crea un usuario admin por defecto al iniciar la aplicación
+    //Crea un usuario admin por defecto al iniciar la aplicación (lo asigna como propietario)
     @Bean
     public CommandLineRunner initDatabase(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         return args -> {
@@ -26,7 +26,7 @@ public class DatabaseInitializer {
                         "ROLE_ADMIN" // Role
                 );
                 usuarioRepository.save(admin);
-                System.out.println("Default admin user created: admin@example.com");
+                System.out.println("Default admin user created: admin@email.com");
             } else {
                 System.out.println("Admin user already exists.");
             }

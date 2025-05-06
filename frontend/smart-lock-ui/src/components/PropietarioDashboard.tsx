@@ -54,11 +54,11 @@ const PropietarioDashboard = () => {
                 setError(null);
 
                 console.log('Iniciando solicitud al backend...');
-                const response = await fetch(`http://localhost:8080/api/propiedades/propietario/${usuario.id}`);
+                const response = await fetch(`https://localhost:8443/api/propiedades/propietario/${usuario.id}`);
                 console.log('Respuesta recibida, status:', response.status);
 
                 if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
+                    throw new Error(`Error https: ${response.status}`);
                 }
 
                 // Obtener la respuesta como texto plano

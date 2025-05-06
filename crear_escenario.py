@@ -3,7 +3,7 @@ import json
 import datetime
 from datetime import timedelta
 
-BASE_URL = "http://localhost:8080/api"
+BASE_URL = "https://localhost:8443/api"
 
 # Fecha actual simulada: 31 de marzo de 2025
 FECHA_ACTUAL = datetime.datetime(2025, 3, 31)
@@ -92,7 +92,7 @@ headers = {
 def crear_admin():
     """Crea el admin o recupera su ID si ya existe"""
     print("\n🔍 Creando admin...")
-    response = requests.post(f"{BASE_URL}/usuarios/propietario", json=admin, headers=headers)
+    response = requests.post(f"{BASE_URL}/usuarios/propietario", json=admin, headers=headers, verify=False)
     if response.status_code == 200 or response.status_code == 201:
         data = response.json()
         print("✅ Admin creado:")
@@ -109,7 +109,8 @@ def crear_admin():
             "contrasena": admin["contrasena"],
             "authority": admin["authority"],
         },
-        headers=headers
+        headers=headers,
+        verify=False
     )
     if register_response.status_code == 200:
         register_data = register_response.json()
@@ -122,7 +123,7 @@ def crear_admin():
 def crear_propietario():
     """Crea un propietario o recupera su ID si ya existe"""
     print("\n🔍 Creando propietario...")
-    response = requests.post(f"{BASE_URL}/usuarios/propietario", json=propietario, headers=headers)
+    response = requests.post(f"{BASE_URL}/usuarios/propietario", json=propietario, headers=headers, verify=False)
     if response.status_code == 200 or response.status_code == 201:
         data = response.json()
         print("✅ Propietario creado:")
@@ -139,7 +140,8 @@ def crear_propietario():
             "contrasena": propietario["contrasena"],
             "authority": propietario["authority"],
         },
-        headers=headers
+        headers=headers,
+        verify=False
     )
     if register_response.status_code == 200:
         register_data = register_response.json()
@@ -164,7 +166,8 @@ def crear_huesped(huesped_data):
                 "authority": huesped_data["authority"],
                 "enabled": huesped_data["enabled"]
             },
-            headers=headers
+            headers=headers,
+            verify=False
         )
         
         if register_response.status_code == 200:
@@ -193,7 +196,7 @@ def crear_propiedad(propietario_id, propiedad_data, indice):
         "nombre": propiedad_data["nombre"],
         "propietario": {"id": propietario_id}
     }
-    response = requests.post(f"{BASE_URL}/propiedades", json=propiedad_data_completa, headers=headers)
+    response = requests.post(f"{BASE_URL}/propiedades", json=propiedad_data_completa, headers=headers, verify=False)
     if response.status_code == 200 or response.status_code == 201:
         propiedad_creada = response.json()
         print(f"✅ Propiedad '{propiedad_data['nombre']}' creada con ID: {propiedad_creada['id']}")
@@ -210,7 +213,7 @@ def crear_cerradura(propiedad_id, cerradura_data, indice):
         "bloqueada": cerradura_data["bloqueada"],
         "propiedad": {"id": propiedad_id}
     }
-    response = requests.post(f"{BASE_URL}/cerraduras/create", json=cerradura_data_completa, headers=headers)
+    response = requests.post(f"{BASE_URL}/cerraduras/create", json=cerradura_data_completa, headers=headers, verify=False)
     if response.status_code == 200 or response.status_code == 201:
         cerradura_creada = response.json()
         print(f"✅ Cerradura '{cerradura_data['modelo']}' creada con ID: {cerradura_creada['id']}")
@@ -235,7 +238,7 @@ def crear_token(cerradura_id, codigo, fecha_inicio, fecha_fin, usos_maximos=5):
     
     try:
         print(f"Enviando datos: {json.dumps(token_data)}")
-        response = requests.post(f"{BASE_URL}/tokens", json=token_data, headers=headers)
+        response = requests.post(f"{BASE_URL}/tokens", json=token_data, headers=headers, verify=False)
         
         print(f"Respuesta del servidor (status {response.status_code}):")
         try:
@@ -338,7 +341,7 @@ def crear_acceso(huesped_id, cerradura_id, fecha_inicio, fecha_fin, estado):
         
         # 5. Enviar al backend
         print(f"Enviando datos de acceso al servidor...")
-        response = requests.post(f"{BASE_URL}/accesos", json=acceso_data, headers=headers)
+        response = requests.post(f"{BASE_URL}/accesos", json=acceso_data, headers=headers, verify=False)
         
         print(f"Respuesta del servidor (status {response.status_code}):")
         try:
@@ -513,7 +516,7 @@ def mostrar_info_escenario(propietario_id, huespedes_ids, propiedades_creadas, c
     print("\n  4. Para usar la terminal h2, inicie sesión como admin:")
     print(f"     - Email: {admin['email']}")
     print(f"     - Contraseña: {admin['contrasena']}")
-    print(f"     Para cerrar sesion ponga en la URL: http://localhost:8080/logout")
+    print(f"     Para cerrar sesion ponga en la URL: https://localhost:8443/logout")
     
     print("\n=================================")
 
