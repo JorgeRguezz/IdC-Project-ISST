@@ -20,8 +20,8 @@ public class Propietario extends Usuario {
     public Propietario() {
     }
 
-    public Propietario(String nombre, String email, String telefono, String contrasena) {
-        super(nombre, email, telefono, contrasena, "ROLE_PROPIETARIO");
+    public Propietario(String nombre, String email, String telefono, String contrasena, String role) {
+        super(nombre, email, telefono, contrasena, role);
     }
     
     public List<Propiedad> getPropiedades() {

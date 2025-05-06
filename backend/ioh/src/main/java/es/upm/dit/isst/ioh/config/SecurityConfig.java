@@ -4,10 +4,12 @@ import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class SecurityConfig {
@@ -15,10 +17,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> {
+            auth.requestMatchers("/h2-console").hasRole("ADMIN"); // H2 console
+            auth.requestMatchers("/h2-console/**").hasRole("ADMIN"); // H2 console
             auth.requestMatchers("/**").permitAll(); // ultima linea, añadir todas las restricciones antes
         })
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/**")) // Disable CSRF (unneeded for REST API)
-                .headers(headers -> headers.frameOptions().sameOrigin()); // Allow frames for H2 console
+                .headers(headers -> headers.frameOptions().sameOrigin()) // Allow frames for H2 console
+                .formLogin(Customizer.withDefaults())
+                .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout")));
         return http.build();
     }
 
@@ -27,10 +33,10 @@ public class SecurityConfig {
         JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(dataSource);
         // Query to fetch user credentials
         userDetailsManager.setUsersByUsernameQuery(
-                "SELECT username, password, enabled FROM USUARIO WHERE username = ?");
+                "SELECT email, contrasena, enabled FROM USUARIO WHERE email = ?");
         // Query to fetch user roles
         userDetailsManager.setAuthoritiesByUsernameQuery(
-                "SELECT username, authority AS authority FROM USUARIO WHERE username = ?");
+                "SELECT email, authority AS authority FROM USUARIO WHERE email = ?");
         return userDetailsManager;
     }
 }

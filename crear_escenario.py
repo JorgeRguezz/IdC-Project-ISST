@@ -8,6 +8,16 @@ BASE_URL = "http://localhost:8080/api"
 # Fecha actual simulada: 31 de marzo de 2025
 FECHA_ACTUAL = datetime.datetime(2025, 3, 31)
 
+# Datos del administrador
+admin = {
+    "nombre": "Admin",
+    "email": "admin@email.com",
+    "telefono": "123456789",
+    "contrasena": "admin",
+    "authority": "ROLE_ADMIN",
+    "enabled": True
+}
+
 # Datos del propietario
 propietario = {
     "nombre": "Carlos Ruiz",
@@ -76,6 +86,38 @@ TOKEN_CODIGOS = ["TOKEN123456", "TOKEN789012"]
 headers = {
     "Content-Type": "application/json"
 }
+
+# Crea el admin o recupera su ID si ya existe. Lo asigna a la tabla propietarios, ya que no es relevante
+# (se usa para acceder al backend directamente)
+def crear_admin():
+    """Crea el admin o recupera su ID si ya existe"""
+    print("\n🔍 Creando admin...")
+    response = requests.post(f"{BASE_URL}/usuarios/propietario", json=admin, headers=headers)
+    if response.status_code == 200 or response.status_code == 201:
+        data = response.json()
+        print("✅ Admin creado:")
+        print(data)
+        return data['id']
+    elif response.status_code == 409:
+        print("⚠️ Admin ya existe. Intentando recuperar ID...")
+    register_response = requests.post(
+        f"{BASE_URL}/usuarios/propietario",
+        json={
+            "nombre": admin["nombre"],
+            "email": admin["email"],
+            "telefono": admin["telefono"],
+            "contrasena": admin["contrasena"],
+            "authority": admin["authority"],
+        },
+        headers=headers
+    )
+    if register_response.status_code == 200:
+        register_data = register_response.json()
+        print(f"✅ Admin registrado con ID: {register_data['id']}")
+        return register_data["id"]
+    else:
+        print("❌ Error al crear admin:", response.text)
+    return None
 
 def crear_propietario():
     """Crea un propietario o recupera su ID si ya existe"""
@@ -467,6 +509,11 @@ def mostrar_info_escenario(propietario_id, huespedes_ids, propiedades_creadas, c
         if 'fechaInicio' in token and 'fechaFin' in token:
             print(f"     - Válido desde: {token['fechaInicio']}")
             print(f"     - Válido hasta: {token['fechaFin']}")
+
+    print("\n  4. Para usar la terminal h2, inicie sesión como admin:")
+    print(f"     - Email: {admin['email']}")
+    print(f"     - Contraseña: {admin['contrasena']}")
+    print(f"     Para cerrar sesion ponga en la URL: http://localhost:8080/logout")
     
     print("\n=================================")
 
@@ -475,6 +522,9 @@ if __name__ == "__main__":
     print("==============================================")
     print(f"📅 Fecha simulada: {FECHA_ACTUAL.strftime('%d/%m/%Y')}")
     
+    # 1. Crear admin
+    admin_id = crear_admin()
+
     # 1. Crear propietario
     propietario_id = crear_propietario()
     

@@ -93,7 +93,8 @@ public class UsuarioService {
                 datos.get("nombre"),
                 datos.get("email"),
                 datos.get("telefono"),
-                passwordCifrada);
+                passwordCifrada,
+                "ROLE_PROPIETARIO");
 
         return propietarioRepository.save(nuevoPropietario);
     }
