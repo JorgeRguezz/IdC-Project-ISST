@@ -189,10 +189,10 @@ const Login = () => {
               Email
             </Typography>
             <TextField
+              id ="email"
               margin="normal"
               required
               fullWidth
-              id="email"
               placeholder="Escribe tu email"
               name="email"
               autoComplete="email"
@@ -278,6 +278,7 @@ const Login = () => {
             </Box>
 
             <Button
+              id="loginButton"
               type="submit"
               fullWidth
               variant="contained"
