@@ -17,11 +17,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> {
-            auth.requestMatchers("/h2-console").hasRole("ADMIN"); // H2 console
-            auth.requestMatchers("/h2-console/**").hasRole("ADMIN"); // H2 console
-            auth.requestMatchers("/**").permitAll(); // ultima linea, añadir todas las restricciones antes
+            auth.requestMatchers("/h2-console").hasRole("ADMIN"); // Solo el admin puede acceder a la consola H2
+            auth.requestMatchers("/h2-console/**").hasRole("ADMIN"); // Subrutas de la consola H2
+            auth.requestMatchers("/**").permitAll(); // Ultima linea, añadir todas las restricciones antes
         })
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/**")) // Disable CSRF (unneeded for REST API)
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/**")) // Disable CSRF (for H2 console)
                 .headers(headers -> headers.frameOptions().sameOrigin()) // Allow frames for H2 console
                 .formLogin(Customizer.withDefaults())
                 .logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout")));
