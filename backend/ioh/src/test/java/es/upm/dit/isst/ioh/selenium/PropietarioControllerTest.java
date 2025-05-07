@@ -16,7 +16,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class UsuarioControllerTest {
+public class PropietarioControllerTest {
 
     private WebDriver driver;
 
@@ -99,7 +99,7 @@ public class UsuarioControllerTest {
         System.out.println("Password visible: " + loginPasswordField.isDisplayed());
         System.out.println("Password habilitado: " + loginPasswordField.isEnabled());
         loginPasswordField.clear();
-        loginPasswordField.sendKeys("incorrectPassword");
+        loginPasswordField.sendKeys("PasswordIncorrecta");
 
         WebElement loginButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("loginButton")));
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", loginButton);
