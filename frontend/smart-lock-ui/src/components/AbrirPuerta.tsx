@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Box, Container, Typography, Paper, IconButton, Button, CircularProgress, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -36,6 +36,7 @@ const AbrirPuerta = () => {
     const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
     const [verificandoAcceso, setVerificandoAcceso] = useState(false);
     const [metodoAcceso, setMetodoAcceso] = useState<'normal' | 'token'>('normal');
+    const autoCloseTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Referencia para el temporizador
 
     // Obtener usuario del almacenamiento local
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
@@ -146,6 +147,50 @@ const AbrirPuerta = () => {
                 });
         }
     }, [propiedad, cerradura]);
+
+    // Nuevo: useEffect para manejar el cierre automático de la puerta
+    useEffect(() => {
+        // Solo actuar si la puerta se abrió exitosamente y tenemos la información necesaria
+        if (estado === 'exito' && cerradura && usuario && usuario.id) {
+            // Limpiar cualquier temporizador existente para evitar múltiples cierres
+            if (autoCloseTimeoutRef.current) {
+                clearTimeout(autoCloseTimeoutRef.current);
+            }
+
+            console.log(`Programando cierre automático para la cerradura ${cerradura} en 90 segundos.`);
+            autoCloseTimeoutRef.current = setTimeout(() => {
+                console.log(`Ejecutando cierre automático para la cerradura ${cerradura}.`);
+                fetch(`http://localhost:8080/api/cerraduras/${cerradura}/cerrar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(async response => {
+                    if (!response.ok) {
+                        const errorData = await response.text(); // O response.json() si la API devuelve errores en JSON
+                        console.error('Error al cerrar la puerta automáticamente:', response.status, errorData);
+                        // notificar al usuario si el cierre automático falla?
+                    } else {
+                        console.log('Puerta cerrada automáticamente con éxito.');
+                        // actualizar el estado de la UI, por ejemplo, a 'inicial' o uno nuevo como 'cerrado_auto'?
+                    }
+                })
+                .catch(error => {
+                    console.error('Error en la llamada fetch para cerrar la puerta automáticamente:', error);
+                });
+            }, 60000); // 90000 ms = 1 minuto
+        }
+
+        // Función de limpieza: se ejecuta cuando el componente se desmonta o antes de que el efecto se ejecute de nuevo
+        return () => {
+            if (autoCloseTimeoutRef.current) {
+                console.log(`Limpiando temporizador de cierre automático para la cerradura ${cerradura}.`);
+                clearTimeout(autoCloseTimeoutRef.current);
+                autoCloseTimeoutRef.current = null; // Resetea la referencia
+            }
+        };
+    }, [estado, cerradura, usuario]); // Dependencias del efecto: se re-ejecutará si alguna de estas cambia
 
     // Verificar si el usuario tiene acceso a la cerradura
     const verificarAccesoUsuario = (cerraduraId: number) => {

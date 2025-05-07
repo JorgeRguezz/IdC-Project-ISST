@@ -25,6 +25,8 @@ public class Cerradura {
     @JsonIgnoreProperties("cerraduras")
     private Propiedad propiedad;
 
+    private String seamDeviceId; // Para almacenar el ID externo del dispositivo
+
     // Constructor vacío (obligatorio para JPA)
     public Cerradura() {
     }
@@ -34,6 +36,7 @@ public class Cerradura {
         this.modelo = modelo;
         this.bloqueada = bloqueada;
         this.propiedad = propiedad;
+        this.seamDeviceId = seamDeviceId; // Inicializar a una cadena vacía o null según tus preferencias
     }
 
     // Getters y setters
@@ -65,6 +68,17 @@ public class Cerradura {
     public void setPropiedad(Propiedad propiedad) {
         this.propiedad = propiedad;
     }
+
+
+    // Seam Device ID --------------------------
+    public String getSeamDeviceId() {
+        return seamDeviceId;
+    }
+
+    public void setSeamDeviceId(String seamDeviceId) {
+        this.seamDeviceId = seamDeviceId;
+    }
+    // -------------------------------------------
 
     // equals y hashCode usando solo el ID
 

@@ -246,7 +246,8 @@ const AnadirPuerta = () => {
           bloqueada: true,
           propiedad: {
             id: propiedadId
-          }
+          }, 
+          seamDeviceId: form.codigoConexion.trim()
         };
 
         console.log('----- Creando cerradura -----');
