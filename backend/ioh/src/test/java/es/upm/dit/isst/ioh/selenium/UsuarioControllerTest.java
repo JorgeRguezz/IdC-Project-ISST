@@ -8,9 +8,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -92,20 +94,47 @@ public class UsuarioControllerTest {
         loginEmailField.clear();
         loginEmailField.sendKeys("propietario@email.com");
 
+        // Intenta hacer login con una contraseña incorrecta
         WebElement loginPasswordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("password")));
         System.out.println("Password visible: " + loginPasswordField.isDisplayed());
         System.out.println("Password habilitado: " + loginPasswordField.isEnabled());
         loginPasswordField.clear();
-        loginPasswordField.sendKeys("propietario123");
+        loginPasswordField.sendKeys("incorrectPassword");
 
-        // Encuentra y haz clic en el botón de login
         WebElement loginButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("loginButton")));
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", loginButton);
         loginButton.click();
 
+        // Verifica que no se redirige al dashboard
+        try {
+            Thread.sleep(3000); // Espera 3 segundos
+        } catch (InterruptedException e) {
+            // Maneja la excepción
+            
+        }
+        String currentUrl = driver.getCurrentUrl();
+        assertEquals("http://localhost:5173/login", currentUrl);
+
+        // Limpia el campo de contraseña simulando la selección y borrado del texto
+        WebElement updatedPasswordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("password")));
+        Actions actions = new Actions(driver);
+        actions.click(updatedPasswordField) // Haz clic en el campo
+               .keyDown(Keys.CONTROL) // Mantén presionada la tecla Control
+               .sendKeys("a") // Selecciona todo el texto
+               .keyUp(Keys.CONTROL) // Suelta la tecla Control
+               .sendKeys(Keys.BACK_SPACE) // Borra el texto seleccionado
+               .perform();
+
+        // Introduce la contraseña correcta
+        updatedPasswordField.sendKeys("propietario123");
+
+        // También vuelve a localizar el botón de login por si se ha recargado
+        WebElement updatedLoginButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("loginButton")));
+        updatedLoginButton.click();
+
         // Verifica que el usuario sea redirigido al dashboard
         wait.until(ExpectedConditions.urlToBe("http://localhost:5173/dashboard"));
-        String currentUrl = driver.getCurrentUrl();
+        currentUrl = driver.getCurrentUrl();
         assertEquals("http://localhost:5173/dashboard", currentUrl);
     }
 }
