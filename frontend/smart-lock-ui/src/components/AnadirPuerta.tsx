@@ -16,7 +16,6 @@ const AnadirPuerta = () => {
     nombre: false,
     direccion: false,
     ciudad: false,
-    modeloCerradura: false,
     codigoConexion: false
   });
 
@@ -36,7 +35,7 @@ const AnadirPuerta = () => {
     direccion: '',
     ciudad: '',
     // Nuevos campos para la cerradura
-    modeloCerradura: '',
+    
     codigoConexion: ''
   });
 
@@ -47,21 +46,7 @@ const AnadirPuerta = () => {
     setTouchedFields({ ...touchedFields, [name]: true });
   };
 
-  // Manejador específico para el Select de modelo de cerradura
-  const handleSelectChange = (e: SelectChangeEvent<string>) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-    // Marcar el campo como tocado cuando el usuario lo modifique
-    setTouchedFields({ ...touchedFields, [name as keyof typeof touchedFields]: true });
-  };
-
-  // Lista de modelos de cerraduras disponibles
-  const modelosCerradura = [
-    "Nuki Smart Lock Ultra",
-    "HomeTec Pro Bluetooth® de ABUS",
-    "Danalock V3",
-    "TTLock"
-  ];
+  
 
   // Función para volver a la vista anterior
   const handleVolver = () => {
@@ -112,7 +97,6 @@ const AnadirPuerta = () => {
       nombre: true,
       direccion: true,
       ciudad: true,
-      modeloCerradura: true,
       codigoConexion: true
     });
 
@@ -137,11 +121,7 @@ const AnadirPuerta = () => {
       }
 
       // Validaciones de los campos de la cerradura
-      if (!form.modeloCerradura || form.modeloCerradura.trim() === '') {
-        setErrorMessage("Por favor, ingrese el modelo de la cerradura");
-        setIsLoading(false);
-        return;
-      }
+
 
       if (!form.codigoConexion || form.codigoConexion.trim() === '') {
         setErrorMessage("Por favor, ingrese el código de conexión (este código no se almacenará)");
@@ -242,7 +222,7 @@ const AnadirPuerta = () => {
 
         // Crear la cerradura para esta propiedad
         const cerraduraData = {
-          modelo: form.modeloCerradura.trim(),
+          
           bloqueada: true,
           propiedad: {
             id: propiedadId
@@ -408,17 +388,7 @@ const AnadirPuerta = () => {
         helperText={touchedFields.ciudad && !form.ciudad ? "Este campo es obligatorio" : ""}
       />
 
-      <Paper
-        variant="outlined"
-        sx={{ height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}
-      >
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImagenFile(e.target.files?.[0] || null)}
-          style={{ marginBottom: 16 }}
-        />
-      </Paper>
+    
 
       {/* Sección de datos de la cerradura */}
       <Divider sx={{ my: 3 }} />
@@ -426,35 +396,6 @@ const AnadirPuerta = () => {
       <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mt: 2, mb: 1 }} color='black'>
         Datos de la cerradura
       </Typography>
-
-      <FormControl
-        fullWidth
-        required
-        error={touchedFields.modeloCerradura && !form.modeloCerradura}
-        sx={{ mb: 2 }}
-      >
-        <InputLabel id="modelo-cerradura-label">Modelo de cerradura</InputLabel>
-        <Select
-          labelId="modelo-cerradura-label"
-          id="modeloCerradura"
-          name="modeloCerradura"
-          value={form.modeloCerradura}
-          onChange={handleSelectChange}
-          label="Modelo de cerradura"
-        >
-          {modelosCerradura.map((modelo) => (
-            <MenuItem key={modelo} value={modelo}>
-              {modelo}
-              {modelo === "Nuki Smart Lock Ultra" && (
-                <StarIcon sx={{ ml: 1, color: '#FFD700', fontSize: 18 }} />
-              )}
-            </MenuItem>
-          ))}
-        </Select>
-        {touchedFields.modeloCerradura && !form.modeloCerradura && (
-          <FormHelperText>Este campo es obligatorio</FormHelperText>
-        )}
-      </FormControl>
 
       <TextField
         fullWidth
@@ -467,19 +408,6 @@ const AnadirPuerta = () => {
         sx={{ mb: 3 }}
         required
         error={touchedFields.codigoConexion && !form.codigoConexion}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                edge="end"
-                aria-label="escanear código QR"
-                title="Escanear QR"
-              >
-                <CameraAltIcon />
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
       />
 
       <Button

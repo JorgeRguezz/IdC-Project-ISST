@@ -3,13 +3,16 @@ package es.upm.dit.isst.ioh.service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 
+import com.seam.api.Seam;
+import com.seam.api.resources.locks.requests.LocksLockDoorRequest;
+import com.seam.api.resources.locks.requests.LocksUnlockDoorRequest;
+import com.seam.api.types.ActionAttempt;
 
 import es.upm.dit.isst.ioh.dto.CerraduraInfoDTO;
-// import es.upm.dit.isst.ioh.model.Acceso;
 import es.upm.dit.isst.ioh.model.Cerradura;
 import es.upm.dit.isst.ioh.model.Huesped;
 import es.upm.dit.isst.ioh.model.Propiedad;
@@ -20,25 +23,6 @@ import es.upm.dit.isst.ioh.repository.CerraduraRepository;
 import es.upm.dit.isst.ioh.repository.HuespedRepository;
 import es.upm.dit.isst.ioh.repository.PropietarioRepository;
 import es.upm.dit.isst.ioh.repository.UsuarioRepository;
-
-// IMPORTS SEAM API -------------------------------
-import java.io.Console;
-import java.util.*;
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.seam.api.Seam;
-import com.seam.api.core.ObjectMappers;
-import com.seam.api.types.Device;
-import com.seam.api.types.LocksUnlockDoorResponse;
-import com.seam.api.types.Manufacturer;
-import com.seam.api.types.ActionAttempt;
-import com.seam.api.resources.devices.requests.DevicesGetRequest;
-import com.seam.api.resources.devices.requests.DevicesListRequest;
-import com.seam.api.resources.locks.requests.LocksUnlockDoorRequest;
-import com.seam.api.resources.locks.requests.LocksLockDoorRequest;
-import com.seam.api.resources.actionattempts.requests.ActionAttemptsGetRequest;
-// import com.seam.api.resources.actionattempts.response.ActionAttemptsGetResponse;
-import es.upm.dit.isst.ioh.service.LockApiService;
 // END ------------------------------------------
 
 @Service
@@ -332,19 +316,19 @@ public class CerraduraService {
      * @param cerraduraId ID de la cerradura
      * @return Nombre de la cerradura o un mensaje por defecto si no se encuentra
      */
-    public String obtenerNombreCerradura(Long cerraduraId) {
-        System.out.println("Buscando nombre para cerradura ID: " + cerraduraId);
-        Optional<Cerradura> optCerradura = cerraduraRepository.findById(cerraduraId);
+    // public String obtenerNombreCerradura(Long cerraduraId) {
+    //     System.out.println("Buscando nombre para cerradura ID: " + cerraduraId);
+    //     Optional<Cerradura> optCerradura = cerraduraRepository.findById(cerraduraId);
 
-        if (optCerradura.isEmpty()) {
-            System.out.println("Cerradura no encontrada");
-            return "Cerradura sin identificar";
-        }
+    //     if (optCerradura.isEmpty()) {
+    //         System.out.println("Cerradura no encontrada");
+    //         return "Cerradura sin identificar";
+    //     }
 
-        Cerradura cerradura = optCerradura.get();
-        System.out.println("Modelo de cerradura encontrado: " + cerradura.getModelo());
-        return cerradura.getModelo() != null ? cerradura.getModelo() : "Cerradura sin nombre";
-    }
+    //     Cerradura cerradura = optCerradura.get();
+    //     System.out.println("Modelo de cerradura encontrado: " + cerradura.getModelo());
+    //     return cerradura.getModelo() != null ? cerradura.getModelo() : "Cerradura sin nombre";
+    // }
 
     /**
      * Obtiene toda la información necesaria de una cerradura en un solo objeto
@@ -376,8 +360,8 @@ public class CerraduraService {
         Cerradura cerradura = optCerradura.get();
 
         // Información de la cerradura
-        dto.setCerraduraNombre(cerradura.getModelo());
-        dto.setCerraduraModelo(cerradura.getModelo() != null ? cerradura.getModelo() : "Modelo desconocido");
+        // dto.setCerraduraNombre(cerradura.getModelo());
+        // dto.setCerraduraModelo(cerradura.getModelo() != null ? cerradura.getModelo() : "Modelo desconocido");
 
         // Información de la propiedad
         Propiedad propiedad = cerradura.getPropiedad();

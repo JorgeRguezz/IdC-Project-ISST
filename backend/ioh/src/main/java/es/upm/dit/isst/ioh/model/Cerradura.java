@@ -5,8 +5,12 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -15,9 +19,9 @@ public class Cerradura {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty
-    private String modelo;
-
+    
+    @NotNull(message = "El estado de la cerradura (bloqueada) no puede ser nulo")
+    
     private boolean bloqueada = true;
 
     @ManyToOne
@@ -32,8 +36,7 @@ public class Cerradura {
     }
 
     // Constructor con parámetros
-    public Cerradura(String modelo, boolean bloqueada, Propiedad propiedad) {
-        this.modelo = modelo;
+    public Cerradura( boolean bloqueada, Propiedad propiedad) {
         this.bloqueada = bloqueada;
         this.propiedad = propiedad;
         this.seamDeviceId = seamDeviceId; // Inicializar a una cadena vacía o null según tus preferencias
@@ -45,13 +48,6 @@ public class Cerradura {
         return id;
     }
 
-    public String getModelo() {
-        return modelo;
-    }
-
-    public void setModelo(String modelo) {
-        this.modelo = modelo;
-    }
 
     public boolean isBloqueada() {
         return bloqueada;

@@ -1,19 +1,24 @@
 package es.upm.dit.isst.ioh.controller;
 
-import es.upm.dit.isst.ioh.model.Cerradura;
-import es.upm.dit.isst.ioh.repository.CerraduraRepository;
-import es.upm.dit.isst.ioh.repository.AccesoRepository;
-import es.upm.dit.isst.ioh.service.CerraduraService;
-import es.upm.dit.isst.ioh.service.CerraduraService.AperturaResult;
-import es.upm.dit.isst.ioh.dto.CerraduraInfoDTO;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import es.upm.dit.isst.ioh.dto.CerraduraInfoDTO;
+import es.upm.dit.isst.ioh.model.Cerradura;
+import es.upm.dit.isst.ioh.repository.AccesoRepository;
+import es.upm.dit.isst.ioh.repository.CerraduraRepository;
+import es.upm.dit.isst.ioh.service.CerraduraService;
+import es.upm.dit.isst.ioh.service.CerraduraService.AperturaResult;
 
 @RestController
 @RequestMapping("/api/cerraduras")
@@ -160,11 +165,11 @@ public class CerraduraController {
      * @param id ID de la cerradura
      * @return Nombre o modelo de la cerradura
      */
-    @GetMapping("/{id}/nombre")
-    public ResponseEntity<String> getNombreCerradura(@PathVariable Long id) {
-        String nombreCerradura = cerraduraService.obtenerNombreCerradura(id);
-        return ResponseEntity.ok(nombreCerradura);
-    }
+   // @GetMapping("/{id}/nombre")
+    //public ResponseEntity<String> getNombreCerradura(@PathVariable Long id) {
+        //String nombreCerradura = cerraduraService.obtenerNombreCerradura(id);
+       // return ResponseEntity.ok(nombreCerradura);
+   // }
 
     /**
      * Obtiene toda la información de una cerradura en un solo objeto
