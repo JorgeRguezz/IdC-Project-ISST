@@ -160,7 +160,7 @@ const AbrirPuerta = () => {
             console.log(`Programando cierre automático para la cerradura ${cerradura} en 90 segundos.`);
             autoCloseTimeoutRef.current = setTimeout(() => {
                 console.log(`Ejecutando cierre automático para la cerradura ${cerradura}.`);
-                fetch(`http://localhost:8080/api/cerraduras/${cerradura}/cerrar`, {
+                fetch(`https://localhost:8443/api/cerraduras/${cerradura}/cerrar`, { 
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
