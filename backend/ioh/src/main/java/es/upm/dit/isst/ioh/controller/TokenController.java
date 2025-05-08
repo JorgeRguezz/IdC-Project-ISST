@@ -7,6 +7,9 @@ import es.upm.dit.isst.ioh.repository.TokenRepository;
 import es.upm.dit.isst.ioh.repository.CerraduraRepository;
 import es.upm.dit.isst.ioh.repository.UsuarioRepository;
 import es.upm.dit.isst.ioh.service.CerraduraService;
+import es.upm.dit.isst.ioh.service.TokenService;
+
+import com.seam.api.types.AccessCode;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,16 +28,19 @@ public class TokenController {
     private final CerraduraRepository cerraduraRepository;
     private final UsuarioRepository usuarioRepository;
     private final CerraduraService cerraduraService;
+    private final TokenService tokenService; // Agregado para usar el método tokenSeam de TokenService
 
     public TokenController(
             TokenRepository tokenRepository, 
             CerraduraRepository cerraduraRepository,
             UsuarioRepository usuarioRepository,
+            TokenService tokenService,
             CerraduraService cerraduraService) {
         this.tokenRepository = tokenRepository;
         this.cerraduraRepository = cerraduraRepository;
         this.usuarioRepository = usuarioRepository;
         this.cerraduraService = cerraduraService;
+        this.tokenService = tokenService; // Inyección del servicio TokenService
     }
 
     // Crear nuevo token (propietario lo genera)
@@ -46,6 +52,7 @@ public class TokenController {
             return ResponseEntity.status(462).body(null); // Código ya existe
         } else {
             token.setUsosActuales(0);
+            AccessCode resultadoSeam = tokenService.crearToken(token.getCerradura().getId(), token.getCodigo(), token.getFechaExpiracion());
             Token creado = tokenRepository.save(token);
             return ResponseEntity.ok(creado);
         }

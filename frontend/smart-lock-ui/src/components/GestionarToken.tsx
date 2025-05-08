@@ -90,13 +90,15 @@ const GestionarToken = () => {
   };
 
   const generateRandomString = () => {
-    const length = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const minLength = 6; // Longitud mínima del código
+    const maxLength = 9; // Longitud máxima del código
+    const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
+    const characters = '0123456789'; // Solo números
     let result = '';
     for (let i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * characters.length));
     }
-    console.log('Codigo Token:' + result)
+    console.log('Codigo Token:' + result);
     return result;
   };
 
@@ -172,9 +174,9 @@ const GestionarToken = () => {
         InputLabelProps={{ shrink: true }}
       />
 
-      <Link href="#" underline="hover" sx={{ color: '#0d6efd', mb: 2, display: 'inline-block' }}>
+      {/* <Link href="#" underline="hover" sx={{ color: '#0d6efd', mb: 2, display: 'inline-block' }}>
         Vincular con Google Calendar
-      </Link>
+      </Link> */}
 
 
       <Button

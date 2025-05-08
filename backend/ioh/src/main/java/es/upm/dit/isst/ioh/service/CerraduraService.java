@@ -32,6 +32,7 @@ import com.seam.api.types.Device;
 import com.seam.api.types.LocksUnlockDoorResponse;
 import com.seam.api.types.Manufacturer;
 import com.seam.api.types.ActionAttempt;
+import com.seam.api.types.ConnectWebview;
 import com.seam.api.resources.devices.requests.DevicesGetRequest;
 import com.seam.api.resources.devices.requests.DevicesListRequest;
 import com.seam.api.resources.locks.requests.LocksUnlockDoorRequest;
@@ -220,10 +221,25 @@ public class CerraduraService {
         // } else {
         //     return new AperturaResult(true, "Puerta abierta correctamente");
         // }
-        
+
         return new AperturaResult(true, "Puerta cerrada correctamente");
     }
+    
+    /* Conectar con SEAM directamente en la aplicación. Por hacer, si eso. */
+    // public ConnectWebview conectarSeam(Long cerraduraId) {
+        
+    //     Seam seam = Seam.builder()
+    //         .apiKey(this.seamApiKey)
+    //             .build();
 
+        
+    //     ConnectWebview createdConnectWebview = seam.connectWebviews().create(ConnectWebviewsCreateRequest.builder()
+    //             .customRedirectUrl("https://example.com/redirect")
+    //             .customRedirectFailureUrl("https://example.com/failure-redirect")
+    //             .providerCategory(ProviderCategory.STABLE)
+    //             .waitForDeviceCreation(true)
+    //             .build());
+    // }
 
 
     /**
