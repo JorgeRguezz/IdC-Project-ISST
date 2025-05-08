@@ -85,7 +85,17 @@
    			 <groupId>org.springframework.security</groupId>
    			 <artifactId>spring-security-crypto</artifactId>
 		</dependency>
-	</dependencies>
+
+		<!-- SEAM API -->
+		<dependency>
+			<groupId>io.github.seamapi</groupId>
+			<artifactId>java</artifactId>
+			<version>0.2.0</version>
+		</dependency>
+		<!-- End SEAM API -->
+
+	
+ </dependencies>
 
 	<build>
 		<plugins>

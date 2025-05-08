@@ -5,9 +5,11 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
+
 
 import es.upm.dit.isst.ioh.dto.CerraduraInfoDTO;
-import es.upm.dit.isst.ioh.model.Acceso;
+// import es.upm.dit.isst.ioh.model.Acceso;
 import es.upm.dit.isst.ioh.model.Cerradura;
 import es.upm.dit.isst.ioh.model.Huesped;
 import es.upm.dit.isst.ioh.model.Propiedad;
@@ -19,6 +21,26 @@ import es.upm.dit.isst.ioh.repository.HuespedRepository;
 import es.upm.dit.isst.ioh.repository.PropietarioRepository;
 import es.upm.dit.isst.ioh.repository.UsuarioRepository;
 
+// IMPORTS SEAM API -------------------------------
+import java.io.Console;
+import java.util.*;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.seam.api.Seam;
+import com.seam.api.core.ObjectMappers;
+import com.seam.api.types.Device;
+import com.seam.api.types.LocksUnlockDoorResponse;
+import com.seam.api.types.Manufacturer;
+import com.seam.api.types.ActionAttempt;
+import com.seam.api.resources.devices.requests.DevicesGetRequest;
+import com.seam.api.resources.devices.requests.DevicesListRequest;
+import com.seam.api.resources.locks.requests.LocksUnlockDoorRequest;
+import com.seam.api.resources.locks.requests.LocksLockDoorRequest;
+import com.seam.api.resources.actionattempts.requests.ActionAttemptsGetRequest;
+// import com.seam.api.resources.actionattempts.response.ActionAttemptsGetResponse;
+import es.upm.dit.isst.ioh.service.LockApiService;
+// END ------------------------------------------
+
 @Service
 public class CerraduraService {
 
@@ -27,6 +49,9 @@ public class CerraduraService {
     private final PropietarioRepository propietarioRepository;
     private final HuespedRepository huespedRepository;
     private final UsuarioRepository usuarioRepository;
+
+    @Value("${seam.api.key}")
+    private String seamApiKey;
 
     public CerraduraService(
             CerraduraRepository cerraduraRepository,
@@ -94,6 +119,15 @@ public class CerraduraService {
      */
     @Transactional
     public AperturaResult abrirPuerta(Long usuarioId, Long cerraduraId) {
+
+        if (this.seamApiKey == null || this.seamApiKey.isEmpty()) {
+            return new AperturaResult(false, "API key no configurada");
+        }
+
+        Seam seam = Seam.builder()
+                .apiKey(this.seamApiKey)
+                .build();
+
         // Verificar si la cerradura existe
         Optional<Cerradura> optCerradura = cerraduraRepository.findById(cerraduraId);
         if (optCerradura.isEmpty()) {
@@ -107,11 +141,90 @@ public class CerraduraService {
 
         // Abrir la cerradura
         Cerradura cerradura = optCerradura.get();
+        var seamID = cerradura.getSeamDeviceId();
+        System.out.println(seamID);
+        // Device device = seam.devices()
+        //         .get(DevicesGetRequest.builder()
+        //                 .deviceId(seamID)
+        //                 .build());
+
+        ActionAttempt aperturaPuerta = seam.locks()
+                .unlockDoor(LocksUnlockDoorRequest.builder()
+                        .deviceId(seamID)
+                        .build());
+
         cerradura.setBloqueada(false);
-        cerraduraRepository.save(cerradura);
+
+        System.out.println(aperturaPuerta);
+
+        // LockApiService statusApertura = .unlockDoor(seamID);
+
+        // if (statusApertura.) {
+        //     cerraduraRepository.save(cerradura);
+        //     return new AperturaResult(false, "La cerradura está bloqueada");                
+        // } else {
+        //     return new AperturaResult(true, "Puerta abierta correctamente");
+        // }
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         return new AperturaResult(true, "Puerta abierta correctamente");
     }
+
+    
+        /**
+     * Intenta cerrar una cerradura verificando que el usuario tenga acceso
+     * 
+     * @param cerraduraId ID de la cerradura a abrir
+     * @return Resultado de la operación con un mensaje
+     */
+    @Transactional
+    public AperturaResult cerrarPuerta(Long cerraduraId) {
+
+        if (this.seamApiKey == null || this.seamApiKey.isEmpty()) {
+            return new AperturaResult(false, "API key no configurada");
+        }
+
+        Seam seam = Seam.builder()
+                .apiKey(this.seamApiKey)
+                .build();
+
+        // Verificar si la cerradura existe
+        Optional<Cerradura> optCerradura = cerraduraRepository.findById(cerraduraId);
+        if (optCerradura.isEmpty()) {
+            return new AperturaResult(false, "Cerradura no encontrada");
+        }
+
+        // Cerrar la cerradura
+        Cerradura cerradura = optCerradura.get();
+        var seamID = cerradura.getSeamDeviceId();
+        System.out.println(seamID);
+
+        ActionAttempt cerrarPuerta = seam.locks()
+                .lockDoor(LocksLockDoorRequest.builder()
+                        .deviceId(seamID)
+                        .build());
+
+        cerradura.setBloqueada(true);
+
+        System.out.println(cerrarPuerta);
+
+        // LockApiService statusApertura = .unlockDoor(seamID);
+
+        // if (statusApertura.) {
+        //     cerraduraRepository.save(cerradura);
+        //     return new AperturaResult(false, "La cerradura está bloqueada");                
+        // } else {
+        //     return new AperturaResult(true, "Puerta abierta correctamente");
+        // }
+        
+        return new AperturaResult(true, "Puerta cerrada correctamente");
+    }
+
+
 
     /**
      * Clase para representar el resultado de intentar abrir una puerta

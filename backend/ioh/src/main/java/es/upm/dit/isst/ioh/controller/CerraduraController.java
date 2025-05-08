@@ -81,6 +81,26 @@ public class CerraduraController {
             return ResponseEntity.status(403).body(Map.of("error", resultado.getMensaje()));
         }
     }
+    
+    /**
+     * Endpoint para abrir una puerta verificando que el usuario tenga acceso
+     * 
+     * @param id    ID de la cerradura
+     * @param datos Datos con el ID del usuario que intenta abrir la puerta
+     * @return Respuesta con el resultado de la operación
+     */
+    @PostMapping("/{id}/cerrar")
+    public ResponseEntity<?> cerrarPuerta(@PathVariable Long id) {
+
+        // Utilizar el servicio para intentar abrir la puerta
+        AperturaResult resultado = cerraduraService.cerrarPuerta(id);
+
+        if (resultado.isExito()) {
+            return ResponseEntity.ok().body(Map.of("mensaje", resultado.getMensaje()));
+        } else {
+            return ResponseEntity.status(403).body(Map.of("error", resultado.getMensaje()));
+        }
+    }
 
     /**
      * Endpoint para verificar si un usuario tiene acceso a una cerradura
@@ -97,26 +117,6 @@ public class CerraduraController {
         return ResponseEntity.ok(tieneAcceso);
     }
 
-    /**
-     * Endpoint para cerrar una puerta (cambiar estado de desbloqueada a bloqueada)
-     * 
-     * @param id ID de la cerradura
-     * @return Respuesta con el resultado de la operación
-     */
-    @PostMapping("/{id}/cerrar")
-    public ResponseEntity<?> cerrarPuerta(@PathVariable Long id) {
-        Optional<Cerradura> optCerradura = cerraduraRepository.findById(id);
-
-        if (optCerradura.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Cerradura cerradura = optCerradura.get();
-        cerradura.setBloqueada(true);
-        cerraduraRepository.save(cerradura);
-
-        return ResponseEntity.ok().body(Map.of("mensaje", "Puerta cerrada correctamente"));
-    }
 
     /**
      * Obtiene el nombre de la propiedad asociada a una cerradura
