@@ -93,7 +93,10 @@
 			<version>0.2.0</version>
 		</dependency>
 		<!-- End SEAM API -->
-
+		<dependency>
+   			 <groupId>org.seleniumhq.selenium</groupId>
+    		 <artifactId>selenium-java</artifactId>
+		</dependency>
 	
  </dependencies>
 

@@ -201,9 +201,11 @@ const Register = () => {
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
               <Button
+                id ="rolePropietario"
                 fullWidth
                 variant={role === 'propietario' ? 'contained' : 'outlined'}
                 onClick={() => setRole('propietario')}
+                style={{ display: 'block', visibility: 'visible', opacity: 1 }}
                 sx={{
                   py: 1.5,
                   bgcolor: role === 'propietario' ? '#0d6efd' : 'transparent',
@@ -226,9 +228,11 @@ const Register = () => {
                 Propietario
               </Button>
               <Button
+                id="roleHuesped"
                 fullWidth
                 variant={role === 'huesped' ? 'contained' : 'outlined'}
                 onClick={() => setRole('huesped')}
+                style={{ display: 'block', visibility: 'visible', opacity: 1 }}
                 sx={{
                   py: 1.5,
                   bgcolor: role === 'huesped' ? '#0d6efd' : 'transparent',
@@ -256,10 +260,10 @@ const Register = () => {
               Nombre y apellidos
             </Typography>
             <TextField
+              id="fullName"
               margin="normal"
               required
               fullWidth
-              id="fullName"
               placeholder="Escribe tu nombre y apellidos"
               name="fullName"
               autoComplete="name"
@@ -284,10 +288,10 @@ const Register = () => {
               Correo electrónico
             </Typography>
             <TextField
+              id="email"
               margin="normal"
               required
               fullWidth
-              id="email"
               placeholder="Escribe tu correo"
               name="email"
               autoComplete="email"
@@ -313,10 +317,10 @@ const Register = () => {
               Teléfono móvil
             </Typography>
             <TextField
+              id="telefono"
               margin="normal"
               required
               fullWidth
-              id="username"
               placeholder="Escribe tu número de teléfono"
               name="username"
               autoComplete="tel"
@@ -341,13 +345,13 @@ const Register = () => {
               Contraseña
             </Typography>
             <TextField
+              id="password"
               margin="normal"
               required
               fullWidth
               name="password"
               placeholder="Escribe tu contraseña"
               type={showPassword ? 'text' : 'password'}
-              id="password"
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -384,13 +388,13 @@ const Register = () => {
               Confirmar contraseña
             </Typography>
             <TextField
+              id="confirmPassword"
               margin="normal"
               required
               fullWidth
               name="confirmPassword"
               placeholder="Repite tu contraseña"
               type={showConfirmPassword ? 'text' : 'password'}
-              id="confirmPassword"
               autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -424,6 +428,7 @@ const Register = () => {
             />
 
             <Button
+              id="registerButton"
               type="submit"
               fullWidth
               variant="contained"
