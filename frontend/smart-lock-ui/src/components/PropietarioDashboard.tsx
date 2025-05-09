@@ -54,28 +54,89 @@ const PropietarioDashboard = () => {
 
   // Fetch propiedades al montar
   useEffect(() => {
-    const fetchPropiedades = async () => {
-      if (!usuario.id) {
-        setError('Usuario no autenticado');
-        setCargando(false);
-        return;
-      }
-      try {
-        setCargando(true);
-        setError(null);
-        const resp = await fetch(`http://localhost:8080/api/propiedades/propietario/${usuario.id}`);
-        if (!resp.ok) throw new Error(`Error HTTP ${resp.status}`);
-        const data: Propiedad[] = await resp.json();
-        setPropiedades(data);
-      } catch (err: any) {
-        setError(err.message || 'Error desconocido');
-        setPropiedades([]);
-      } finally {
-        setCargando(false);
-      }
-    };
-    fetchPropiedades();
-  }, [usuario.id]);
+     const fetchPropiedades = async () => {
+            if (!usuario.id) {
+                console.error('No hay ID de usuario en localStorage');
+                setError('Usuario no autenticado');
+                setCargando(false);
+                return;
+            }
+
+            try {
+                setCargando(true);
+                setError(null);
+
+                console.log('Iniciando solicitud al backend...');
+                const response = await fetch(`https://localhost:8443/api/propiedades/propietario/${usuario.id}`);
+                console.log('Respuesta recibida, status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`Error https: ${response.status}`);
+                }
+
+                // Obtener la respuesta como texto plano
+                const text = await response.text();
+                console.log('Respuesta como texto:', text);
+
+                if (!text || text.trim() === '' || text === '[]') {
+                    console.warn('La respuesta está vacía o es un array vacío');
+                    setPropiedades([]);
+                    setCargando(false);
+                    return;
+                }
+
+                // Limpiar cualquier carácter extraño que pudiera haber en la respuesta
+                const cleanedText = text.trim();
+                console.log('Texto limpio para parsear:', cleanedText);
+
+                try {
+                    // Intentar parsear la respuesta como JSON
+                    const data = JSON.parse(cleanedText);
+                    console.log('Datos parseados correctamente:', data);
+
+                    // Verificar que los datos tienen la estructura esperada
+                    if (Array.isArray(data)) {
+                        console.log('Los datos son un array con', data.length, 'elementos');
+
+                        // Mapear cada item para asegurar que cumple con la interfaz Propiedad
+                        const propiedadesSeguras = data.map(item => {
+                            // Crear un objeto con valores por defecto para todo
+                            const propiedadSegura: Propiedad = {
+                                id: typeof item.id === 'number' ? item.id : 0,
+                                nombre: typeof item.nombre === 'string' ? item.nombre : 'Sin nombre',
+                                direccion: typeof item.direccion === 'string' ? item.direccion : 'Sin dirección',
+                                propietarioId: typeof item.propietarioId === 'number' ? item.propietarioId : usuario.id,
+                                numeroCerraduras: typeof item.numeroCerraduras === 'number' ? item.numeroCerraduras : 0
+                            };
+                            return propiedadSegura;
+                        });
+
+                        console.log('Propiedades procesadas:', propiedadesSeguras);
+                        setPropiedades(propiedadesSeguras);
+                    } else if (typeof data === 'object' && data !== null) {
+                        // Si es un objeto pero no un array, quizás podríamos intentar adaptarlo
+                        console.warn('La respuesta es un objeto, no un array:', data);
+                        setPropiedades([]);
+                    } else {
+                        console.warn('La respuesta no es un array ni un objeto:', data);
+                        setPropiedades([]);
+                    }
+                } catch (parseError) {
+                    console.error('Error al parsear respuesta JSON:', parseError);
+                    console.error('Texto que causó el error:', cleanedText);
+                    throw new Error('Error al parsear la respuesta: formato JSON inválido');
+                }
+            } catch (error) {
+                console.error('Error al obtener propiedades:', error);
+                setError(error instanceof Error ? error.message : 'Error desconocido');
+                setPropiedades([]);
+            } finally {
+                setCargando(false);
+            }
+        };
+
+        fetchPropiedades();
+    }, [usuario.id]);
 
   // Inicializar API de Google y comprobar si ya está logueado
   useEffect(() => {
@@ -93,17 +154,6 @@ const PropietarioDashboard = () => {
     });
   }, []);
 
-  // Función para login con Google
-  const signInWithGoogle = async () => {
-    try {
-      const auth2 = gapi.auth2.getAuthInstance();
-      const user = await auth2.signIn();
-      const profile = user.getBasicProfile();
-      setUsuarioEmail(profile.getEmail());
-    } catch (err) {
-      console.error('Error al autenticar:', err);
-    }
-  };
 
   // Funciones de navegación
   const handleCerrarSesion = () => {

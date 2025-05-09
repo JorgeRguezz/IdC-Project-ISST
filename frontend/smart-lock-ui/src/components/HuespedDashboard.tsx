@@ -36,6 +36,8 @@ const HuespedDashboard = () => {
     const [año] = useState(new Date().getFullYear());
 
     useEffect(() => {
+        console.log('Ejecutando useEffect para cargar cerraduras');
+
         const fetchCerraduras = async () => {
             setCargando(true);
             setError('');
@@ -43,29 +45,88 @@ const HuespedDashboard = () => {
             try {
                 const id = usuario?.id;
                 if (!id) {
+                    console.error('No se pudo identificar el ID del usuario:', usuario);
                     setError('No se pudo identificar tu usuario. Por favor, cierra sesión y vuelve a iniciar sesión.');
                     setCargando(false);
                     return;
                 }
 
-                const response = await fetch(`http://localhost:8080/api/huespedes/${id}/cerraduras`, {
+                console.log('Obteniendo cerraduras para el huésped con ID:', id);
+                const url = `https://localhost:8443/api/huespedes/${id}/cerraduras`;
+                console.log('URL de la solicitud:', url);
+
+                // Llamada a la API para obtener las cerraduras del huésped
+                const response = await fetch(url, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'application/json',
-                    },
+                        'Content-Type': 'application/json'
+                    }
                 });
 
+                console.log('Estado de la respuesta:', response.status);
+                console.log('Headers de la respuesta:', [...response.headers.entries()]);
+
                 if (!response.ok) {
-                    throw new Error(`Error al obtener accesos (${response.status})`);
+                    if (response.status === 404) {
+                        // Si el huésped no existe en el sistema o no hay datos, mostrar mensaje de no accesos
+                        console.warn('Usuario no encontrado o sin datos (404)');
+                        setCerraduras([]);
+                        setCargando(false);
+                        return;
+                    } else if (response.status === 500) {
+                        // Error interno del servidor
+                        console.error('Error interno del servidor (500)');
+                        throw new Error('Hay un problema en el servidor. Por favor, inténtalo más tarde.');
+                    } else {
+                        // Cualquier otro error
+                        console.error(`Error inesperado (${response.status})`);
+                        throw new Error(`No se pudieron obtener tus accesos (${response.status}). Por favor, inténtalo de nuevo.`);
+                    }
                 }
 
-                const data = await response.json();
-                setCerraduras(data.map((item: any) => ({
+                // Intentar obtener el contenido como texto primero para depuración
+                const responseText = await response.text();
+                console.log('Respuesta cruda del servidor:', responseText);
+
+                // Intentar analizar el texto como JSON
+                let data;
+                try {
+                    data = responseText ? JSON.parse(responseText) : [];
+                    console.log('Datos JSON parseados:', data);
+                } catch (e) {
+                    console.error('Error al analizar JSON:', e);
+                    throw new Error('El servidor devolvió una respuesta inválida. Por favor, inténtalo más tarde.');
+                }
+
+                // Si no es array, convertirlo a array vacío para evitar errores
+                if (!Array.isArray(data)) {
+                    console.warn('La respuesta no es un array:', data);
+                    data = [];
+                }
+
+                // Si el array está vacío, no mostrar datos de prueba
+                if (data.length === 0) {
+                    console.warn('No se recibieron datos del backend');
+                    setCerraduras([]);
+                    setCargando(false);
+                    return;
+                }
+
+                // Mapear los datos a nuestro formato de Cerradura
+                const cerradurasFormateadas = data.map((item: any) => ({
                     id: item.id,
-                    nombre: item.nombre || 'Puerta sin nombre',
-                })));
-            } catch (err: any) {
-                setError(err.message || 'Error desconocido');
+                    nombre: item.nombre || 'Puerta sin nombre'
+                }));
+
+                console.log('Cerraduras formateadas:', cerradurasFormateadas);
+                setCerraduras(cerradurasFormateadas);
+            } catch (error) {
+                console.error('Error al obtener cerraduras:', error);
+                if (error instanceof Error) {
+                    setError(error.message);
+                } else {
+                    setError('No se pudieron cargar tus accesos. Por favor, verifica tu conexión a internet e inténtalo de nuevo.');
+                }
             } finally {
                 setCargando(false);
             }
