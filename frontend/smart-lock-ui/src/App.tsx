@@ -19,6 +19,7 @@ import GestionarAcceso from './components/GestionarAcceso';
 import GestionarToken from './components/GestionarToken';
 import AccesosPropietario from './components/AccesosPropietario';
 import AccesosPropietarioToken from './components/AccesosPropietarioToken';
+import Configuracion from './components/Configuracion';
 
 const theme = createTheme();
 
@@ -37,6 +38,7 @@ function App() {
           <Route path="/propiedades" element={<Propiedades />} />
           <Route path="/propiedades/gestionar-acceso" element={<GestionarAcceso />} />
           <Route path="/propiedades/gestionar-token" element={<GestionarToken />} />
+          <Route path="/configuracion" element={<Configuracion />} />
 
           <Route
             path="/propietario-dashboard"

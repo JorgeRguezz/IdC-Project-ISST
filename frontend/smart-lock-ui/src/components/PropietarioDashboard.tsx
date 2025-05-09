@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Paper, IconButton, Grid, Button, Badge } from '@mui/material';
+import { Box, Typography, Paper, IconButton, Grid, Button, Badge, Menu, MenuItem, Avatar, ListItemIcon } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ClockIcon from '@mui/icons-material/AccessTime';
@@ -19,7 +19,7 @@ interface Propiedad {
     numeroCerraduras: number;
 }
 
-const PropietarioDashboard = () => {
+const PropietarioDashboard: React.FC = () => {
     const navigate = useNavigate();
     const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
     const [cargando, setCargando] = useState<boolean>(true);
@@ -178,6 +178,23 @@ const PropietarioDashboard = () => {
         return { diasSemana, diasPrevios, dias };
     };
 
+    // Estado para el menú desplegable
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('usuario');
+        navigate('/login');
+    };
+
     return (
         <Box
             sx={{
@@ -212,14 +229,42 @@ const PropietarioDashboard = () => {
                         Inicio
                     </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <IconButton color="primary" sx={{ mr: 1 }}>
-                        <SettingsIcon />
-                    </IconButton>
-                    <IconButton color="primary" onClick={handleCerrarSesion}>
-                        <LogoutIcon />
-                    </IconButton>
+                <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={handleMenuOpen}>
+                    <Avatar sx={{ bgcolor: '#0d6efd' }}>
+                        {usuario.nombre ? usuario.nombre.charAt(0).toUpperCase() : '?'}
+                    </Avatar>
+                    <Typography sx={{ ml: 1, fontWeight: 'bold', color: '#333' }}>
+                        {usuario.nombre || 'Usuario'}
+                    </Typography>
                 </Box>
+
+                {/* Menú desplegable */}
+                <Menu
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleMenuClose}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                >
+                    <MenuItem onClick={() => navigate('/configuracion')}>
+                        <ListItemIcon>
+                            <SettingsIcon fontSize="small" />
+                        </ListItemIcon>
+                        Configuración
+                    </MenuItem>
+                    <MenuItem onClick={handleLogout}>
+                        <ListItemIcon>
+                            <LogoutIcon fontSize="small" />
+                        </ListItemIcon>
+                        Cerrar sesión
+                    </MenuItem>
+                </Menu>
             </Box>
 
             {/* Contenido */}

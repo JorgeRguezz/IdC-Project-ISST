@@ -16,9 +16,8 @@ public class CerraduraDTO {
     }
 
     // Constructor para mapear desde la entidad Cerradura
-    public CerraduraDTO(Long id, String modelo, boolean bloqueada, Long propiedadId, String propiedadNombre) {
+    public CerraduraDTO(Long id, boolean bloqueada, Long propiedadId, String propiedadNombre) {
         this.id = id;
-        this.modelo = modelo;
         this.bloqueada = bloqueada;
         this.propiedadId = propiedadId;
         this.propiedadNombre = propiedadNombre;
@@ -31,14 +30,6 @@ public class CerraduraDTO {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getModelo() {
-        return modelo;
-    }
-
-    public void setModelo(String modelo) {
-        this.modelo = modelo;
     }
 
     public boolean isBloqueada() {

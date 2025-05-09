@@ -131,7 +131,6 @@ public class PropiedadController {
                 // Crear un mapa con solo los datos esenciales
                 Map<String, Object> cerraduraMap = new HashMap<>();
                 cerraduraMap.put("id", c.getId());
-                cerraduraMap.put("modelo", c.getModelo());
                 cerraduraMap.put("bloqueada", c.isBloqueada());
                 cerraduraMap.put("propiedadId", id);
                 cerraduraMap.put("propiedadNombre", propiedad.getNombre());
@@ -202,7 +201,6 @@ public class PropiedadController {
     private CerraduraDTO convertirACerraduraDTO(Cerradura cerradura, Propiedad propiedad) {
         return new CerraduraDTO(
             cerradura.getId(),
-            cerradura.getModelo(),
             cerradura.isBloqueada(),
             propiedad.getId(),
             propiedad.getNombre()
