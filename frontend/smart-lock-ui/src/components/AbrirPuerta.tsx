@@ -37,6 +37,7 @@ const AbrirPuerta = () => {
     const [verificandoAcceso, setVerificandoAcceso] = useState(false);
     const [metodoAcceso, setMetodoAcceso] = useState<'normal' | 'token'>('normal');
     const autoCloseTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Referencia para el temporizador
+    const autoCloseTimerShouldPersist = useRef<boolean>(false); // Referencia para mantener el temporizador
 
     // Obtener usuario del almacenamiento local
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
@@ -157,37 +158,52 @@ const AbrirPuerta = () => {
                 clearTimeout(autoCloseTimeoutRef.current);
             }
 
-            console.log(`Programando cierre automático para la cerradura ${cerradura} en 90 segundos.`);
+            console.log(`Programando cierre automático para la cerradura ${cerradura} en 60 segundos.`);
+            autoCloseTimerShouldPersist.current = true; // Marcar que el temporizador debe persistir
             autoCloseTimeoutRef.current = setTimeout(() => {
-                console.log(`Ejecutando cierre automático para la cerradura ${cerradura}.`);
-                fetch(`https://localhost:8443/api/cerraduras/${cerradura}/cerrar`, { 
+                            console.log(`Ejecutando cierre automático para la cerradura ${cerradura}.`);
+                fetch(`https://localhost:8443/api/cerraduras/${cerradura}/cerrar`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     }
                 })
-                .then(async response => {
-                    if (!response.ok) {
-                        const errorData = await response.text(); // O response.json() si la API devuelve errores en JSON
-                        console.error('Error al cerrar la puerta automáticamente:', response.status, errorData);
-                        // notificar al usuario si el cierre automático falla?
-                    } else {
-                        console.log('Puerta cerrada automáticamente con éxito.');
-                        // actualizar el estado de la UI, por ejemplo, a 'inicial' o uno nuevo como 'cerrado_auto'?
-                    }
-                })
-                .catch(error => {
-                    console.error('Error en la llamada fetch para cerrar la puerta automáticamente:', error);
-                });
+                    .then(async response => {
+                        if (!response.ok) {
+                            const errorData = await response.text(); // O response.json() si la API devuelve errores en JSON
+                            console.error('Error al cerrar la puerta automáticamente:', response.status, errorData);
+                            // notificar al usuario si el cierre automático falla?
+                        } else {
+                            console.log('Puerta cerrada automáticamente con éxito.');
+                            // actualizar el estado de la UI, por ejemplo, a 'inicial' o uno nuevo como 'cerrado_auto'?
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error en la llamada fetch para cerrar la puerta automáticamente:', error);
+                    })
+                    .finally(() => {
+                        autoCloseTimeoutRef.current = null; // Resetea la referencia
+                        autoCloseTimerShouldPersist.current = false; // Marcar que el temporizador no debe persistir
+                    });
             }, 60000); // 90000 ms = 1 minuto
+        } else {
+            // Si el estado no es 'exito', cualquier temporizador de cierre automático pendiente debe cancelarse.
+            if (autoCloseTimeoutRef.current) {
+                console.log(`Cancelando temporizador de cierre automático existente porque el estado ya no es 'exito' (estado actual: ${estado}).`);
+                clearTimeout(autoCloseTimeoutRef.current);
+                autoCloseTimeoutRef.current = null;
+            }
+            autoCloseTimerShouldPersist.current = false; // No hay temporizador persistente si no estamos en 'exito'
         }
 
         // Función de limpieza: se ejecuta cuando el componente se desmonta o antes de que el efecto se ejecute de nuevo
         return () => {
-            if (autoCloseTimeoutRef.current) {
-                console.log(`Limpiando temporizador de cierre automático para la cerradura ${cerradura}.`);
+            if (autoCloseTimeoutRef.current && !autoCloseTimerShouldPersist.current) {
+                console.log(`Limpiando temporizador de cierre automático (no persistente) para la cerradura ${cerradura} al desmontar o cambiar dependencias.`);
                 clearTimeout(autoCloseTimeoutRef.current);
                 autoCloseTimeoutRef.current = null; // Resetea la referencia
+            } else if (autoCloseTimerShouldPersist.current && autoCloseTimeoutRef.current) {
+                console.log(`El temporizador de cierre automático persistente para la cerradura ${cerradura} persistirá después del desmotaje/cambio de dependencias.`);
             }
         };
     }, [estado, cerradura, usuario]); // Dependencias del efecto: se re-ejecutará si alguna de estas cambia
@@ -377,10 +393,29 @@ const AbrirPuerta = () => {
                 const errorData = response.ok ? null : await response.json();
         
                 if (response.ok) {
-                    return response; // Return the response if successful
+                    // El token es válido para el usuario actual y la cerradura.
+                    // Ahora, intentar abrir la puerta.
+                    console.log(`Token validado para usuario ${usuario.id}, intentando abrir cerradura ${cerradura}`);
+                    const abrirResponse = await fetch(`https://localhost:8443/api/cerraduras/${cerradura}/abrir`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ usuarioId: usuario.id }), // Usar el usuario.id actual
+                    });
+
+                    if (!abrirResponse.ok) {
+                        // La validación del token fue OK, pero la apertura falló.
+                        const abrirErrorData = await abrirResponse.json();
+                        console.error('Error al abrir la puerta después de validar el token:', abrirErrorData);
+                        throw new Error(abrirErrorData.error || 'Error al abrir la puerta después de validar el token');
+                    }
+                    // Si la apertura fue exitosa, devolver la respuesta de la apertura.
+                    console.log('Puerta abierta con éxito después de la validación del token.');
+                    return abrirResponse;
                 }
         
-                console.log('response:', response);
+                console.log('response:', response);    
         
                 if (response.status === 403) {
                     console.log('Error de validación estándar:', errorData.error);

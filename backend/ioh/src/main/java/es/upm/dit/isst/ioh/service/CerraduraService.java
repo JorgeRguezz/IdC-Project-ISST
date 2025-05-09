@@ -383,6 +383,7 @@ public class CerraduraService {
         dto.setPropiedadNombre("Propiedad no encontrada");
         dto.setPropiedadDireccion("Dirección no disponible");
         dto.setPropietarioNombre("Propietario desconocido");
+        // dto.setPropietarioId(null); // Inicializar si es necesario en el DTO
         dto.setTieneAcceso(false);
 
         // Buscar la cerradura
@@ -395,23 +396,22 @@ public class CerraduraService {
         Cerradura cerradura = optCerradura.get();
 
         // Información de la cerradura
-        // dto.setCerraduraNombre(cerradura.getModelo());
-        // dto.setCerraduraModelo(cerradura.getModelo() != null ? cerradura.getModelo() : "Modelo desconocido");
+        // dto.setCerraduraNombre(cerradura.getModelo()); // Comentado en tu código original
+        // dto.setCerraduraModelo(cerradura.getModelo() != null ? cerradura.getModelo() : "Modelo desconocido"); // Comentado
 
         // Información de la propiedad
         Propiedad propiedad = cerradura.getPropiedad();
         if (propiedad != null) {
-            dto.setPropiedadId(propiedad.getId());
-            dto.setPropiedadNombre(propiedad.getNombre() != null ? propiedad.getNombre() : "Propiedad sin nombre");
-            dto.setPropiedadDireccion(
-                    propiedad.getDireccion() != null ? propiedad.getDireccion() : "Dirección no disponible");
+            dto.setPropiedadNombre(propiedad.getNombre() != null ? propiedad.getNombre() : "Propiedad no encontrada");
+            dto.setPropiedadDireccion(propiedad.getDireccion() != null ? propiedad.getDireccion() : "Dirección no disponible");
 
-            // Información del propietario
             Propietario propietario = propiedad.getPropietario();
             if (propietario != null) {
-                dto.setPropietarioId(propietario.getId());
-                dto.setPropietarioNombre(
-                        propietario.getNombre() != null ? propietario.getNombre() : "Propietario desconocido");
+                dto.setPropietarioNombre(propietario.getNombre() != null ? propietario.getNombre() : "Propietario desconocido");
+                dto.setPropietarioId(propietario.getId()); // <-- AÑADIR ESTA LÍNEA O ASEGURARSE DE QUE ESTÉ
+            } else {
+                dto.setPropietarioNombre("Propietario no asociado");
+                // dto.setPropietarioId(null); // Si el propietario es null
             }
         }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Box, Button, Container, IconButton, Paper, TextField, Typography, Snackbar, Alert } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
@@ -11,74 +11,70 @@ const TokenAccess = () => {
   const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+  const [cerraduraIdAbierta, setCerraduraIdAbierta] = useState<number | null>(null);
+  const [puertaAbiertaExitosamente, setPuertaAbiertaExitosamente] = useState<boolean>(false);
+  const autoCloseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Método simplificado para validar y abrir la cerradura asociada al token
-  const validarTokenYAbrirPuerta = async (codigo: string): Promise<Response> => {
+  // ... existing code ...
+  const validarTokenYAbrirPuerta = async (codigo: string): Promise<{ abrirResponse: Response, cerraduraId: number }> => {
     try {
       console.log(`Buscando cerradura asociada al token ${codigo}`);
-
-      // Obtenemos todos los tokens para encontrar el que coincide con el código
       const tokensResponse = await fetch(`${API_BASE_URL}/api/tokens`);
-
       if (!tokensResponse.ok) {
         throw new Error(`Error al obtener tokens (${tokensResponse.status})`);
       }
-
       const tokens = await tokensResponse.json();
       console.log("Tokens disponibles:", tokens);
 
-      // Buscamos el token con el código proporcionado
       const tokenObj = tokens.find((t: any) => t.codigo === codigo);
-
       if (!tokenObj) {
         throw new Error('Token no encontrado');
       }
+      console.log("Token encontrado:", tokenObj);
 
-      // Verificamos que el token tenga una cerradura asociada
-      if (!tokenObj.cerradura || !tokenObj.cerradura.id) {
-        throw new Error('El token no está asociado a ninguna cerradura');
+      const cerraduraId = tokenObj.cerradura?.id;
+      if (!cerraduraId) {
+        throw new Error('El token no está asociado a una cerradura válida.');
       }
-
-      const cerraduraId = tokenObj.cerradura.id;
       console.log(`Token encontrado para cerradura ID: ${cerraduraId}`);
 
-      // Verificar si el token tiene usos disponibles
-      if (tokenObj.usosMaximos > 0 && tokenObj.usosActuales >= tokenObj.usosMaximos) {
+      // Obtener el ID del propietario de la cerradura haciendo una llamada a /api/cerraduras/{cerraduraId}/info
+      console.log(`Consultando información de la cerradura ${cerraduraId} para obtener el ID del propietario.`);
+      const cerraduraInfoResponse = await fetch(`${API_BASE_URL}/api/cerraduras/${cerraduraId}/info`);
+      
+      if (!cerraduraInfoResponse.ok) {
+        let errorMsg = `Error al obtener información de la cerradura ${cerraduraId} (${cerraduraInfoResponse.status})`;
+        try {
+          const errorData = await cerraduraInfoResponse.json();
+          errorMsg = errorData.message || errorData.error || errorMsg;
+        } catch (e) {
+          const textError = await cerraduraInfoResponse.text();
+          errorMsg = textError || errorMsg;
+        }
+        console.error('Error al obtener info de cerradura:', cerraduraInfoResponse.status, errorMsg);
+        throw new Error(errorMsg);
+      }
+      
+      const cerraduraInfo = await cerraduraInfoResponse.json();
+      
+      const usuarioIdParaAbrir = cerraduraInfo.propietarioId; // Asumimos que el DTO tendrá propietarioId
+
+      if (!usuarioIdParaAbrir) {
+        console.error("cerraduraInfo recibida sin propietarioId:", cerraduraInfo);
+        throw new Error('No se pudo determinar el ID del propietario desde la información de la cerradura. Verifique que el backend en /api/cerraduras/{id}/info devuelve propietarioId.');
+      }
+      console.log(`ID del propietario obtenido de /info: ${usuarioIdParaAbrir}`);
+
+      // Validaciones adicionales del token (similares a AbrirPuerta.tsx)
+      if (tokenObj.usosMaximos != null && tokenObj.usosMaximos > 0 && tokenObj.usosActuales >= tokenObj.usosMaximos) {
         throw new Error('Token sin usos disponibles');
       }
-
-      // Verificar si el toke ha expirado
-      if (new Date(tokenObj.fechaExpiracion) < new Date() || tokenObj.fechaExpiracion === null) {
-        throw new Error('El token ha expirado');
+      if (tokenObj.fechaExpiracion && new Date(tokenObj.fechaExpiracion) < new Date()) {
+        throw new Error('Token expirado');
       }
 
-      // Si llegamos aquí, el token es válido
-      // Intentamos obtener el ID del propietario para abrir la puerta
-      let usuarioIdParaAbrir;
+      console.log(`Intentando abrir cerradura ID ${cerraduraId} con usuario ID (propietario del token) ${usuarioIdParaAbrir}`);
 
-      // Intentamos obtener el propietario del token si está disponible en la estructura anidada
-      if (tokenObj.cerradura.propiedad && tokenObj.cerradura.propiedad.propietario && tokenObj.cerradura.propiedad.propietario.id) {
-        usuarioIdParaAbrir = tokenObj.cerradura.propiedad.propietario.id;
-      } else {
-        // Si no está disponible en la estructura, intentamos obtener la cerradura y de ahí la propiedad y el propietario
-        const cerraduraResponse = await fetch(`${API_BASE_URL}/api/cerraduras/${cerraduraId}`);
-        if (cerraduraResponse.ok) {
-          const cerraduraData = await cerraduraResponse.json();
-          if (cerraduraData.propiedad && cerraduraData.propiedad.propietario) {
-            usuarioIdParaAbrir = cerraduraData.propiedad.propietario.id;
-          }
-        }
-      }
-
-      // Si todavía no tenemos un ID de usuario, usamos el ID 1 como respaldo
-      if (!usuarioIdParaAbrir) {
-        usuarioIdParaAbrir = 1; // ID por defecto que asumimos que existe
-        console.log("No se pudo obtener el ID del propietario, usando ID por defecto:", usuarioIdParaAbrir);
-      } else {
-        console.log(`Usando ID de propietario ${usuarioIdParaAbrir} para abrir cerradura`);
-      }
-
-      // Enviamos la solicitud para abrir la cerradura
       const abrirResponse = await fetch(`${API_BASE_URL}/api/cerraduras/${cerraduraId}/abrir`, {
         method: 'POST',
         headers: {
@@ -88,102 +84,106 @@ const TokenAccess = () => {
       });
 
       if (!abrirResponse.ok) {
-        throw new Error(`Error al abrir la puerta (${abrirResponse.status})`);
-      }
-
-      // Si se abrió la puerta correctamente, actualizamos el contador de usos del token
-      try {
-        const updatedToken = {
-          ...tokenObj,
-          usosActuales: (tokenObj.usosActuales || 0) + 1,
-        };
-
-        console.log('Actualizando usos del token. Usos actuales:', updatedToken.usosActuales);
-
-        const resA = await fetch(`${API_BASE_URL}/api/tokens/${tokenObj.id}`, {
-          method: 'PUT', // Use PUT to update the existing token
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updatedToken), // Send the updated token data
-        });
-
-        if (!resA.ok) {
-          console.log('No se ha actualizado los usos del token');
-        } else {
-          console.log('Usos del token actualizados correctamente');
+        // Intentar parsear el error del backend si está en JSON
+        let errorMsg = `Error al abrir la puerta (${abrirResponse.status})`;
+        try {
+          const errorData = await abrirResponse.json();
+          errorMsg = errorData.message || errorData.error || errorMsg;
+        } catch (e) {
+          // Si no es JSON, usar el texto de la respuesta o un mensaje genérico
+                  const textError = await abrirResponse.text();
+                  errorMsg = textError || errorMsg;
         }
-
-      } catch (e) {
-        console.warn('No se pudo actualizar el uso del token, pero la puerta ya se abrió');
+        console.error('Error al abrir la puerta:', abrirResponse.status, errorMsg);
+        throw new Error(errorMsg);
       }
+      
+      // Aquí podrías considerar si necesitas invalidar/actualizar el token en el backend si es de un solo uso.
+      // Por ejemplo, llamando a un endpoint para incrementar `usosActuales`.
+      // Esto usualmente lo maneja el backend directamente tras una operación exitosa.
 
-      return new Response(JSON.stringify({
-        mensaje: 'Puerta abierta correctamente',
-        cerradura: cerraduraId
-      }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      console.log('Puerta abierta con éxito usando el token.');
+      return { abrirResponse, cerraduraId };
+
     } catch (error) {
-      console.error('Error en validación del token:', error);
-      return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Error desconocido' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      console.error("Error en validarTokenYAbrirPuerta:", error);
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(String(error));
+      }
     }
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true);
-
     if (!token.trim()) {
-      setSnackbar({
-        open: true,
-        message: 'Por favor, introduce un token',
-        severity: 'error'
-      });
-      setLoading(false);
+      setSnackbar({ open: true, message: 'Por favor, introduce un token.', severity: 'error' });
       return;
     }
-
+    setLoading(true);
+    setPuertaAbiertaExitosamente(false); // Resetear antes de un nuevo intento
+    setCerraduraIdAbierta(null); // Resetear antes de un nuevo intento
     try {
       console.log(`Validando token ${token}`);
-
-      // Usamos el método que busca automáticamente la cerradura asociada al token
-      const validarResponse = await validarTokenYAbrirPuerta(token);
-
-      if (!validarResponse.ok) {
-        let errorMessage = 'Error al validar token';
-        try {
-          const errorData = await validarResponse.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch (e) {
-          // Si no podemos extraer el mensaje de error como JSON, usamos el texto de la respuesta
-          const errorText = await validarResponse.text();
-          errorMessage = errorText || errorMessage;
-        }
-        throw new Error(errorMessage);
-      }
-
-      const responseData = await validarResponse.json();
-      const cerraduraId = responseData.cerradura;
-
-      setSnackbar({
-        open: true,
-        message: `Puerta ${cerraduraId} abierta correctamente`,
-        severity: 'success'
-      });
+      const { cerraduraId } = await validarTokenYAbrirPuerta(token.trim());
+      setSnackbar({ open: true, message: 'Puerta abierta con éxito.', severity: 'success' });
+      setToken(''); 
+      setCerraduraIdAbierta(cerraduraId);
+      setPuertaAbiertaExitosamente(true);
     } catch (error) {
-      console.error('Error:', error);
-      setSnackbar({
-        open: true,
-        message: error instanceof Error ? error.message : 'Error desconocido',
-        severity: 'error'
-      });
+      console.error("Error en handleSubmit:", error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido procesando el token.';
+      setSnackbar({ open: true, message: `${errorMessage}`, severity: 'error' });
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (puertaAbiertaExitosamente && cerraduraIdAbierta) {
+        // Limpiar cualquier temporizador existente para evitar múltiples cierres
+        if (autoCloseTimeoutRef.current) {
+            clearTimeout(autoCloseTimeoutRef.current);
+        }
+
+        console.log(`Programando cierre automático para la cerradura ${cerraduraIdAbierta} en 60 segundos.`);
+        autoCloseTimeoutRef.current = setTimeout(() => {
+            console.log(`Ejecutando cierre automático para la cerradura ${cerraduraIdAbierta}.`);
+            fetch(`${API_BASE_URL}/api/cerraduras/${cerraduraIdAbierta}/cerrar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(async response => {
+                if (!response.ok) {
+                    const errorData = await response.text(); 
+                    console.error('Error al cerrar la puerta automáticamente:', response.status, errorData);
+                } else {
+                    console.log('Puerta cerrada automáticamente con éxito.');
+                }
+            })
+            .catch(error => {
+                console.error('Error en la llamada fetch para cerrar la puerta automáticamente:', error);
+            })
+            .finally(() => {
+                autoCloseTimeoutRef.current = null; 
+                setPuertaAbiertaExitosamente(false); // Resetear estado para evitar re-ejecución accidental
+                setCerraduraIdAbierta(null); // Resetear estado
+            });
+        }, 60000); // 60000 ms = 1 minuto
+    }
+
+    // Función de limpieza: se ejecuta cuando el componente se desmonta o antes de que el efecto se ejecute de nuevo
+    return () => {
+        if (autoCloseTimeoutRef.current) {
+            console.log(`Limpiando temporizador de cierre automático para la cerradura ${cerraduraIdAbierta} al desmontar o cambiar dependencias.`);
+            clearTimeout(autoCloseTimeoutRef.current);
+            autoCloseTimeoutRef.current = null;
+        }
+    };
+  }, [puertaAbiertaExitosamente, cerraduraIdAbierta]);
 
   return (
     <Box

@@ -10,6 +10,7 @@ public class CerraduraDTO {
     private boolean bloqueada;
     private Long propiedadId;
     private String propiedadNombre;
+    private Long propietarioId;
 
     // Constructor vacío requerido para Jackson
     public CerraduraDTO() {
@@ -44,6 +45,10 @@ public class CerraduraDTO {
         return propiedadId;
     }
 
+    public Long getPropietarioId() {
+        return propietarioId;
+    }
+
     public void setPropiedadId(Long propiedadId) {
         this.propiedadId = propiedadId;
     }
@@ -54,5 +59,9 @@ public class CerraduraDTO {
 
     public void setPropiedadNombre(String propiedadNombre) {
         this.propiedadNombre = propiedadNombre;
+    }
+
+    public void setPropietarioId(Long propietarioId) {
+        this.propietarioId = propietarioId;
     }
 } 
