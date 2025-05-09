@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Paper, Button, IconButton, Avatar, Badge, Divider, CircularProgress } from '@mui/material';
+import { Box, Typography, Paper, Button, IconButton, Avatar, Badge, Divider, CircularProgress, Menu, MenuItem, ListItemIcon } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
@@ -24,9 +24,21 @@ const HuespedDashboard = () => {
     const [error, setError] = useState('');
     const [notificaciones, setNotificaciones] = useState(2); // Número de notificaciones para mostrar
 
+    // Estado para el menú desplegable
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+
     // Datos del usuario (esto vendría del contexto de autenticación en una app real)
     const usuarioString = localStorage.getItem('usuario');
     const usuario = usuarioString ? JSON.parse(usuarioString) : {};
+
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
 
     // Ya no usamos datos de prueba para mostrar cuando no hay datos del backend
     // Esto asegura que se muestre correctamente el mensaje "No tienes accesos asignados"
@@ -309,30 +321,53 @@ const HuespedDashboard = () => {
                     </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <IconButton color="primary">
+                    <IconButton color="primary" onClick={() => navigate('/configuracion')}>
                         <SettingsIcon />
                     </IconButton>
-                    <IconButton color="primary">
-                        <Badge badgeContent={notificaciones} color="error">
-                            <NotificationsIcon />
-                        </Badge>
-                    </IconButton>
-                    <IconButton color="primary">
-                        <SearchIcon />
-                    </IconButton>
-                    <Avatar
+                    
+                    <Box
                         sx={{
-                            width: 36,
-                            height: 36,
-                            ml: 1,
-                            bgcolor: '#0d6efd',
-                            fontWeight: 'bold',
-                            fontSize: '1rem',
-                            cursor: 'pointer'
+                            display: 'flex',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                        }}
+                        onClick={handleMenuOpen}
+                    >
+                        <Avatar sx={{ bgcolor: '#0d6efd' }}>
+                            {usuario.nombre ? usuario.nombre.charAt(0).toUpperCase() : '?'}
+                        </Avatar>
+                        <Typography sx={{ ml: 1, fontWeight: 'bold', color: '#333' }}>
+                            {usuario.nombre || 'Usuario'}
+                        </Typography>
+                    </Box>
+
+                    {/* Menú desplegable */}
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleMenuClose}
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'right',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
                         }}
                     >
-                        {usuario?.nombre?.charAt(0) || 'U'}
-                    </Avatar>
+                        <MenuItem onClick={() => navigate('/configuracion')}>
+                            <ListItemIcon>
+                                <SettingsIcon fontSize="small" />
+                            </ListItemIcon>
+                            Configuración
+                        </MenuItem>
+                        <MenuItem onClick={handleLogout}>
+                            <ListItemIcon>
+                                <LogoutIcon fontSize="small" />
+                            </ListItemIcon>
+                            Cerrar sesión
+                        </MenuItem>
+                    </Menu>
                 </Box>
             </Box>
 
@@ -441,19 +476,7 @@ const HuespedDashboard = () => {
                     </Box>
                 )}
 
-                {/* Cerrar sesión */}
-                <Box sx={{ mt: 4 }}>
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        fullWidth
-                        onClick={handleLogout}
-                        startIcon={<LogoutIcon />}
-                        sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 'medium' }}
-                    >
-                        Cerrar sesión
-                    </Button>
-                </Box>
+                
             </Box>
 
             {/* Footer */}
