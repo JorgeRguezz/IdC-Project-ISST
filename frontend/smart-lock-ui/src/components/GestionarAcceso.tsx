@@ -1,9 +1,9 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, Typography, TextField, Button, Grid, Link, IconButton } from '@mui/material';
+import { Box, Typography, TextField, Button, Link } from '@mui/material';
 import { useState } from 'react';
-import SettingsIcon from '@mui/icons-material/Settings';
+// import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import LogoutIcon from '@mui/icons-material/Logout';
+// import LogoutIcon from '@mui/icons-material/Logout';
 import { insertEventToCalendar } from './GoogleAuth';
 
 const GestionarAcceso = () => {
@@ -77,16 +77,16 @@ const GestionarAcceso = () => {
         alert('✅ Acceso registrado correctamente');
 
         const evento = {
-          summary: "Acceso a ${propiedad.nombre}",
-          description: "Del ${fechaInicio} al ${fechaFin}",
+          summary: `Acceso a ${propiedad.nombre}`,
+          description: `Del ${fechaInicio} al ${fechaFin}`,
           start: {
-         dateTime: new Date('${fechaInicio}:00').toISOString(),
-           timeZone: 'Europe/Madrid',
-             },
-       end: {
-         dateTime: new Date('${fechaFin}:00').toISOString(),
-         timeZone: 'Europe/Madrid',
-        }
+            dateTime: new Date(`${fechaInicio}:00`).toISOString(),
+            timeZone: 'Europe/Madrid',
+          },
+          end: {
+            dateTime: new Date(`${fechaFin}:00`).toISOString(),
+            timeZone: 'Europe/Madrid',
+          }
         };
         try {
           await insertEventToCalendar(evento);
