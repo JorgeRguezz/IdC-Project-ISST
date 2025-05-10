@@ -4,6 +4,7 @@ import { useState } from 'react';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { insertEventToCalendar } from './GoogleAuth';
 
 const GestionarAcceso = () => {
   const navigate = useNavigate();
@@ -74,6 +75,26 @@ const GestionarAcceso = () => {
       });
       if (resA.ok) {
         alert('✅ Acceso registrado correctamente');
+        const evento = {
+          
+          summary: `Acceso a ${propiedad.nombre}`,
+          description: `Del ${fechaInicio} al ${fechaFin}`,
+          start: {
+         dateTime: new Date(`${fechaInicio}:00`).toISOString(),
+           timeZone: 'Europe/Madrid',
+             },
+       end: {
+         dateTime: new Date(`${fechaFin}:00`).toISOString(),
+         timeZone: 'Europe/Madrid',
+        }
+        };
+        try {
+          await insertEventToCalendar(evento);
+             alert('Evento creado en Google Calendar');
+            } catch (e) {
+            console.error(e);
+            alert('Acceso creado, pero no se pudo añadir al calendario');
+        }
         irAMisPuertas();
 
       } else {

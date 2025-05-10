@@ -17,9 +17,18 @@ import KeyIcon from '@mui/icons-material/Key';
 import { useNavigate } from 'react-router-dom';
 import { gapi } from 'gapi-script';
 import homeBluetooth from '../assets/home-bluetooth.png';
+import { initGapi, signInWithGoogle } from './GoogleAuth';
+import React from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+
 
 const CLIENT_ID = '378065249483-h4lad2d3m51n5ag1m0e9he8j5c43tj9u.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+//Cambio el scopes para tener más control sobre los eventos del calendario (antes solo se podía leer)
+const SCOPES = 'https://www.googleapis.com/auth/calendar';
+//Documento de descubirmirneod que le dice al cliente de Google gapi como está estructurada la api
 const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'];
 const CALENDAR_ID = '3879af64c7bdf344b6c989d6b6bab60e8d2c4701302e694291789c8fe7d04898@group.calendar.google.com'
 
@@ -41,6 +50,9 @@ const PropietarioDashboard = () => {
 
   // Estado de Google Calendar
   const [usuarioEmail, setUsuarioEmail] = useState<string | null>(null);
+  //Para lo de google calendar
+  const [eventos, setEventos] = useState<any[]>([]);
+
 
   // Fecha para cabecera del calendario
   const [mes] = useState(new Date().getMonth());
@@ -52,92 +64,116 @@ const PropietarioDashboard = () => {
   // Usuario (desde localStorage)
   const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 
+
+
   // Fetch propiedades al montar
   useEffect(() => {
-     const fetchPropiedades = async () => {
-            if (!usuario.id) {
-                console.error('No hay ID de usuario en localStorage');
-                setError('Usuario no autenticado');
-                setCargando(false);
-                return;
-            }
 
-            try {
-                setCargando(true);
-                setError(null);
+    initGapi();
+    const fetchPropiedades = async () => {
 
-                console.log('Iniciando solicitud al backend...');
-                const response = await fetch(`https://localhost:8443/api/propiedades/propietario/${usuario.id}`);
-                console.log('Respuesta recibida, status:', response.status);
+      if (!usuario.id) {
+        console.error('No hay ID de usuario en localStorage');
+        setError('Usuario no autenticado');
+        setCargando(false);
+        return;
+      }
+      gapi.load('client:auth2', () => {
+        gapi.client.init({
+          clientId: CLIENT_ID,
+          scope: SCOPES,
+        }).then(() => {
+          const auth = gapi.auth2.getAuthInstance();
+          if (!auth.isSignedIn.get()) {
+            // Forzar sign-in de Google si aún no ha autorizado
+            auth.signIn().then(() => {
+              console.log("Google login completado");
+            });
+          }
+        });
+      });
 
-                if (!response.ok) {
-                    throw new Error(`Error https: ${response.status}`);
-                }
-
-                // Obtener la respuesta como texto plano
-                const text = await response.text();
-                console.log('Respuesta como texto:', text);
-
-                if (!text || text.trim() === '' || text === '[]') {
-                    console.warn('La respuesta está vacía o es un array vacío');
-                    setPropiedades([]);
-                    setCargando(false);
-                    return;
-                }
-
-                // Limpiar cualquier carácter extraño que pudiera haber en la respuesta
-                const cleanedText = text.trim();
-                console.log('Texto limpio para parsear:', cleanedText);
-
-                try {
-                    // Intentar parsear la respuesta como JSON
-                    const data = JSON.parse(cleanedText);
-                    console.log('Datos parseados correctamente:', data);
-
-                    // Verificar que los datos tienen la estructura esperada
-                    if (Array.isArray(data)) {
-                        console.log('Los datos son un array con', data.length, 'elementos');
-
-                        // Mapear cada item para asegurar que cumple con la interfaz Propiedad
-                        const propiedadesSeguras = data.map(item => {
-                            // Crear un objeto con valores por defecto para todo
-                            const propiedadSegura: Propiedad = {
-                                id: typeof item.id === 'number' ? item.id : 0,
-                                nombre: typeof item.nombre === 'string' ? item.nombre : 'Sin nombre',
-                                direccion: typeof item.direccion === 'string' ? item.direccion : 'Sin dirección',
-                                propietarioId: typeof item.propietarioId === 'number' ? item.propietarioId : usuario.id,
-                                numeroCerraduras: typeof item.numeroCerraduras === 'number' ? item.numeroCerraduras : 0
-                            };
-                            return propiedadSegura;
-                        });
-
-                        console.log('Propiedades procesadas:', propiedadesSeguras);
-                        setPropiedades(propiedadesSeguras);
-                    } else if (typeof data === 'object' && data !== null) {
-                        // Si es un objeto pero no un array, quizás podríamos intentar adaptarlo
-                        console.warn('La respuesta es un objeto, no un array:', data);
-                        setPropiedades([]);
-                    } else {
-                        console.warn('La respuesta no es un array ni un objeto:', data);
-                        setPropiedades([]);
-                    }
-                } catch (parseError) {
-                    console.error('Error al parsear respuesta JSON:', parseError);
-                    console.error('Texto que causó el error:', cleanedText);
-                    throw new Error('Error al parsear la respuesta: formato JSON inválido');
-                }
-            } catch (error) {
-                console.error('Error al obtener propiedades:', error);
-                setError(error instanceof Error ? error.message : 'Error desconocido');
-                setPropiedades([]);
-            } finally {
-                setCargando(false);
-            }
+      try {
+        setCargando(true);
+        setError(null);
+        //Cargamos eventos del google calendar de la persona logueada
+        if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+          obtenerEventosCalendario().then(setEventos);
+        } else {
+          console.log("No se ha podido obtener los eventos del calendario");
         };
 
-        fetchPropiedades();
-    }, [usuario.id]);
+        console.log('Iniciando solicitud al backend...');
+        const response = await fetch(`https://localhost:8443/api/propiedades/propietario/${usuario.id}`);
+        console.log('Respuesta recibida, status:', response.status);
 
+        if (!response.ok) {
+          throw new Error(`Error https: ${response.status}`);
+        }
+
+        // Obtener la respuesta como texto plano
+        const text = await response.text();
+        console.log('Respuesta como texto:', text);
+
+        if (!text || text.trim() === '' || text === '[]') {
+          console.warn('La respuesta está vacía o es un array vacío');
+          setPropiedades([]);
+          setCargando(false);
+          return;
+        }
+
+        // Limpiar cualquier carácter extraño que pudiera haber en la respuesta
+        const cleanedText = text.trim();
+        console.log('Texto limpio para parsear:', cleanedText);
+
+        try {
+          // Intentar parsear la respuesta como JSON
+          const data = JSON.parse(cleanedText);
+          console.log('Datos parseados correctamente:', data);
+
+          // Verificar que los datos tienen la estructura esperada
+          if (Array.isArray(data)) {
+            console.log('Los datos son un array con', data.length, 'elementos');
+
+            // Mapear cada item para asegurar que cumple con la interfaz Propiedad
+            const propiedadesSeguras = data.map(item => {
+              // Crear un objeto con valores por defecto para todo
+              const propiedadSegura: Propiedad = {
+                id: typeof item.id === 'number' ? item.id : 0,
+                nombre: typeof item.nombre === 'string' ? item.nombre : 'Sin nombre',
+                direccion: typeof item.direccion === 'string' ? item.direccion : 'Sin dirección',
+                propietarioId: typeof item.propietarioId === 'number' ? item.propietarioId : usuario.id,
+                numeroCerraduras: typeof item.numeroCerraduras === 'number' ? item.numeroCerraduras : 0
+              };
+              return propiedadSegura;
+            });
+
+            console.log('Propiedades procesadas:', propiedadesSeguras);
+            setPropiedades(propiedadesSeguras);
+          } else if (typeof data === 'object' && data !== null) {
+            // Si es un objeto pero no un array, quizás podríamos intentar adaptarlo
+            console.warn('La respuesta es un objeto, no un array:', data);
+            setPropiedades([]);
+          } else {
+            console.warn('La respuesta no es un array ni un objeto:', data);
+            setPropiedades([]);
+          }
+        } catch (parseError) {
+          console.error('Error al parsear respuesta JSON:', parseError);
+          console.error('Texto que causó el error:', cleanedText);
+          throw new Error('Error al parsear la respuesta: formato JSON inválido');
+        }
+      } catch (error) {
+        console.error('Error al obtener propiedades:', error);
+        setError(error instanceof Error ? error.message : 'Error desconocido');
+        setPropiedades([]);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    fetchPropiedades();
+  }, [usuario.id]);
   // Inicializar API de Google y comprobar si ya está logueado
   useEffect(() => {
     gapi.load('client:auth2', () => {
@@ -153,6 +189,33 @@ const PropietarioDashboard = () => {
         .catch(console.error);
     });
   }, []);
+
+  //Funcion para obtener eventos del google calendar de la persona logueada
+  const obtenerEventosCalendario = async () => {
+    try {
+      const response = await gapi.client.calendar.events.list({
+        calendarId: 'primary',
+        timeMin: new Date().toISOString(),
+        showDeleted: false,
+        singleEvents: true,
+        maxResults: 10,
+        orderBy: 'startTime',
+      });
+
+      const eventos = response.result.items;
+      console.log("Eventos del calendario personal:", eventos);
+      return eventos;
+    } catch (error) {
+      console.error("Error al obtener eventos de Google Calendar", error);
+      return [];
+    }
+  };
+  //Funcion para convertir los eventos de Google a formato FullCalendar
+  const eventosFormateados = eventos.map((e: any) => ({
+    title: e.summary,
+    start: e.start.dateTime || e.start.date,
+    end: e.end.dateTime || e.end.date,
+  }));
 
 
   // Funciones de navegación
@@ -170,6 +233,8 @@ const PropietarioDashboard = () => {
   const iframeSrc = usuarioEmail
     ? `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid`
     : '';
+    //le “fuerza” al compilador a aceptarlo como JSX válido.
+  const CalendarioComponent = FullCalendar as unknown as React.ComponentType<any>;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', bgcolor: '#ebf5ff' }}>
@@ -205,23 +270,19 @@ const PropietarioDashboard = () => {
       <Box sx={{ flexGrow: 1, p: 3, overflowY: 'auto' }}>
         {/* Calendario de Google */}
         <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
-            <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
-                <Typography variant="h6" sx={{ color: 'white' }}>
-                    {mes + 1} / {año}
-                </Typography>
-            </Box>
+          <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
+            <Typography variant="h6" sx={{ color: 'white' }}>
+              {mes + 1} / {año}
+            </Typography>
+          </Box>
+         <CalendarioComponent
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          events={eventosFormateados}
+        />
 
-        {/* ← Sustituye TODO este bloque por el iframe público + aviso */}
-        <Box sx={{ p: 2 }}>
-            <iframe
-                src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid&mode=MONTH`}
-                style={{ border: 0, width: '100%', height: '600px' }}
-                frameBorder="0"
-                scrolling="no"
-                title="Google Calendar"
-                />
-        </Box>
-    </Paper>
+
+        </Paper>
 
 
         {/* Botones de gestión */}
@@ -233,6 +294,9 @@ const PropietarioDashboard = () => {
             Accesos
           </Button>
         </Box>
+
+        <button onClick={signInWithGoogle}>Iniciar sesión con Google</button>
+
 
         {/* Lista de propiedades */}
         <Typography variant="h6" fontWeight="bold" mb={2}>
