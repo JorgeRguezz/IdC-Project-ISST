@@ -181,6 +181,7 @@ const HuespedDashboard = () => {
                     if (profile) {
                         setUsuarioEmail(profile.getEmail());
                         console.log('Usuario de Google conectado:', profile.getEmail());
+                        sincronizarEventosConCalendar();
                         setGapiError(null);
                     } else {
                         console.warn('Perfil de Google no encontrado después del inicio de sesión.');
@@ -287,6 +288,55 @@ const HuespedDashboard = () => {
         console.log('Navegando a mis accesos');
         navigate('/mis-accesos');
     };
+
+    //Función para ver los eventos que el huesped tiene para renderizar en su calendario
+    const sincronizarEventosConCalendar = async () => {
+        try {
+            const res = await fetch(`https://localhost:8443/api/accesos/huesped/${usuario.id}`);
+            if (!res.ok) {
+                console.error("No se pudieron obtener los accesos del huésped.");
+                return;
+            }
+
+            const accesos = await res.json();
+
+            for (const acceso of accesos) {
+                if (!acceso.eventoGoogleCreado) {
+                    const evento = {
+                        summary: `Acceso a ${acceso.cerradura.propiedad.nombre}`,
+                        description: `Del ${acceso.horario.inicio} al ${acceso.horario.fin}`,
+                        start: {
+                            dateTime: new Date(acceso.horario.inicio).toISOString(),
+                            timeZone: 'Europe/Madrid',
+                        },
+                        end: {
+                            dateTime: new Date(acceso.horario.fin).toISOString(),
+                            timeZone: 'Europe/Madrid',
+                        }
+                    };
+
+                    try {
+                        await gapi.client.calendar.events.insert({
+                            calendarId: 'primary',
+                            resource: evento,
+                        });
+
+                        // Marca el acceso como sincronizado
+                        await fetch(`https://localhost:8443/api/accesos/${acceso.id}/evento-creado`, {
+                            method: 'PATCH'
+                        });
+
+                        console.log(`Evento creado en Calendar y marcado como sincronizado para acceso ID ${acceso.id}`);
+                    } catch (e) {
+                        console.error(`Error al crear evento en Calendar para acceso ${acceso.id}`, e);
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Error al sincronizar eventos:', e);
+        }
+    };
+
 
     // Generación del calendario -----------------> NO SE USA POR EL MOMENTO, PERO PUEDE USARSE EN UN FUTURO POR SI EL USUARIO NO HA INICIADO SESIÓN CON GOOGLE <----------------------
     // const generarCalendario = () => {
@@ -450,7 +500,7 @@ const HuespedDashboard = () => {
                     <IconButton color="primary" onClick={() => navigate('/configuracion')}>
                         <SettingsIcon />
                     </IconButton>
-                    
+
                     <Box
                         sx={{
                             display: 'flex',
@@ -634,7 +684,7 @@ const HuespedDashboard = () => {
                     </Box>
                 )}
 
-                
+
             </Box>
 
             {/* Footer */}

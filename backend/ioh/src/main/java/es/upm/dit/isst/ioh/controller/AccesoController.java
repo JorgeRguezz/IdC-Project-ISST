@@ -6,8 +6,10 @@ import es.upm.dit.isst.ioh.repository.AccesoRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/accesos")
@@ -58,5 +60,19 @@ public class AccesoController {
                 .anyMatch(a -> a.getCerradura().getId().equals(cerraduraId));
 
         return ResponseEntity.ok(tieneAcceso);
+    }
+    //endpoint para poner un evento de google creado a true (para el huesped)
+    @PatchMapping("/{id}/evento-creado")
+    public ResponseEntity<?> marcarEventoComoCreado(@PathVariable Long id) {
+        Optional<Acceso> accesoOpt = accesoRepository.findById(id);
+        if (accesoOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Acceso acceso = accesoOpt.get();
+        acceso.setEventoGoogleCreado(true);
+        accesoRepository.save(acceso);
+
+        return ResponseEntity.ok().build();
     }
 }

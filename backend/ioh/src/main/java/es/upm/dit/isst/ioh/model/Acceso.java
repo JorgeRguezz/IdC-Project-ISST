@@ -18,6 +18,9 @@ public class Acceso {
     @Embedded
     private Horario horario;
 
+    private boolean eventoGoogleCreado = false;
+
+
     public Acceso() {
     }
 
@@ -25,6 +28,7 @@ public class Acceso {
         this.huesped = huesped;
         this.cerradura = cerradura;
         this.horario = horario;
+
     }
 
     // Getters y setters
@@ -56,4 +60,10 @@ public class Acceso {
     public void setHorario(Horario horario) {
         this.horario = horario;
     }
+    public boolean getEventoGoogleCreado() {
+     return eventoGoogleCreado;
+    }
+    public void setEventoGoogleCreado(boolean eventoGoogleCreado) {
+    this.eventoGoogleCreado = eventoGoogleCreado;
+}
 }
