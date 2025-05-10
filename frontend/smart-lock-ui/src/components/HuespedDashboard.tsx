@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Paper, Button, IconButton, Avatar, Badge, Divider, CircularProgress, Menu, MenuItem, ListItemIcon } from '@mui/material';
+import { Box, Typography, Paper, Button, IconButton, Avatar, Badge, CircularProgress, Menu, MenuItem, ListItemIcon } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
@@ -9,11 +9,18 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useNavigate } from 'react-router-dom';
 import homeBluetooth from '../assets/home-bluetooth.png';
+import { gapi } from 'gapi-script';
 
 interface Cerradura {
     id: number;
     nombre: string;
 }
+
+const CLIENT_ID = '378065249483-h4lad2d3m51n5ag1m0e9he8j5c43tj9u.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/calendar.events';
+const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'];
+const CALENDAR_ID = '3879af64c7bdf344b6c989d6b6bab60e8d2c4701302e694291789c8fe7d04898@group.calendar.google.com';
+
 
 const HuespedDashboard = () => {
     console.log('Renderizando HuespedDashboard');
@@ -23,6 +30,7 @@ const HuespedDashboard = () => {
     const [cargando, setCargando] = useState(false);
     const [error, setError] = useState('');
     const [notificaciones, setNotificaciones] = useState(2); // Número de notificaciones para mostrar
+    const [usuarioEmail, setUsuarioEmail] = useState<string | null>(null);
 
     // Estado para el menú desplegable
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -40,9 +48,8 @@ const HuespedDashboard = () => {
         setAnchorEl(null);
     };
 
-    // Ya no usamos datos de prueba para mostrar cuando no hay datos del backend
-    // Esto asegura que se muestre correctamente el mensaje "No tienes accesos asignados"
-    // cuando el usuario realmente no tiene accesos
+    const [mes] = useState(new Date().getMonth());
+    const [año] = useState(new Date().getFullYear());
 
     console.log('Usuario cargado:', usuario);
 
@@ -147,6 +154,21 @@ const HuespedDashboard = () => {
         fetchCerraduras();
     }, [usuario?.id]);
 
+    useEffect(() => {
+        gapi.load('client:auth2', () => {
+            gapi.client
+                .init({ clientId: CLIENT_ID, scope: SCOPES, discoveryDocs: DISCOVERY_DOCS })
+                .then(() => {
+                    const auth2 = gapi.auth2.getAuthInstance();
+                    if (auth2.isSignedIn.get()) {
+                        const profile = auth2.currentUser.get().getBasicProfile();
+                        setUsuarioEmail(profile.getEmail());
+                    }
+                })
+                .catch(console.error);
+        });
+    }, []);
+
     const handleLogout = () => {
         console.log('Cerrando sesión...');
         localStorage.removeItem('token');
@@ -166,124 +188,128 @@ const HuespedDashboard = () => {
         navigate('/mis-accesos');
     };
 
-    // Generación del calendario
-    const generarCalendario = () => {
-        const hoy = new Date();
-        const mes = hoy.getMonth();
-        const año = hoy.getFullYear();
-        const diasEnMes = new Date(año, mes + 1, 0).getDate();
-        const primerDia = new Date(año, mes, 1).getDay();
+    // Generación del calendario -----------------> NO SE USA POR EL MOMENTO, PERO PUEDE USARSE EN UN FUTURO POR SI EL USUARIO NO HA INICIADO SESIÓN CON GOOGLE <----------------------
+    // const generarCalendario = () => {
+    //     const hoy = new Date();
+    //     const mes = hoy.getMonth();
+    //     const año = hoy.getFullYear();
+    //     const diasEnMes = new Date(año, mes + 1, 0).getDate();
+    //     const primerDia = new Date(año, mes, 1).getDay();
 
-        const meses = [
-            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-        ];
+    //     const meses = [
+    //         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    //         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    //     ];
 
-        const diasSemana = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+    //     const diasSemana = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
 
-        // Ajuste para que la semana comience en lunes
-        const primerDiaAjustado = primerDia === 0 ? 6 : primerDia - 1;
+    //     // Ajuste para que la semana comience en lunes
+    //     const primerDiaAjustado = primerDia === 0 ? 6 : primerDia - 1;
 
-        return (
-            <Box
-                sx={{
-                    mt: 2,
-                    borderRadius: 3,
-                    border: '2px solid #d1d1d1',
-                    overflow: 'hidden',
-                    bgcolor: '#ffffff',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
-                }}
-            >
-                {/* Cabecera estilo emoji */}
-                <Box
-                    sx={{
-                        bgcolor: '#e53935',
-                        p: 1.5,
-                        textAlign: 'center'
-                    }}
-                >
-                    <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
-                        {meses[mes]} {año}
-                    </Typography>
-                </Box>
+    //     return (
+    //         <Box
+    //             sx={{
+    //                 mt: 2,
+    //                 borderRadius: 3,
+    //                 border: '2px solid #d1d1d1',
+    //                 overflow: 'hidden',
+    //                 bgcolor: '#ffffff',
+    //                 boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+    //             }}
+    //         >
+    //             {/* Cabecera estilo emoji */}
+    //             <Box
+    //                 sx={{
+    //                     bgcolor: '#e53935',
+    //                     p: 1.5,
+    //                     textAlign: 'center'
+    //                 }}
+    //             >
+    //                 <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+    //                     {meses[mes]} {año}
+    //                 </Typography>
+    //             </Box>
 
-                {/* Días de la semana */}
-                <Box
-                    sx={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(7, 1fr)',
-                        gap: 1,
-                        p: 1,
-                        bgcolor: '#fafafa',
-                        borderBottom: '1px solid #eee'
-                    }}
-                >
-                    {diasSemana.map((dia, index) => (
-                        <Typography
-                            key={index}
-                            sx={{
-                                textAlign: 'center',
-                                fontSize: '0.85rem',
-                                fontWeight: 500,
-                                color: '#616161'
-                            }}
-                        >
-                            {dia}
-                        </Typography>
-                    ))}
-                </Box>
+    //             {/* Días de la semana */}
+    //             <Box
+    //                 sx={{
+    //                     display: 'grid',
+    //                     gridTemplateColumns: 'repeat(7, 1fr)',
+    //                     gap: 1,
+    //                     p: 1,
+    //                     bgcolor: '#fafafa',
+    //                     borderBottom: '1px solid #eee'
+    //                 }}
+    //             >
+    //                 {diasSemana.map((dia, index) => (
+    //                     <Typography
+    //                         key={index}
+    //                         sx={{
+    //                             textAlign: 'center',
+    //                             fontSize: '0.85rem',
+    //                             fontWeight: 500,
+    //                             color: '#616161'
+    //                         }}
+    //                     >
+    //                         {dia}
+    //                     </Typography>
+    //                 ))}
+    //             </Box>
 
-                {/* Días del mes */}
-                <Box
-                    sx={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(7, 1fr)',
-                        gap: 1,
-                        p: 1
-                    }}
-                >
-                    {Array.from({ length: primerDiaAjustado }).map((_, i) => (
-                        <Box key={`empty-${i}`} />
-                    ))}
+    //             {/* Días del mes */}
+    //             <Box
+    //                 sx={{
+    //                     display: 'grid',
+    //                     gridTemplateColumns: 'repeat(7, 1fr)',
+    //                     gap: 1,
+    //                     p: 1
+    //                 }}
+    //             >
+    //                 {Array.from({ length: primerDiaAjustado }).map((_, i) => (
+    //                     <Box key={`empty-${i}`} />
+    //                 ))}
 
-                    {Array.from({ length: diasEnMes }).map((_, i) => {
-                        const diaActual = i + 1;
-                        const esHoy = diaActual === hoy.getDate() && mes === hoy.getMonth() && año === hoy.getFullYear();
+    //                 {Array.from({ length: diasEnMes }).map((_, i) => {
+    //                     const diaActual = i + 1;
+    //                     const esHoy = diaActual === hoy.getDate() && mes === hoy.getMonth() && año === hoy.getFullYear();
 
-                        return (
-                            <Box
-                                key={diaActual}
-                                onClick={() => alert(`Has hecho clic en el día ${diaActual}`)}
-                                sx={{
-                                    width: 40,
-                                    height: 40,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: 500,
-                                    fontSize: '0.9rem',
-                                    borderRadius: 1,
-                                    margin: '0 auto',
-                                    cursor: 'pointer',
-                                    bgcolor: esHoy ? '#0d6efd' : 'transparent',
-                                    color: esHoy ? 'white' : '#212121',
-                                    border: esHoy ? 'none' : '1px solid transparent',
-                                    transition: 'all 0.2s ease',
-                                    '&:hover': {
-                                        bgcolor: esHoy ? '#0b5ed7' : '#e3f2fd',
-                                        border: '1px solid #90caf9'
-                                    }
-                                }}
-                            >
-                                {diaActual}
-                            </Box>
-                        );
-                    })}
-                </Box>
-            </Box>
-        );
-    }
+    //                     return (
+    //                         <Box
+    //                             key={diaActual}
+    //                             onClick={() => alert(`Has hecho clic en el día ${diaActual}`)}
+    //                             sx={{
+    //                                 width: 40,
+    //                                 height: 40,
+    //                                 display: 'flex',
+    //                                 alignItems: 'center',
+    //                                 justifyContent: 'center',
+    //                                 fontWeight: 500,
+    //                                 fontSize: '0.9rem',
+    //                                 borderRadius: 1,
+    //                                 margin: '0 auto',
+    //                                 cursor: 'pointer',
+    //                                 bgcolor: esHoy ? '#0d6efd' : 'transparent',
+    //                                 color: esHoy ? 'white' : '#212121',
+    //                                 border: esHoy ? 'none' : '1px solid transparent',
+    //                                 transition: 'all 0.2s ease',
+    //                                 '&:hover': {
+    //                                     bgcolor: esHoy ? '#0b5ed7' : '#e3f2fd',
+    //                                     border: '1px solid #90caf9'
+    //                                 }
+    //                             }}
+    //                         >
+    //                             {diaActual}
+    //                         </Box>
+    //                     );
+    //                 })}
+    //             </Box>
+    //         </Box>
+    //     );
+    // }
+
+    const iframeSrc = usuarioEmail
+        ? `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid`
+        : '';
 
     return (
         <Box
@@ -375,8 +401,6 @@ const HuespedDashboard = () => {
             <Box
                 sx={{
                     flexGrow: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
                     p: 3,
                     overflowY: 'auto'
                 }}
@@ -386,10 +410,30 @@ const HuespedDashboard = () => {
                     Hola, {usuario?.nombre || 'Invitado'}
                 </Typography>
 
-                {/* Calendario */}
+                {/* Calendario
                 <Paper elevation={0} sx={{ borderRadius: 3, mb: 3 }}>
                     {generarCalendario()}
-                </Paper>
+                </Paper> */}
+
+                  {/* Calendario de Google */}
+                  <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
+                            <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
+                                <Typography variant="h6" sx={{ color: 'white' }}>
+                                    {mes + 1} / {año}
+                                </Typography>
+                            </Box>
+                
+                        {/* ← Sustituye TODO este bloque por el iframe público + aviso */}
+                        <Box sx={{ p: 2 }}>
+                            <iframe
+                                src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid&mode=MONTH`}
+                                style={{ border: 0, width: '100%', height: '600px' }}
+                                frameBorder="0"
+                                scrolling="no"
+                                title="Google Calendar"
+                                />
+                        </Box>
+                    </Paper>
 
                 {/* Botón Mis Accesos */}
                 <Button

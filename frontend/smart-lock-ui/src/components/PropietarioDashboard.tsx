@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Paper, IconButton, Grid, Button, Badge, Menu, MenuItem, Avatar, ListItemIcon } from '@mui/material';
+import { Box, Typography, Paper, IconButton, CircularProgress, Button, Badge, Menu, MenuItem, Avatar, ListItemIcon } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ClockIcon from '@mui/icons-material/AccessTime';
@@ -7,9 +7,14 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import KeyIcon from '@mui/icons-material/Key';
-import { CircularProgress } from '@mui/material';
 import homeBluetooth from '../assets/home-bluetooth.png';
+import { gapi } from 'gapi-script';
+import { initGapi, signInWithGoogle } from './GoogleAuth';
 
+const CLIENT_ID = '378065249483-h4lad2d3m51n5ag1m0e9he8j5c43tj9u.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/calendar';
+const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'];
+const CALENDAR_ID = '3879af64c7bdf344b6c989d6b6bab60e8d2c4701302e694291789c8fe7d04898@group.calendar.google.com'
 
 interface Propiedad {
     id: number;
@@ -21,26 +26,28 @@ interface Propiedad {
 
 const PropietarioDashboard: React.FC = () => {
     const navigate = useNavigate();
+
+    // Estado de propiedades
     const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
     const [cargando, setCargando] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [notificaciones, setNotificaciones] = useState<number>(1);
-    const hoy = new Date();
-    const mes = hoy.getMonth();
-    const año = hoy.getFullYear();
-    const primerDia = new Date(año, mes, 1).getDay();
-    const diasEnMes = new Date(año, mes + 1, 0).getDate();
 
-    const meses = [
-        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-    ];
+    // Estado de Google Calendar
+    const [usuarioEmail, setUsuarioEmail] = useState<string | null>(null);
+
+    // Fecha para cabecera del calendario
+    const [mes] = useState(new Date().getMonth());
+    const [año] = useState(new Date().getFullYear());
+
+    // Contador de notificaciones
+    const [notificaciones] = useState<number>(1);
 
     // Datos del usuario (esto vendría del contexto de autenticación en una app real)
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 
     // Recuperación de propiedades desde el backend
     useEffect(() => {
+        initGapi();
         const fetchPropiedades = async () => {
             if (!usuario.id) {
                 console.error('No hay ID de usuario en localStorage');
@@ -48,7 +55,21 @@ const PropietarioDashboard: React.FC = () => {
                 setCargando(false);
                 return;
             }
-
+            gapi.load('client:auth2', () => {
+                gapi.client.init({
+                  clientId: CLIENT_ID,
+                  scope: SCOPES,
+                }).then(() => {
+                  const auth = gapi.auth2.getAuthInstance();
+                  if (!auth.isSignedIn.get()) {
+                    // Forzar sign-in de Google si aún no ha autorizado
+                    auth.signIn().then(() => {
+                      console.log("Google login completado");
+                    });
+                  }
+                });
+            });
+            
             try {
                 setCargando(true);
                 setError(null);
@@ -125,9 +146,73 @@ const PropietarioDashboard: React.FC = () => {
         fetchPropiedades();
     }, [usuario.id]);
 
+
+    // Inicializar API de Google y comprobar si ya está logueado
+    useEffect(() => {
+        gapi.load('client:auth2', () => {
+            gapi.client
+                .init({ clientId: CLIENT_ID, scope: SCOPES, discoveryDocs: DISCOVERY_DOCS })
+                .then(() => {
+                    const auth2 = gapi.auth2.getAuthInstance();
+                    if (auth2.isSignedIn.get()) {
+                        const profile = auth2.currentUser.get().getBasicProfile();
+                        setUsuarioEmail(profile.getEmail());
+                    }
+                })
+                .catch(console.error);
+        });
+    }, []);
+
+    // // Función para login con Google
+    // const signInWithGoogle = async () => {
+    //     try {
+    //         const auth2 = gapi.auth2.getAuthInstance();
+    //         const user = await auth2.signIn();
+    //         const profile = user.getBasicProfile();
+    //         setUsuarioEmail(profile.getEmail());
+    //     } catch (err) {
+    //         console.error('Error al autenticar:', err);
+    //     }
+    // };
+
+
     const handleCerrarSesion = () => {
+        gapi.auth2.getAuthInstance()?.signOut();
         localStorage.removeItem('usuario');
         navigate('/login');
+    };
+
+    // Nueva función manejadora para el botón de inicio de sesión con Google
+    const handleGoogleSignInButtonClick = async () => {
+        if (usuarioEmail) { // Si ya tenemos un email de usuario, consideramos que está logueado
+            console.log('Ya estás logueado con Google.');
+        } else {
+            console.log('Intentando iniciar sesión con Google...');
+        }
+
+        try {
+            // Llamamos a la función importada signInWithGoogle
+            await signInWithGoogle(); 
+
+            // Después de intentar el inicio de sesión, actualizamos el estado local
+            // basado en el estado real de autenticación de GAPI.
+            const authInstance = gapi.auth2.getAuthInstance();
+            if (authInstance && authInstance.isSignedIn.get()) {
+                const profile = authInstance.currentUser.get().getBasicProfile();
+                if (profile) {
+                    setUsuarioEmail(profile.getEmail());
+                    if (!usuarioEmail) { // Si no estaba logueado antes de este clic
+                        console.log('Inicio de sesión con Google completado.');
+                    }
+                }
+            } else {
+                // Si después del intento, el usuario no está logueado en GAPI (ej. canceló el popup)
+                // podríamos querer limpiar usuarioEmail si la lógica de signInWithGoogle no lo hace.
+                // setUsuarioEmail(null); // Considerar si esto es necesario o si GoogleAuth.ts lo maneja.
+            }
+        } catch (err) {
+            console.error('Error durante el proceso de inicio de sesión con Google:', err);
+        }
     };
 
     const handleVerPropiedades = () => {
@@ -143,40 +228,45 @@ const PropietarioDashboard: React.FC = () => {
         navigate(`/abrir-puerta/${propiedad.id}`, { state: { propiedad } });
     };
 
-    // Función para generar fechas del calendario
-    const generarCalendario = () => {
-        const diasSemana = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
-        const diasPrevios = [];
-        for (let i = 0; i < primerDia; i++) {
-            diasPrevios.push(
-                <Box key={`prev-${i}`} sx={{ width: 24, height: 24, m: 0.5, color: '#ccc' }}></Box>
-            );
-        }
+    // Preparamos la URL del iframe sólo si tenemos email
+    const iframeSrc = usuarioEmail
+        ? `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid`
+        : '';
 
-        const dias = [];
-        for (let i = 1; i <= diasEnMes; i++) {
-            dias.push(
-                <Box
-                    key={i}
-                    sx={{
-                        width: 24,
-                        height: 24,
-                        m: 0.5,
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        bgcolor: i === hoy.getDate() ? '#0d6efd' : 'transparent',
-                        color: i === hoy.getDate() ? 'white' : 'inherit'
-                    }}
-                >
-                    {i}
-                </Box>
-            );
-        }
+    // // Función para generar fechas del calendario
+    // const generarCalendario = () => {
+    //     const diasSemana = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+    //     const diasPrevios = [];
+    //     for (let i = 0; i < primerDia; i++) {
+    //         diasPrevios.push(
+    //             <Box key={`prev-${i}`} sx={{ width: 24, height: 24, m: 0.5, color: '#ccc' }}></Box>
+    //         );
+    //     }
 
-        return { diasSemana, diasPrevios, dias };
-    };
+    //     const dias = [];
+    //     for (let i = 1; i <= diasEnMes; i++) {
+    //         dias.push(
+    //             <Box
+    //                 key={i}
+    //                 sx={{
+    //                     width: 24,
+    //                     height: 24,
+    //                     m: 0.5,
+    //                     borderRadius: '50%',
+    //                     display: 'flex',
+    //                     alignItems: 'center',
+    //                     justifyContent: 'center',
+    //                     bgcolor: i === hoy.getDate() ? '#0d6efd' : 'transparent',
+    //                     color: i === hoy.getDate() ? 'white' : 'inherit'
+    //                 }}
+    //             >
+    //                 {i}
+    //             </Box>
+    //         );
+    //     }
+
+    //     return { diasSemana, diasPrevios, dias };
+    // };
 
     // Estado para el menú desplegable
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -191,6 +281,7 @@ const PropietarioDashboard: React.FC = () => {
     };
 
     const handleLogout = () => {
+        gapi.auth2.getAuthInstance()?.signOut(); // Cerrar sesión de Google
         localStorage.removeItem('usuario');
         navigate('/login');
     };
@@ -266,6 +357,7 @@ const PropietarioDashboard: React.FC = () => {
                     </MenuItem>
                 </Menu>
             </Box>
+            
 
             {/* Contenido */}
             <Box
@@ -275,116 +367,61 @@ const PropietarioDashboard: React.FC = () => {
                     overflowY: 'auto'
                 }}
             >
-                {/* Calendario */}
-                <Paper
-                    sx={{
-                        borderRadius: 3,
-                        border: '2px solid #d1d1d1',
-                        bgcolor: '#ffffff',
-                        overflow: 'hidden',
-                        mb: 3
-                    }}
-                >
-                    <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'white' }}>
-                            {meses[mes]} {año}
-                        </Typography>
-                    </Box>
+        {/* Contenido principal */}
+        <Box sx={{ flexGrow: 1, p: 3, overflowY: 'auto' }}>
+            {/* Calendario de Google */}
+            <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
+                <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
+                    <Typography variant="h6" sx={{ color: 'white' }}>
+                        {mes + 1} / {año}
+                    </Typography>
+                        </Box>
+                        {/* ← Sustituye TODO este bloque por el iframe público + aviso */}
+                        <Box sx={{ p: 2 }}>
+                            <iframe
+                                src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid&mode=MONTH`}
+                                style={{ border: 0, width: '100%', height: '600px' }}
+                                frameBorder="0"
+                                scrolling="no"
+                                title="Google Calendar"
+                                />
+                        </Box>
+                    </Paper>
 
-                    {/* Días de la semana */}
-                    <Box
-                        sx={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(7, 1fr)',
-                            gap: 1,
-                            p: 1,
-                            bgcolor: '#fafafa',
-                            borderBottom: '1px solid #eee'
-                        }}
-                    >
-                        {['D', 'L', 'M', 'X', 'J', 'V', 'S'].map((dia, index) => (
-                            <Typography
-                                key={index}
-                                sx={{
-                                    textAlign: 'center',
-                                    fontSize: '0.85rem',
-                                    fontWeight: 500,
-                                    color: '#616161'
-                                }}
-                            >
-                                {dia}
-                            </Typography>
-                        ))}
+                    {/* Botón Mis Puertas */}
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleVerPropiedades}
+                            sx={{
+                                borderRadius: 2,
+                                textTransform: 'none',
+                                fontWeight: 'medium',
+                                py: 1.5,
+                                px: 5,
+                                mr: 2
+                            }}
+                        >
+                            Gestionar Puertas
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleVerAccesos}
+                            sx={{
+                                borderRadius: 2,
+                                textTransform: 'none',
+                                fontWeight: 'medium',
+                                py: 1.5,
+                                px: 5
+                            }}
+                        >
+                            Accesos
+                        </Button>
                     </Box>
-
-                    {/* Días del mes */}
-                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, p: 1 }}>
-                        {[...Array(primerDia)].map((_, i) => (
-                            <Box key={`empty-${i}`} />
-                        ))}
-                        {[...Array(diasEnMes)].map((_, i) => {
-                            const dia = i + 1;
-                            const esHoy = dia === new Date().getDate();
-                            return (
-                                <Box
-                                    key={dia}
-                                    sx={{
-                                        width: 40,
-                                        height: 40,
-                                        margin: '0 auto',
-                                        borderRadius: '50%',
-                                        fontWeight: 500,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        bgcolor: esHoy ? '#0d6efd' : 'transparent',
-                                        color: esHoy ? 'white' : '#212121',
-                                        transition: 'all 0.2s ease',
-                                        '&:hover': {
-                                            cursor: 'pointer',
-                                            bgcolor: esHoy ? '#0b5ed7' : '#e3f2fd'
-                                        }
-                                    }}
-                                >
-                                    {dia}
-                                </Box>
-                            );
-                        })}
-                    </Box>
-                </Paper>
-
-                {/* Botón Mis Puertas */}
-                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleVerPropiedades}
-                        sx={{
-                            borderRadius: 2,
-                            textTransform: 'none',
-                            fontWeight: 'medium',
-                            py: 1.5,
-                            px: 5,
-                            mr: 2
-                        }}
-                    >
-                        Gestionar Puertas
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleVerAccesos}
-                        sx={{
-                            borderRadius: 2,
-                            textTransform: 'none',
-                            fontWeight: 'medium',
-                            py: 1.5,
-                            px: 5
-                        }}
-                    >
-                        Accesos
-                    </Button>
-                </Box>
+                    
+                    <button onClick={handleGoogleSignInButtonClick}>Iniciar sesión con Google</button>
 
                 {/* Lista de propiedades */}
                 <Typography variant="h6" fontWeight="bold" mb={2} color='black'>
@@ -479,6 +516,8 @@ const PropietarioDashboard: React.FC = () => {
                     <SearchIcon />
                 </IconButton>
             </Box>
+            </Box>
+            
         </Box>
     );
 };
