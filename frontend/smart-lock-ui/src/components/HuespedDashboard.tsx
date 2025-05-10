@@ -17,7 +17,7 @@ interface Cerradura {
 }
 
 const CLIENT_ID = '378065249483-h4lad2d3m51n5ag1m0e9he8j5c43tj9u.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/calendar.events';
+const SCOPES = 'https://www.googleapis.com/auth/calendar';
 const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'];
 const CALENDAR_ID = '3879af64c7bdf344b6c989d6b6bab60e8d2c4701302e694291789c8fe7d04898@group.calendar.google.com';
 
@@ -31,6 +31,8 @@ const HuespedDashboard = () => {
     const [error, setError] = useState('');
     const [notificaciones, setNotificaciones] = useState(2); // Número de notificaciones para mostrar
     const [usuarioEmail, setUsuarioEmail] = useState<string | null>(null);
+    const [isGapiLoaded, setIsGapiLoaded] = useState(false); // Estado para saber si GAPI está cargado
+    const [gapiError, setGapiError] = useState<string | null>(null); // Estado para manejar errores de GAPI
 
     // Estado para el menú desplegable
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -154,25 +156,123 @@ const HuespedDashboard = () => {
         fetchCerraduras();
     }, [usuario?.id]);
 
+    // useEffect(() => {
+    //     gapi.load('client:auth2', () => {
+    //         gapi.client
+    //             .init({ clientId: CLIENT_ID, scope: SCOPES, discoveryDocs: DISCOVERY_DOCS })
+    //             .then(() => {
+    //                 const auth2 = gapi.auth2.getAuthInstance();
+    //                 if (auth2.isSignedIn.get()) {
+    //                     const profile = auth2.currentUser.get().getBasicProfile();
+    //                     setUsuarioEmail(profile.getEmail());
+    //                 }
+    //             })
+    //             .catch(console.error);
+    //     });
+    // }, []);
+
+    // <-- MODIFICADO: useEffect para inicialización de GAPI y manejo de autenticación -->
     useEffect(() => {
-        gapi.load('client:auth2', () => {
-            gapi.client
-                .init({ clientId: CLIENT_ID, scope: SCOPES, discoveryDocs: DISCOVERY_DOCS })
-                .then(() => {
-                    const auth2 = gapi.auth2.getAuthInstance();
-                    if (auth2.isSignedIn.get()) {
-                        const profile = auth2.currentUser.get().getBasicProfile();
+        const updateSigninStatus = (isSignedIn: boolean) => {
+            if (isSignedIn) {
+                const authInstance = gapi.auth2.getAuthInstance();
+                if (authInstance && authInstance.currentUser.get()) {
+                    const profile = authInstance.currentUser.get().getBasicProfile();
+                    if (profile) {
                         setUsuarioEmail(profile.getEmail());
+                        console.log('Usuario de Google conectado:', profile.getEmail());
+                        setGapiError(null);
+                    } else {
+                        console.warn('Perfil de Google no encontrado después del inicio de sesión.');
+                        setUsuarioEmail(null); // Asegurarse de que el email es null si no hay perfil
                     }
-                })
-                .catch(console.error);
-        });
+                } else {
+                    console.warn('Instancia de autenticación o usuario actual de Google no disponible.');
+                    setUsuarioEmail(null);
+                }
+            } else {
+                setUsuarioEmail(null);
+                console.log('Usuario de Google desconectado.');
+            }
+        };
+
+        const initClient = () => {
+            gapi.client.init({
+                clientId: CLIENT_ID,
+                scope: SCOPES,
+                discoveryDocs: DISCOVERY_DOCS,
+            }).then(() => {
+                setIsGapiLoaded(true);
+                const authInstance = gapi.auth2.getAuthInstance();
+                if (authInstance) {
+                    authInstance.isSignedIn.listen(updateSigninStatus);
+                    updateSigninStatus(authInstance.isSignedIn.get());
+                } else {
+                    console.error('Error: gapi.auth2.getAuthInstance() devolvió null o undefined');
+                    setGapiError('No se pudo inicializar la autenticación de Google.');
+                }
+            }).catch((error: any) => {
+                console.error('Error initializing Google API client:', error);
+                setGapiError('No se pudo inicializar la API de Google Calendar. Inténtalo de nuevo más tarde.');
+                setIsGapiLoaded(true); // Marcar como cargado para mostrar el error
+            });
+        };
+
+        try {
+            gapi.load('client:auth2', initClient);
+        } catch (e) {
+            console.error("Error al cargar gapi.load:", e);
+            setGapiError('Error crítico al cargar la API de Google. Refresca la página.');
+            setIsGapiLoaded(true); // Marcar como cargado para mostrar el error
+        }
     }, []);
+
+    // <-- NUEVO: Manejador para el inicio de sesión con Google -->
+    const handleGoogleSignIn = () => {
+        setGapiError(null); // Limpiar errores previos
+        if (gapi && gapi.auth2) {
+            const authInstance = gapi.auth2.getAuthInstance();
+            if (authInstance) {
+                authInstance.signIn().then((googleUser: any) => {
+                    // El listener 'isSignedIn.listen' debería manejar la actualización del estado.
+                    // const profile = googleUser.getBasicProfile();
+                    // setUsuarioEmail(profile.getEmail());
+                    console.log('Inicio de sesión con Google exitoso.');
+                }).catch((error: any) => {
+                    console.error('Error al iniciar sesión con Google:', error);
+                    if (error.error === "popup_closed_by_user") {
+                        setGapiError('El inicio de sesión con Google fue cancelado.');
+                    } else if (error.error === "access_denied") {
+                        setGapiError('Acceso denegado. Por favor, otorga los permisos necesarios.');
+                    } else {
+                        setGapiError('No se pudo iniciar sesión con Google. Verifica tu conexión o configuración.');
+                    }
+                });
+            } else {
+                console.error('Google Auth instance no está disponible.');
+                setGapiError('La autenticación de Google no está lista. Inténtalo de nuevo.');
+            }
+        } else {
+            console.error('GAPI o gapi.auth2 no están cargados.');
+            setGapiError('La API de Google no se ha cargado correctamente. Refresca la página.');
+        }
+    };
 
     const handleLogout = () => {
         console.log('Cerrando sesión...');
+        if (gapi && gapi.auth2 && gapi.auth2.getAuthInstance()) {
+            const authInstance = gapi.auth2.getAuthInstance();
+            if (authInstance.isSignedIn.get()) {
+                authInstance.signOut().then(() => {
+                    console.log('Sesión de Google cerrada.');
+                }).catch((error: any) => {
+                    console.error('Error al cerrar sesión de Google:', error);
+                });
+            }
+        }
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
+        setUsuarioEmail(null);
         navigate('/login');
     };
 
@@ -417,21 +517,35 @@ const HuespedDashboard = () => {
 
                   {/* Calendario de Google */}
                   <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
-                            <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
-                                <Typography variant="h6" sx={{ color: 'white' }}>
-                                    {mes + 1} / {año}
-                                </Typography>
-                            </Box>
+                        <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
+                            <Typography variant="h6" sx={{ color: 'white' }}>
+                                {mes + 1} / {año}
+                            </Typography>
+                        </Box>
                 
-                        {/* ← Sustituye TODO este bloque por el iframe público + aviso */}
-                        <Box sx={{ p: 2 }}>
-                            <iframe
-                                src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid&mode=MONTH`}
-                                style={{ border: 0, width: '100%', height: '600px' }}
-                                frameBorder="0"
-                                scrolling="no"
-                                title="Google Calendar"
+                        {/* <-- MODIFICADO: Lógica para mostrar calendario o botón de inicio de sesión --> */}
+                        <Box sx={{ p: 2, minHeight: { xs: '400px', sm: '600px' }, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {!isGapiLoaded ? (
+                                <CircularProgress />
+                            ) : usuarioEmail ? (
+                                <iframe
+                                    src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid&mode=MONTH`}
+                                    style={{ border: 0, width: '100%', height: '100%', minHeight: 'inherit' }}
+                                    frameBorder="0"
+                                    scrolling="no"
+                                    title="Google Calendar"
                                 />
+                            ) : (
+                                <Box textAlign="center">
+                                    <Typography sx={{ mb: 2 }}>
+                                        Para ver el calendario de eventos, por favor inicia sesión con tu cuenta de Google.
+                                    </Typography>
+                                    <Button variant="contained" onClick={handleGoogleSignIn}>
+                                        Iniciar sesión con Google
+                                    </Button>
+                                    {gapiError && <Typography color="error" sx={{ mt: 2 }}>{gapiError}</Typography>}
+                                </Box>
+                            )}
                         </Box>
                     </Paper>
 
