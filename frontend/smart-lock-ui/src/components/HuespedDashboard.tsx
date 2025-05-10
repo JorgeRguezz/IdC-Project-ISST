@@ -497,9 +497,6 @@ const HuespedDashboard = () => {
                     </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <IconButton color="primary" onClick={() => navigate('/configuracion')}>
-                        <SettingsIcon />
-                    </IconButton>
 
                     <Box
                         sx={{
