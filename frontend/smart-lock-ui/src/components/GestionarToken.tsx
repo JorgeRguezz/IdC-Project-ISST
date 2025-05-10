@@ -179,6 +179,7 @@ const GestionarToken = () => {
       </Typography>
 
       <TextField
+        id='numeroUsos'
         label="Número de usos máximos (dejar en blanco para ilimitado)"
         type="number"
         value={usosMaximos}
@@ -193,6 +194,7 @@ const GestionarToken = () => {
       />
 
       <TextField
+        id='fechaFin'
         label="Fecha de fin"
         type="datetime-local"
         value={fechaFin}

@@ -353,6 +353,7 @@ const AnadirPuerta = () => {
       </Typography>
 
       <TextField
+        id='nombre'
         fullWidth
         label="Nombre de la puerta"
         name="nombre"
@@ -365,6 +366,7 @@ const AnadirPuerta = () => {
       />
 
       <TextField
+        id='direccion'  
         fullWidth
         label="Dirección"
         name="direccion"
@@ -377,6 +379,7 @@ const AnadirPuerta = () => {
       />
 
       <TextField
+        id='ciudad'
         fullWidth
         label="Ciudad"
         name="ciudad"
@@ -398,6 +401,7 @@ const AnadirPuerta = () => {
       </Typography>
 
       <TextField
+        id='codigoConexion'
         fullWidth
         label="Código de conexión"
         name="codigoConexion"

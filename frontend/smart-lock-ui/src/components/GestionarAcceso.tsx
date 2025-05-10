@@ -166,6 +166,7 @@ const irAMisPuertas = () => {
     
       <TextField
         fullWidth
+        id='email'
         label="Email del huesped"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -173,6 +174,7 @@ const irAMisPuertas = () => {
       />
 
       <TextField
+        id='fechaInicio'
         label="Fecha de inicio"
         type="datetime-local"
         value={fechaInicio}
@@ -183,6 +185,7 @@ const irAMisPuertas = () => {
       />
 
       <TextField
+        id='fechaFin'
         label="Fecha de fin"
         type="datetime-local"
         value={fechaFin}
