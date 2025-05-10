@@ -299,11 +299,31 @@ const HuespedDashboard = () => {
             }
 
             const accesos = await res.json();
+            console.log("AAAAAAAAAAAAAAAAAAAA");
+
+            console.log(accesos);
+            // 1. Obtener el nombre de la propiedad por ID de cerradura
+            const obtenerNombrePropiedad = async (cerraduraId: number): Promise<string> => {
+                try {
+                    const res = await fetch(`https://localhost:8443/api/cerraduras/${cerraduraId}/propiedad/nombre`);
+                    if (res.ok) {
+                        return await res.text(); // Devuelve el nombre como string plano
+                    } else {
+                        console.warn(`No se pudo obtener nombre de propiedad para cerradura ${cerraduraId}`);
+                        return 'Propiedad desconocida';
+                    }
+                } catch (e) {
+                    console.error(`Error al obtener nombre propiedad para cerradura ${cerraduraId}`, e);
+                    return 'Propiedad desconocida';
+                }
+            };
 
             for (const acceso of accesos) {
                 if (!acceso.eventoGoogleCreado) {
+                    const nombrePropiedad = await obtenerNombrePropiedad(acceso.cerradura.id);
+
                     const evento = {
-                        summary: `Acceso a ${acceso.cerradura.propiedad.nombre}`,
+                        summary: `Acceso a ${nombrePropiedad}`,
                         description: `Del ${acceso.horario.inicio} al ${acceso.horario.fin}`,
                         start: {
                             dateTime: new Date(acceso.horario.inicio).toISOString(),
@@ -314,6 +334,9 @@ const HuespedDashboard = () => {
                             timeZone: 'Europe/Madrid',
                         }
                     };
+                    console.log("BBBBBBBBBBBBB");
+
+                    console.log(evento);
 
                     try {
                         await gapi.client.calendar.events.insert({
@@ -565,39 +588,39 @@ const HuespedDashboard = () => {
                     {generarCalendario()}
                 </Paper> */}
 
-                  {/* Calendario de Google */}
-                  <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
-                        <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
-                            <Typography variant="h6" sx={{ color: 'white' }}>
-                                Calendario: 
-                            </Typography>
-                        </Box>
-                
-                        {/* <-- MODIFICADO: Lógica para mostrar calendario o botón de inicio de sesión --> */}
-                        <Box sx={{ p: 2, minHeight: { xs: '400px', sm: '600px' }, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {!isGapiLoaded ? (
-                                <CircularProgress />
-                            ) : usuarioEmail ? (
-                                <iframe
-                                    src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(usuarioEmail)}&ctz=Europe/Madrid&mode=MONTH`}
-                                    style={{ border: 0, width: '100%', height: '100%', minHeight: 'inherit' }}
-                                    frameBorder="0"
-                                    scrolling="no"
-                                    title="Google Calendar"
-                                />
-                            ) : (
-                                <Box textAlign="center">
-                                    <Typography sx={{ mb: 2 }}>
-                                        Para ver el calendario de eventos, por favor inicia sesión con tu cuenta de Google.
-                                    </Typography>
-                                    <Button variant="contained" onClick={handleGoogleSignIn}>
-                                        Iniciar sesión con Google
-                                    </Button>
-                                    {gapiError && <Typography color="error" sx={{ mt: 2 }}>{gapiError}</Typography>}
-                                </Box>
-                            )}
-                        </Box>
-                    </Paper>
+                {/* Calendario de Google */}
+                <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
+                    <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
+                        <Typography variant="h6" sx={{ color: 'white' }}>
+                            Calendario:
+                        </Typography>
+                    </Box>
+
+                    {/* <-- MODIFICADO: Lógica para mostrar calendario o botón de inicio de sesión --> */}
+                    <Box sx={{ p: 2, minHeight: { xs: '400px', sm: '600px' }, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {!isGapiLoaded ? (
+                            <CircularProgress />
+                        ) : usuarioEmail ? (
+                            <iframe
+                                src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(usuarioEmail)}&ctz=Europe/Madrid&mode=MONTH`}
+                                style={{ border: 0, width: '100%', height: '100%', minHeight: 'inherit' }}
+                                frameBorder="0"
+                                scrolling="no"
+                                title="Google Calendar"
+                            />
+                        ) : (
+                            <Box textAlign="center">
+                                <Typography sx={{ mb: 2 }}>
+                                    Para ver el calendario de eventos, por favor inicia sesión con tu cuenta de Google.
+                                </Typography>
+                                <Button variant="contained" onClick={handleGoogleSignIn}>
+                                    Iniciar sesión con Google
+                                </Button>
+                                {gapiError && <Typography color="error" sx={{ mt: 2 }}>{gapiError}</Typography>}
+                            </Box>
+                        )}
+                    </Box>
+                </Paper>
 
                 {/* Botón Mis Accesos */}
                 <Button
