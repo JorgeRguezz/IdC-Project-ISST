@@ -381,55 +381,48 @@ const PropietarioDashboard: React.FC = () => {
             <Box
                 sx={{
                     flexGrow: 1,
-                    p: 3,
                     overflowY: 'auto'
                 }}
             >
         {/* Contenido principal */}
         <Box sx={{ flexGrow: 1, p: 3, overflowY: 'auto' }}>
+            {/* Saludo */}
+                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }} color='black'>
+                    Hola, {usuario?.nombre || 'Invitado'}
+                </Typography>
             {/* Calendario de Google */}
-            <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
-                <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
-                    <Typography variant="h6" sx={{ color: 'white' }}>
-                        {mes + 1} / {año} {/* CAMBIAR */ }
-                    </Typography>
+                    <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
+                        <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
+                            <Typography variant="h6" sx={{ color: 'white' }}>
+                                Calendario:
+                            </Typography>
                         </Box>
-                        {/* ← Sustituye TODO este bloque por el iframe público + aviso */}
-                        <Box sx={{ p: 2, minHeight: '600px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+
+                        <Box sx={{ p: 2, minHeight: { xs: '400px', sm: '600px' }, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {!isGapiLoaded ? (
                                 <CircularProgress />
-                            ) : gapiError ? (
-                                <Box textAlign="center">
-                                    <Typography color="error" gutterBottom>
-                                        {gapiError}
-                                    </Typography>
-                                    {/* Podrías ofrecer un botón para reintentar la inicialización de GAPI si tiene sentido */}
-                                    {!usuarioEmail && (
-                                        <Button variant="contained" onClick={handleGoogleSignInButtonClick} sx={{ mt: 1 }}>
-                                            Iniciar sesión con Google
-                                        </Button>
-                                    )}
-                                </Box>
                             ) : usuarioEmail ? (
                                 <iframe
                                     src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(usuarioEmail)}&ctz=Europe/Madrid&mode=MONTH`}
-                                    style={{ border: 0, width: '100%', height: '600px' }}
+                                    style={{ border: 0, width: '100%', height: '100%', minHeight: 'inherit' }}
                                     frameBorder="0"
                                     scrolling="no"
                                     title="Google Calendar"
                                 />
                             ) : (
                                 <Box textAlign="center">
-                                    <Typography gutterBottom>
-                                        Para ver tu calendario, por favor inicia sesión con Google.
+                                    <Typography sx={{ mb: 2 }}>
+                                        Para ver el calendario de eventos, por favor inicia sesión con tu cuenta de Google.
                                     </Typography>
                                     <Button variant="contained" onClick={handleGoogleSignInButtonClick}>
                                         Iniciar sesión con Google
                                     </Button>
+                                    {gapiError && <Typography color="error" sx={{ mt: 2 }}>{gapiError}</Typography>}
                                 </Box>
                             )}
                         </Box>
                     </Paper>
+
 
                     {/* Botón Mis Puertas */}
                     <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>

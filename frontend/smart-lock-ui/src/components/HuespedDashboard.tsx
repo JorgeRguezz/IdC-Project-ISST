@@ -565,39 +565,39 @@ const HuespedDashboard = () => {
                     {generarCalendario()}
                 </Paper> */}
 
-                {/* Calendario de Google */}
-                <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
-                    <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
-                        <Typography variant="h6" sx={{ color: 'white' }}>
-                            {mes + 1} / {año}
-                        </Typography>
-                    </Box>
-
-                    {/* <-- MODIFICADO: Lógica para mostrar calendario o botón de inicio de sesión --> */}
-                    <Box sx={{ p: 2, minHeight: { xs: '400px', sm: '600px' }, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {!isGapiLoaded ? (
-                            <CircularProgress />
-                        ) : usuarioEmail ? (
-                            <iframe
-                                src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(usuarioEmail)}&ctz=Europe/Madrid&mode=MONTH`}
-                                style={{ border: 0, width: '100%', height: '100%', minHeight: 'inherit' }}
-                                frameBorder="0"
-                                scrolling="no"
-                                title="Google Calendar"
-                            />
-                        ) : (
-                            <Box textAlign="center">
-                                <Typography sx={{ mb: 2 }}>
-                                    Para ver el calendario de eventos, por favor inicia sesión con tu cuenta de Google.
-                                </Typography>
-                                <Button variant="contained" onClick={handleGoogleSignIn}>
-                                    Iniciar sesión con Google
-                                </Button>
-                                {gapiError && <Typography color="error" sx={{ mt: 2 }}>{gapiError}</Typography>}
-                            </Box>
-                        )}
-                    </Box>
-                </Paper>
+                  {/* Calendario de Google */}
+                  <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
+                        <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
+                            <Typography variant="h6" sx={{ color: 'white' }}>
+                                Calendario: 
+                            </Typography>
+                        </Box>
+                
+                        {/* <-- MODIFICADO: Lógica para mostrar calendario o botón de inicio de sesión --> */}
+                        <Box sx={{ p: 2, minHeight: { xs: '400px', sm: '600px' }, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {!isGapiLoaded ? (
+                                <CircularProgress />
+                            ) : usuarioEmail ? (
+                                <iframe
+                                    src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(usuarioEmail)}&ctz=Europe/Madrid&mode=MONTH`}
+                                    style={{ border: 0, width: '100%', height: '100%', minHeight: 'inherit' }}
+                                    frameBorder="0"
+                                    scrolling="no"
+                                    title="Google Calendar"
+                                />
+                            ) : (
+                                <Box textAlign="center">
+                                    <Typography sx={{ mb: 2 }}>
+                                        Para ver el calendario de eventos, por favor inicia sesión con tu cuenta de Google.
+                                    </Typography>
+                                    <Button variant="contained" onClick={handleGoogleSignIn}>
+                                        Iniciar sesión con Google
+                                    </Button>
+                                    {gapiError && <Typography color="error" sx={{ mt: 2 }}>{gapiError}</Typography>}
+                                </Box>
+                            )}
+                        </Box>
+                    </Paper>
 
                 {/* Botón Mis Accesos */}
                 <Button
