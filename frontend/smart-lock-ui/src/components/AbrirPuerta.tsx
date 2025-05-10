@@ -7,6 +7,8 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
+import { deleteEventFromCalendar, findEventBySummary, isLoggedIn, signInWithGoogle } from './GoogleAuth';
+
 interface PropiedadDetalle {
     id: number;
     nombre: string;
@@ -365,6 +367,37 @@ const AbrirPuerta = () => {
     const handleCerrarTokenDialog = () => {
         setTokenDialogOpen(false);
     };
+    
+    // Helper function for calendar event deletion
+    const tryDeleteCalendarEventForToken = async (tokenCode: string, currentUsos: number, maxUsos: number, propNombre: string | undefined) => {
+        if (!propNombre) {
+            console.warn('Nombre de la propiedad no disponible, no se puede intentar eliminar evento del calendario.');
+            return;
+        }
+        if (maxUsos > 0 && currentUsos >= maxUsos) {
+            console.log(`Token ${tokenCode} para la propiedad "${propNombre}" agotado. Intentando eliminar evento de calendario.`);
+            if (isLoggedIn()) {
+                try {
+                    const eventSummaryToFind = `Token para ${propNombre}: ${tokenCode}`;
+                    console.log(`Buscando evento en calendario con resumen: "${eventSummaryToFind}"`);
+                    const eventId = await findEventBySummary(eventSummaryToFind);
+
+                    if (eventId) {
+                        await deleteEventFromCalendar(eventId);
+                        console.log(`Evento de calendario ${eventId} (resumen: "${eventSummaryToFind}") eliminado exitosamente.`);
+                    } else {
+                        console.log(`No se encontró evento de calendario para eliminar con resumen que contenga: "${eventSummaryToFind}".`);
+                    }
+                } catch (calendarError) {
+                    console.error('Error durante la búsqueda o eliminación del evento de calendario:', calendarError);
+                }
+            } else {
+                console.warn("Usuario no autenticado con Google. No se puede eliminar el evento del calendario.");
+                // Considera solicitar inicio de sesión con Google si es deseado:
+                // await signInWithGoogle(); 
+            }
+        }
+    };
 
     const handleUsarToken = () => {
         if (!token.trim()) {
@@ -383,157 +416,128 @@ const AbrirPuerta = () => {
 
         // Estrategia de validación del token
         const validarToken = async () => {
-            try {
-                console.log(`Intentando validar token con usuario ${usuario.id}`);
-                const response = await fetch(`https://localhost:8443/api/tokens/validar?codigo=${token}&cerraduraId=${cerradura}&usuarioId=${usuario.id}`, {
+            try { // Primary validation path
+                console.log(`Intentando validar token ${token} con usuario ${usuario.id} para cerradura ${cerradura}`);
+                const validationResponse = await fetch(`https://localhost:8443/api/tokens/validar?codigo=${token}&cerraduraId=${cerradura}&usuarioId=${usuario.id}`, {
                     method: 'POST',
                 });
         
-                // Parse the response JSON once
-                const errorData = response.ok ? null : await response.json();
-        
-                if (response.ok) {
-                    // El token es válido para el usuario actual y la cerradura.
-                    // Ahora, intentar abrir la puerta.
-                    console.log(`Token validado para usuario ${usuario.id}, intentando abrir cerradura ${cerradura}`);
+                if (validationResponse.ok) {
+                    console.log(`Token ${token} validado para usuario ${usuario.id}, intentando abrir cerradura ${cerradura}`);
                     const abrirResponse = await fetch(`https://localhost:8443/api/cerraduras/${cerradura}/abrir`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ usuarioId: usuario.id }), // Usar el usuario.id actual
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ usuarioId: usuario.id }),
                     });
 
                     if (!abrirResponse.ok) {
-                        // La validación del token fue OK, pero la apertura falló.
                         const abrirErrorData = await abrirResponse.json();
-                        console.error('Error al abrir la puerta después de validar el token:', abrirErrorData);
+                        console.error('Error al abrir la puerta después de validar el token (vía primaria):', abrirErrorData);
                         throw new Error(abrirErrorData.error || 'Error al abrir la puerta después de validar el token');
                     }
-                    // Si la apertura fue exitosa, devolver la respuesta de la apertura.
-                    console.log('Puerta abierta con éxito después de la validación del token.');
+                    console.log('Puerta abierta con éxito (vía primaria). Obteniendo estado del token para posible acción de calendario.');
+
+                    const tokensListResponse = await fetch('https://localhost:8443/api/tokens');
+                    if (!tokensListResponse.ok) {
+                        console.warn('No se pudo obtener la lista de tokens para verificar el estado post-uso (vía primaria).');
+                    } else {
+                        const allTokens = await tokensListResponse.json();
+                        const cerraduraIdNum = parseInt(String(cerradura), 10); // Asegurarse que cerradura es string para parseInt
+                        const usedTokenObj = allTokens.find((t: any) => t.codigo === token && t.cerradura.id === cerraduraIdNum);
+
+                        if (usedTokenObj) {
+                            console.log('Token encontrado post-uso (vía primaria):', usedTokenObj);
+                            await tryDeleteCalendarEventForToken(String(usedTokenObj.codigo), usedTokenObj.usosActuales, usedTokenObj.usosMaximos, propiedad?.nombre);
+                        } else {
+                            console.warn(`No se encontró el token ${token} asociado a la cerradura ${cerraduraIdNum} en la lista después de su uso (vía primaria).`);
+                        }
+                    }
                     return abrirResponse;
                 }
         
-                console.log('response:', response);    
+                const errorData = await validationResponse.json();
+                console.log('Respuesta de validación primaria no OK:', validationResponse.status, errorData);
         
-                if (response.status === 403) {
-                    console.log('Error de validación estándar:', errorData.error);
-        
-                    if (errorData.error === 'No tienes acceso a esta cerradura') {
-                        console.log('Intentando validación alternativa basada solo en token...');
-        
-                        // Fetch all tokens to validate manually
-                        const tokensResponse = await fetch('https://localhost:8443/api/tokens');
-                        if (!tokensResponse.ok) {
-                            throw new Error('No se pudo verificar el token');
-                        }
-                        
-                        const tokens = await tokensResponse.json();
-                        const tokenObj = tokens.find((t: any) => t.codigo === token);
-                        console.log('token:', tokenObj);
-        
-                        if (!tokenObj) {
-                            throw new Error('Token no encontrado');
-                        }
-        
-                        if (tokenObj.cerradura.id !== cerradura) {
-                            throw new Error('Token no válido para esta cerradura');
-                        }
-        
-                        if (tokenObj.usosMaximos > 0 && tokenObj.usosActuales >= tokenObj.usosMaximos) {
-                            throw new Error('Token sin usos disponibles');
-                        }
-        
-                        if (new Date(tokenObj.fechaExpiracion) < new Date()) {
-                            throw new Error('Token expirado');
-                        }
-        
-                        // Attempt to open the lock with the token's owner ID
-                        const propietarioId = tokenObj.cerradura.propiedad.propietario.id;
-        
-                        const abrirResponse = await fetch(`https://localhost:8443/api/cerraduras/${cerradura}/abrir`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ usuarioId: propietarioId }),
-                        });
-        
-                        if (!abrirResponse.ok) {
-                            throw new Error('Error al abrir la puerta con el token');
-                        }
-        
-                        // Update the token's usage count
-                        const updatedToken = {
-                            ...tokenObj,
-                            usosActuales: tokenObj.usosActuales + 1,
-                        };
-        
-                        try {
-                            await fetch('https://localhost:8443/api/tokens', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(updatedToken),
-                            });
-                        } catch {
-                            console.warn('No se pudo actualizar el uso del token, pero la puerta ya se abrió');
-                        }
-        
-                        // Return a simulated response
-                        return new Response(JSON.stringify({ mensaje: 'Puerta abierta correctamente' }), {
-                            status: 200,
-                            headers: { 'Content-Type': 'application/json' },
-                        });
-                    }
-                }
-        
-                // If no specific handling for the error, throw it
-                throw new Error(errorData.error || 'Error desconocido al validar token');
-            } catch (error) {
-                if (error instanceof Error) {
+                if (validationResponse.status === 403 && errorData.error === 'No tienes acceso a esta cerradura') {
+                    console.log('Intentando validación alternativa basada solo en token...');
                     const tokensResponse = await fetch('https://localhost:8443/api/tokens');
                     if (!tokensResponse.ok) {
-                        throw new Error('No se pudo verificar el token');
+                        throw new Error('No se pudo verificar el token (lista no obtenida)');
                     }
                     
                     const tokens = await tokensResponse.json();
-                    const tokenObj = tokens.find((t: any) => t.codigo === token);
-                    console.log('token:', tokenObj);
+                    const cerraduraIdNum = parseInt(String(cerradura), 10); // Asegurarse que cerradura es string para parseInt
+                    const tokenObj = tokens.find((t: any) => t.codigo === token && t.cerradura.id === cerraduraIdNum);
     
                     if (!tokenObj) {
-                        throw new Error('Token no encontrado');
-                    }
-    
-                    if (tokenObj.cerradura.id !== cerradura) {
-                        throw new Error('Token no válido para esta cerradura');
+                        throw new Error('Token no encontrado o no válido para esta cerradura (vía alternativa)');
                     }
     
                     if (tokenObj.usosMaximos > 0 && tokenObj.usosActuales >= tokenObj.usosMaximos) {
+                        await tryDeleteCalendarEventForToken(String(tokenObj.codigo), tokenObj.usosActuales, tokenObj.usosMaximos, propiedad?.nombre);
                         throw new Error('Token sin usos disponibles');
                     }
     
-                    if (new Date(tokenObj.fechaExpiracion) < new Date()) {
+                    if (tokenObj.fechaExpiracion && new Date(tokenObj.fechaExpiracion) < new Date()) {
                         throw new Error('Token expirado');
                     }
+    
+                    const propietarioId = tokenObj.cerradura.propiedad.propietario.id;
+                    const abrirResponseAlt = await fetch(`https://localhost:8443/api/cerraduras/${cerradura}/abrir`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ usuarioId: propietarioId }),
+                    });
+    
+                    if (!abrirResponseAlt.ok) {
+                        const abrirErrorDataAlt = await abrirResponseAlt.json();
+                        console.error('Error al abrir la puerta con el token (alternativa):', abrirErrorDataAlt);
+                        throw new Error(abrirErrorDataAlt.error || 'Error al abrir la puerta con el token (alternativa)');
+                    }
+                    console.log('Puerta abierta con éxito (vía alternativa).');
+    
+                    const updatedTokenData = {
+                        ...tokenObj,
+                        usosActuales: tokenObj.usosActuales + 1,
+                    };
+    
+                    const updateResponse = await fetch(`https://localhost:8443/api/tokens/${tokenObj.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updatedTokenData),
+                    });
+
+                    if (!updateResponse.ok) {
+                        const updateErrorData = await updateResponse.text();
+                        console.warn(`No se pudo actualizar el uso del token ${tokenObj.codigo} en el backend: ${updateErrorData}. La puerta pudo haberse abierto.`);
+                    } else {
+                        console.log(`Uso del token ${tokenObj.codigo} actualizado correctamente en el backend (vía alternativa).`);
+                    }
+                    
+                    await tryDeleteCalendarEventForToken(String(updatedTokenData.codigo), updatedTokenData.usosActuales, updatedTokenData.usosMaximos, propiedad?.nombre);
+                    
+                    return abrirResponseAlt;
                 } else {
-                    throw new Error('Salió mal'); // Handle unexpected errors
+                    throw new Error(errorData.error || `Error de validación del token: ${validationResponse.status}`);
                 }
+
+            } catch (err: any) { 
+                console.error("Error en validarToken:", err.message || err);
+                throw err; 
             }
         };
 
         // Ejecutamos la estrategia de validación
         validarToken()
             .then(response => response?.json())
-            .then(() => {
+            .then(data => { // data es el cuerpo de la respuesta JSON
+                console.log('Respuesta de apertura/validación:', data);
                 setEstado('exito');
-                setMetodoAcceso('token');
+                setMetodoAcceso('token'); // O determinar según el flujo
             })
-            .catch(error => {
-                console.error('Error al validar token:', error);
-                setError(error.message);
+            .catch(err => {
+                console.error('Error final en handleUsarToken:', err);
+                setError(err.message || 'Error desconocido al usar el token.');
                 setEstado('error');
             });
     };

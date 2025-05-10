@@ -1,9 +1,10 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Typography, TextField, Button, Grid, Link, IconButton } from '@mui/material';
 import { useState } from 'react';
-import SettingsIcon from '@mui/icons-material/Settings';
+// import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import LogoutIcon from '@mui/icons-material/Logout';
+// import LogoutIcon from '@mui/icons-material/Logout';
+import { insertEventToCalendar, deleteEventFromCalendar } from './GoogleAuth';
 
 const GestionarToken = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const GestionarToken = () => {
       const cerradura = cerraduras[0];
 
       let repetido = true;
-      let fechaExpiracion = null;
+      let fechaExpiracion: string | null = null;
       
       // 2. Crear horario
       if (fechaFin && isNaN(new Date(fechaFin).getTime())) {
@@ -36,7 +37,7 @@ const GestionarToken = () => {
       if (!fechaFin) {
         const confirmar = window.confirm("La fecha de expiración no es válida o está vacía, ¿Estás seguro de que deseas crear un token sin fecha de expiración?");
         if (confirmar) {
-          fechaExpiracion = fechaFin;
+          // fechaExpiracion remains null
         } else {return;}
       } else {
         fechaExpiracion = `${fechaFin}:00`;
@@ -44,8 +45,10 @@ const GestionarToken = () => {
       console.log("Fin:", `${fechaExpiracion}`);
 
       // 3. Poner el maximo de usos a 0 si no se ha introducido nada
+      // Usaremos una variable local para asegurar que el valor correcto se usa en esta operación
+      let currentUsosMaximos = usosMaximos;
       if (usosMaximos === '') {
-        setUsosMaximos('0');
+        currentUsosMaximos = '0';
       }
 
       // 4. Bucle para repetir la creación del código si está repetido
@@ -54,7 +57,7 @@ const GestionarToken = () => {
         let code = generateRandomString();
 
         // 4.1. Construir token completo
-        const token = { codigo:code, fechaExpiracion, usosMaximos, cerradura:{id:cerradura.id,modelo:cerradura.modelo,bloqueada:cerradura.bloqueada,propiedad:{ id: propiedad.id}} };
+        const token = { codigo:code, fechaExpiracion, usosMaximos: currentUsosMaximos, cerradura:{id:cerradura.id,modelo:cerradura.modelo,bloqueada:cerradura.bloqueada,propiedad:{ id: propiedad.id}} };
         
         // 4.2. Enviar al backend
         const resA = await fetch('https://localhost:8443/api/tokens', {
@@ -63,14 +66,39 @@ const GestionarToken = () => {
           body: JSON.stringify(token)
         });
         if (resA.ok) {
-            alert('✅ Token creado correctamente:\n' + code);
-          repetido = false;
+          repetido = false; // Salir del bucle si el token se creó bien
+
+          // Crear evento para Google Calendar
+          const evento = {
+            summary: `Token para ${propiedad.nombre}: ${code}`,
+            description: `Token: ${code}. Usos: ${currentUsosMaximos === '0' ? 'Ilimitados' : currentUsosMaximos}. ${fechaExpiracion ? `Expira: ${new Date(fechaExpiracion).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' })}` : 'No expira por fecha.'}`,
+            start: {
+              dateTime: new Date().toISOString(), // Momento de creación del token
+              timeZone: 'Europe/Madrid',
+            },
+            end: {
+              dateTime: fechaExpiracion
+                ? new Date(fechaExpiracion).toISOString()
+                : new Date(new Date().getTime() + 60 * 60 * 1000).toISOString(), // Si no hay fecha de expiración, el evento dura 1 hora
+              timeZone: 'Europe/Madrid',
+            }
+          };
+
+          try {
+            await insertEventToCalendar(evento);
+            alert(`✅ Token creado correctamente: ${code}\nEl evento ha sido añadido a tu Google Calendar.`);
+          } catch (e) {
+            console.error('Error al añadir evento al calendario:', e);
+            alert(`✅ Token creado correctamente: ${code}\nPero no se pudo añadir el evento al calendario. Por favor, revisa tu conexión o configuración de Google Calendar.`);
+          }
+          
           irAMisPuertas();
         } else if (resA.status === 462) {
-          repetido = true;
+          repetido = true; // El código estaba repetido, el bucle continuará
         } else {
           const msg = await resA.text();
           alert('❌ Error al registrar token: ' + msg);
+          repetido = false; // Salir del bucle en caso de otros errores
         }
       }
 
