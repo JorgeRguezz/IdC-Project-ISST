@@ -408,7 +408,7 @@ const HuespedDashboard = () => {
     // }
 
     const iframeSrc = usuarioEmail
-        ? `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid`
+        ? `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(usuarioEmail)}&ctz=Europe/Madrid`
         : '';
 
     return (
@@ -529,7 +529,7 @@ const HuespedDashboard = () => {
                                 <CircularProgress />
                             ) : usuarioEmail ? (
                                 <iframe
-                                    src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid&mode=MONTH`}
+                                    src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(usuarioEmail)}&ctz=Europe/Madrid&mode=MONTH`}
                                     style={{ border: 0, width: '100%', height: '100%', minHeight: 'inherit' }}
                                     frameBorder="0"
                                     scrolling="no"

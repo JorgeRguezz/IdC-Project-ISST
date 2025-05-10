@@ -14,7 +14,7 @@ import { initGapi, signInWithGoogle } from './GoogleAuth';
 const CLIENT_ID = '378065249483-h4lad2d3m51n5ag1m0e9he8j5c43tj9u.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/calendar';
 const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'];
-const CALENDAR_ID = '3879af64c7bdf344b6c989d6b6bab60e8d2c4701302e694291789c8fe7d04898@group.calendar.google.com'
+// const CALENDAR_ID = '3879af64c7bdf344b6c989d6b6bab60e8d2c4701302e694291789c8fe7d04898@group.calendar.google.com'
 
 interface Propiedad {
     id: number;
@@ -34,6 +34,8 @@ const PropietarioDashboard: React.FC = () => {
 
     // Estado de Google Calendar
     const [usuarioEmail, setUsuarioEmail] = useState<string | null>(null);
+    const [isGapiLoaded, setIsGapiLoaded] = useState<boolean>(false);
+    const [gapiError, setGapiError] = useState<string | null>(null);
 
     // Fecha para cabecera del calendario
     const [mes] = useState(new Date().getMonth());
@@ -47,7 +49,7 @@ const PropietarioDashboard: React.FC = () => {
 
     // Recuperación de propiedades desde el backend
     useEffect(() => {
-        initGapi();
+        // initGapi();
         const fetchPropiedades = async () => {
             if (!usuario.id) {
                 console.error('No hay ID de usuario en localStorage');
@@ -55,20 +57,6 @@ const PropietarioDashboard: React.FC = () => {
                 setCargando(false);
                 return;
             }
-            gapi.load('client:auth2', () => {
-                gapi.client.init({
-                  clientId: CLIENT_ID,
-                  scope: SCOPES,
-                }).then(() => {
-                  const auth = gapi.auth2.getAuthInstance();
-                  if (!auth.isSignedIn.get()) {
-                    // Forzar sign-in de Google si aún no ha autorizado
-                    auth.signIn().then(() => {
-                      console.log("Google login completado");
-                    });
-                  }
-                });
-            });
             
             try {
                 setCargando(true);
@@ -149,32 +137,59 @@ const PropietarioDashboard: React.FC = () => {
 
     // Inicializar API de Google y comprobar si ya está logueado
     useEffect(() => {
-        gapi.load('client:auth2', () => {
-            gapi.client
-                .init({ clientId: CLIENT_ID, scope: SCOPES, discoveryDocs: DISCOVERY_DOCS })
-                .then(() => {
-                    const auth2 = gapi.auth2.getAuthInstance();
-                    if (auth2.isSignedIn.get()) {
-                        const profile = auth2.currentUser.get().getBasicProfile();
+        const updateSigninStatus = (isSignedIn: boolean) => {
+            if (isSignedIn) {
+                const authInstance = gapi.auth2.getAuthInstance();
+                if (authInstance && authInstance.currentUser.get()) {
+                    const profile = authInstance.currentUser.get().getBasicProfile();
+                    if (profile) {
                         setUsuarioEmail(profile.getEmail());
+                        console.log('Usuario de Google conectado:', profile.getEmail());
+                        setGapiError(null);
+                    } else {
+                        console.warn('Perfil de Google no encontrado después del inicio de sesión.');
+                        setUsuarioEmail(null);
                     }
-                })
-                .catch(console.error);
-        });
+                } else {
+                    console.warn('Instancia de autenticación o usuario actual de Google no disponible.');
+                    setUsuarioEmail(null);
+                }
+            } else {
+                setUsuarioEmail(null);
+                console.log('Usuario de Google desconectado.');
+            }
+        };
+
+        const initClient = () => {
+            gapi.client.init({
+                clientId: CLIENT_ID,
+                scope: SCOPES,
+                discoveryDocs: DISCOVERY_DOCS,
+            }).then(() => {
+                setIsGapiLoaded(true);
+                const authInstance = gapi.auth2.getAuthInstance();
+                if (authInstance) {
+                    authInstance.isSignedIn.listen(updateSigninStatus);
+                    updateSigninStatus(authInstance.isSignedIn.get());
+                } else {
+                    console.error('Error: gapi.auth2.getAuthInstance() devolvió null o undefined');
+                    setGapiError('No se pudo inicializar la autenticación de Google.');
+                }
+            }).catch((error: any) => {
+                console.error('Error initializing Google API client:', error);
+                setGapiError('No se pudo inicializar la API de Google Calendar. Inténtalo de nuevo más tarde.');
+                setIsGapiLoaded(true); 
+            });
+        };
+
+        try {
+            gapi.load('client:auth2', initClient);
+        } catch (e) {
+            console.error("Error al cargar gapi.load:", e);
+            setGapiError('Error crítico al cargar la API de Google. Refresca la página.');
+            setIsGapiLoaded(true);
+        }
     }, []);
-
-    // // Función para login con Google
-    // const signInWithGoogle = async () => {
-    //     try {
-    //         const auth2 = gapi.auth2.getAuthInstance();
-    //         const user = await auth2.signIn();
-    //         const profile = user.getBasicProfile();
-    //         setUsuarioEmail(profile.getEmail());
-    //     } catch (err) {
-    //         console.error('Error al autenticar:', err);
-    //     }
-    // };
-
 
     const handleCerrarSesion = () => {
         gapi.auth2.getAuthInstance()?.signOut();
@@ -182,36 +197,39 @@ const PropietarioDashboard: React.FC = () => {
         navigate('/login');
     };
 
-    // Nueva función manejadora para el botón de inicio de sesión con Google
-    const handleGoogleSignInButtonClick = async () => {
-        if (usuarioEmail) { // Si ya tenemos un email de usuario, consideramos que está logueado
-            console.log('Ya estás logueado con Google.');
-        } else {
-            console.log('Intentando iniciar sesión con Google...');
-        }
-
-        try {
-            // Llamamos a la función importada signInWithGoogle
-            await signInWithGoogle(); 
-
-            // Después de intentar el inicio de sesión, actualizamos el estado local
-            // basado en el estado real de autenticación de GAPI.
+    // Función manejadora para el botón de inicio de sesión con Google
+    const handleGoogleSignInButtonClick = () => {
+        setGapiError(null); 
+        if (gapi && gapi.auth2) {
             const authInstance = gapi.auth2.getAuthInstance();
-            if (authInstance && authInstance.isSignedIn.get()) {
-                const profile = authInstance.currentUser.get().getBasicProfile();
-                if (profile) {
-                    setUsuarioEmail(profile.getEmail());
-                    if (!usuarioEmail) { // Si no estaba logueado antes de este clic
-                        console.log('Inicio de sesión con Google completado.');
-                    }
+            if (authInstance) {
+                if (authInstance.isSignedIn.get()) {
+                    console.log('Ya estás logueado con Google.');
+                    // Optionally, refresh profile info if needed, though listener should handle it
+                    const profile = authInstance.currentUser.get().getBasicProfile();
+                    if (profile) setUsuarioEmail(profile.getEmail());
+                    return;
                 }
+                authInstance.signIn().then(() => {
+                    // Listener 'isSignedIn.listen' should handle updating state.
+                    console.log('Inicio de sesión con Google solicitado.');
+                }).catch((error: any) => {
+                    console.error('Error al iniciar sesión con Google:', error);
+                    if (error.error === "popup_closed_by_user") {
+                        setGapiError('El inicio de sesión con Google fue cancelado.');
+                    } else if (error.error === "access_denied") {
+                        setGapiError('Acceso denegado. Por favor, otorga los permisos necesarios.');
+                    } else {
+                        setGapiError('No se pudo iniciar sesión con Google. Verifica tu conexión o configuración.');
+                    }
+                });
             } else {
-                // Si después del intento, el usuario no está logueado en GAPI (ej. canceló el popup)
-                // podríamos querer limpiar usuarioEmail si la lógica de signInWithGoogle no lo hace.
-                // setUsuarioEmail(null); // Considerar si esto es necesario o si GoogleAuth.ts lo maneja.
+                console.error('Google Auth instance no está disponible.');
+                setGapiError('La autenticación de Google no está lista. Inténtalo de nuevo.');
             }
-        } catch (err) {
-            console.error('Error durante el proceso de inicio de sesión con Google:', err);
+        } else {
+            console.error('GAPI o gapi.auth2 no están cargados.');
+            setGapiError('La API de Google no se ha cargado correctamente. Refresca la página.');
         }
     };
 
@@ -228,10 +246,10 @@ const PropietarioDashboard: React.FC = () => {
         navigate(`/abrir-puerta/${propiedad.id}`, { state: { propiedad } });
     };
 
-    // Preparamos la URL del iframe sólo si tenemos email
-    const iframeSrc = usuarioEmail
-        ? `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid`
-        : '';
+    // // Preparamos la URL del iframe sólo si tenemos email
+    // const iframeSrc = usuarioEmail
+    //     ? `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid`
+    //     : '';
 
     // // Función para generar fechas del calendario
     // const generarCalendario = () => {
@@ -373,18 +391,43 @@ const PropietarioDashboard: React.FC = () => {
             <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
                 <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
                     <Typography variant="h6" sx={{ color: 'white' }}>
-                        {mes + 1} / {año}
+                        {mes + 1} / {año} {/* CAMBIAR */ }
                     </Typography>
                         </Box>
                         {/* ← Sustituye TODO este bloque por el iframe público + aviso */}
-                        <Box sx={{ p: 2 }}>
-                            <iframe
-                                src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Europe/Madrid&mode=MONTH`}
-                                style={{ border: 0, width: '100%', height: '600px' }}
-                                frameBorder="0"
-                                scrolling="no"
-                                title="Google Calendar"
+                        <Box sx={{ p: 2, minHeight: '600px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            {!isGapiLoaded ? (
+                                <CircularProgress />
+                            ) : gapiError ? (
+                                <Box textAlign="center">
+                                    <Typography color="error" gutterBottom>
+                                        {gapiError}
+                                    </Typography>
+                                    {/* Podrías ofrecer un botón para reintentar la inicialización de GAPI si tiene sentido */}
+                                    {!usuarioEmail && (
+                                        <Button variant="contained" onClick={handleGoogleSignInButtonClick} sx={{ mt: 1 }}>
+                                            Iniciar sesión con Google
+                                        </Button>
+                                    )}
+                                </Box>
+                            ) : usuarioEmail ? (
+                                <iframe
+                                    src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(usuarioEmail)}&ctz=Europe/Madrid&mode=MONTH`}
+                                    style={{ border: 0, width: '100%', height: '600px' }}
+                                    frameBorder="0"
+                                    scrolling="no"
+                                    title="Google Calendar"
                                 />
+                            ) : (
+                                <Box textAlign="center">
+                                    <Typography gutterBottom>
+                                        Para ver tu calendario, por favor inicia sesión con Google.
+                                    </Typography>
+                                    <Button variant="contained" onClick={handleGoogleSignInButtonClick}>
+                                        Iniciar sesión con Google
+                                    </Button>
+                                </Box>
+                            )}
                         </Box>
                     </Paper>
 
@@ -420,8 +463,6 @@ const PropietarioDashboard: React.FC = () => {
                             Accesos
                         </Button>
                     </Box>
-                    
-                    <button onClick={handleGoogleSignInButtonClick}>Iniciar sesión con Google</button>
 
                 {/* Lista de propiedades */}
                 <Typography variant="h6" fontWeight="bold" mb={2} color='black'>
