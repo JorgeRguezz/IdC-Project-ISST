@@ -519,7 +519,7 @@ const HuespedDashboard = () => {
                   <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
                         <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
                             <Typography variant="h6" sx={{ color: 'white' }}>
-                                {mes + 1} / {año}
+                                Calendario: 
                             </Typography>
                         </Box>
                 

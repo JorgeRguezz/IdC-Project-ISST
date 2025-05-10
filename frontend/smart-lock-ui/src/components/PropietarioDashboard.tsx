@@ -391,7 +391,7 @@ const PropietarioDashboard: React.FC = () => {
             <Paper sx={{ borderRadius: 3, border: '2px solid #d1d1d1', mb: 3, bgcolor: 'white' }}>
                 <Box sx={{ bgcolor: '#e53935', p: 2, textAlign: 'center' }}>
                     <Typography variant="h6" sx={{ color: 'white' }}>
-                        {mes + 1} / {año} {/* CAMBIAR */ }
+                        Calendario: 
                     </Typography>
                         </Box>
                         {/* ← Sustituye TODO este bloque por el iframe público + aviso */}

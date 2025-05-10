@@ -74,7 +74,7 @@ const GestionarAcceso = () => {
         body: JSON.stringify(acceso)
       });
       if (resA.ok) {
-        alert('✅ Acceso registrado correctamente');
+        // System.out.println('✅ Acceso registrado correctamente');
 
         const evento = {
           summary: `Acceso a ${propiedad.nombre}`,
@@ -90,10 +90,10 @@ const GestionarAcceso = () => {
         };
         try {
           await insertEventToCalendar(evento);
-             alert('Evento creado en Google Calendar');
-            } catch (e) {
-            console.error(e);
-            alert('Acceso creado, pero no se pudo añadir al calendario');
+          alert('✅ Acceso registrado y evento añadido al calendario correctamente'); // Mensaje combinado
+        } catch (e) {
+          console.error(e);
+          alert('✅ Acceso registrado, pero no se pudo añadir el evento al calendario'); // Mensaje combinado
         }
 
         irAMisPuertas();
