@@ -1,0 +1,460 @@
+{
+	"id": "b102dd33-9e3b-46bd-b042-2492f4e23418",
+	"name": "Pruebas Cerraduras Inteligentes",
+	"timestamp": "2025-05-10T16:59:49.364Z",
+	"collection_id": "44576700-70b40541-b23d-4dbc-bf3e-07786e73fcd7",
+	"folder_id": "44576700-b2f12c28-2eef-42d2-9dfa-a6c4edb7ea37",
+	"environment_id": "44576700-1eb1eed3-6e34-4921-b1a3-4335738f0b40",
+	"totalPass": 23,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-05-10T16:59:43.109Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "255c647c-1d55-4b75-beb9-b6572ee8d954",
+			"name": "Registro propietario",
+			"url": "https://localhost:8443/api/usuarios/propietario",
+			"time": 305,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Registro de propietario exitoso (200 Created)": true,
+				"Devuelve objeto propietario registrado": true
+			},
+			"testPassFailCounts": {
+				"Registro de propietario exitoso (200 Created)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Devuelve objeto propietario registrado": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				305
+			],
+			"allTests": [
+				{
+					"Registro de propietario exitoso (200 Created)": true,
+					"Devuelve objeto propietario registrado": true
+				}
+			]
+		},
+		{
+			"id": "59596dd9-118b-433f-9c44-ffdb2376d140",
+			"name": "Registro huesped",
+			"url": "https://localhost:8443/api/usuarios/huesped",
+			"time": 107,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Registro de huésped exitoso (200 Created)": true,
+				"Devuelve objeto huesped registrado": true
+			},
+			"testPassFailCounts": {
+				"Registro de huésped exitoso (200 Created)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Devuelve objeto huesped registrado": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				107
+			],
+			"allTests": [
+				{
+					"Registro de huésped exitoso (200 Created)": true,
+					"Devuelve objeto huesped registrado": true
+				}
+			]
+		},
+		{
+			"id": "a7baee5a-b3df-46d3-9ab4-8c3fbefe2827",
+			"name": "Login de propietario",
+			"url": "https://localhost:8443/api/usuarios/login",
+			"time": 109,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Login de propietario correcto (200 OK)": true,
+				"Devuelve objeto de confirmación": true
+			},
+			"testPassFailCounts": {
+				"Login de propietario correcto (200 OK)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Devuelve objeto de confirmación": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				109
+			],
+			"allTests": [
+				{
+					"Login de propietario correcto (200 OK)": true,
+					"Devuelve objeto de confirmación": true
+				}
+			]
+		},
+		{
+			"id": "b7c53944-c42c-48fa-8ea2-f9350dabed30",
+			"name": "Login de Huésped",
+			"url": "https://localhost:8443/api/usuarios/login",
+			"time": 107,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Login de huesped correcto (200 OK)": true,
+				"Devuelve objeto de confirmación": true
+			},
+			"testPassFailCounts": {
+				"Login de huesped correcto (200 OK)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Devuelve objeto de confirmación": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				107
+			],
+			"allTests": [
+				{
+					"Login de huesped correcto (200 OK)": true,
+					"Devuelve objeto de confirmación": true
+				}
+			]
+		},
+		{
+			"id": "dd67c6d5-1711-4ccd-a9df-f7a4f7a5ed9f",
+			"name": "Crea una nueva propiedad asociada al propietario",
+			"url": "https://localhost:8443/api/propiedades",
+			"time": 35,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Propiedad creada correctamente (201 Created)": true,
+				"Devuelve la propiedad creada": true
+			},
+			"testPassFailCounts": {
+				"Propiedad creada correctamente (201 Created)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Devuelve la propiedad creada": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				35
+			],
+			"allTests": [
+				{
+					"Propiedad creada correctamente (201 Created)": true,
+					"Devuelve la propiedad creada": true
+				}
+			]
+		},
+		{
+			"id": "0112f296-7753-4b57-9bc6-0ae77cc98166",
+			"name": "Crear cerradura",
+			"url": "https://localhost:8443/api/cerraduras/create",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Cerradura creada correctamente (200 Created)": true,
+				"Devuelve la cerradura creada": true
+			},
+			"testPassFailCounts": {
+				"Cerradura creada correctamente (200 Created)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Devuelve la cerradura creada": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Cerradura creada correctamente (200 Created)": true,
+					"Devuelve la cerradura creada": true
+				}
+			]
+		},
+		{
+			"id": "c07266c3-b2a6-4997-a2ff-b6a5b544b795",
+			"name": "Crear un nuevo acceso",
+			"url": "https://localhost:8443/api/accesos",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Acceso registrado (200 Created)": true,
+				"Devuelve acceso creado": true
+			},
+			"testPassFailCounts": {
+				"Acceso registrado (200 Created)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Devuelve acceso creado": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Acceso registrado (200 Created)": true,
+					"Devuelve acceso creado": true
+				}
+			]
+		},
+		{
+			"id": "87759aff-819a-4119-b2a9-f2fe48e93b6c",
+			"name": "Abrir una cerradura pasando su ID",
+			"url": "https://localhost:8443/api/cerraduras/1/abrir",
+			"time": 4903,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Petición de apertura recibida (200 OK)": true,
+				"Devuelve mensaje de resultado de apertura": true
+			},
+			"testPassFailCounts": {
+				"Petición de apertura recibida (200 OK)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Devuelve mensaje de resultado de apertura": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				4903
+			],
+			"allTests": [
+				{
+					"Petición de apertura recibida (200 OK)": true,
+					"Devuelve mensaje de resultado de apertura": true
+				}
+			]
+		},
+		{
+			"id": "5e19deea-b51b-452e-aa34-313966b27301",
+			"name": "Validar acceso de un huésped",
+			"url": "https://localhost:8443/api/accesos/validar?huespedId=3&cerraduraId=1",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Respuesta es true": true
+			},
+			"testPassFailCounts": {
+				"Respuesta es true": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Respuesta es true": true
+				}
+			]
+		},
+		{
+			"id": "f1c79b57-07e4-4847-abd9-d22581f479c9",
+			"name": "Obtener accesos por huésped",
+			"url": "https://localhost:8443/api/accesos/huesped/3",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Consulta de accesos realizada con éxito (200 OK)": true,
+				"Devuelve una lista de accesos del huesped": true
+			},
+			"testPassFailCounts": {
+				"Consulta de accesos realizada con éxito (200 OK)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Devuelve una lista de accesos del huesped": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Consulta de accesos realizada con éxito (200 OK)": true,
+					"Devuelve una lista de accesos del huesped": true
+				}
+			]
+		},
+		{
+			"id": "55d21d84-6090-4457-81cf-3e972067b031",
+			"name": "Registrar un intento de apertura",
+			"url": "https://localhost:8443/api/registros-apertura",
+			"time": 13,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Registro de intento de apertura exitoso": true,
+				"Debe devolver el registro creado": true
+			},
+			"testPassFailCounts": {
+				"Registro de intento de apertura exitoso": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Debe devolver el registro creado": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				13
+			],
+			"allTests": [
+				{
+					"Registro de intento de apertura exitoso": true,
+					"Debe devolver el registro creado": true
+				}
+			]
+		},
+		{
+			"id": "2edfd0ad-718a-4149-9b98-f1c6545adbf8",
+			"name": "Obtener todos los registros",
+			"url": "https://localhost:8443/api/registros-apertura",
+			"time": 18,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Petición de resgistros exitosa": true,
+				"Debe devolver lista de registros": true
+			},
+			"testPassFailCounts": {
+				"Petición de resgistros exitosa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Debe devolver lista de registros": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				18
+			],
+			"allTests": [
+				{
+					"Petición de resgistros exitosa": true,
+					"Debe devolver lista de registros": true
+				}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 5650,
+	"collection": {
+		"requests": [
+			{
+				"id": "255c647c-1d55-4b75-beb9-b6572ee8d954",
+				"method": "POST"
+			},
+			{
+				"id": "59596dd9-118b-433f-9c44-ffdb2376d140",
+				"method": "POST"
+			},
+			{
+				"id": "a7baee5a-b3df-46d3-9ab4-8c3fbefe2827",
+				"method": "POST"
+			},
+			{
+				"id": "b7c53944-c42c-48fa-8ea2-f9350dabed30",
+				"method": "POST"
+			},
+			{
+				"id": "dd67c6d5-1711-4ccd-a9df-f7a4f7a5ed9f",
+				"method": "POST"
+			},
+			{
+				"id": "0112f296-7753-4b57-9bc6-0ae77cc98166",
+				"method": "POST"
+			},
+			{
+				"id": "c07266c3-b2a6-4997-a2ff-b6a5b544b795",
+				"method": "POST"
+			},
+			{
+				"id": "87759aff-819a-4119-b2a9-f2fe48e93b6c",
+				"method": "POST"
+			},
+			{
+				"id": "5e19deea-b51b-452e-aa34-313966b27301",
+				"method": "GET"
+			},
+			{
+				"id": "f1c79b57-07e4-4847-abd9-d22581f479c9",
+				"method": "GET"
+			},
+			{
+				"id": "55d21d84-6090-4457-81cf-3e972067b031",
+				"method": "POST"
+			},
+			{
+				"id": "2edfd0ad-718a-4149-9b98-f1c6545adbf8",
+				"method": "GET"
+			}
+		]
+	}
+}
