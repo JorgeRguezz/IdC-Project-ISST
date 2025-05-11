@@ -58,7 +58,7 @@ const GestionarToken = () => {
 
         // 4.1. Construir token completo
         const token = { codigo:code, fechaExpiracion, usosMaximos: currentUsosMaximos, cerradura:{id:cerradura.id,modelo:cerradura.modelo,bloqueada:cerradura.bloqueada,propiedad:{ id: propiedad.id}} };
-        
+        console.log("Token:", token);
         // 4.2. Enviar al backend
         const resA = await fetch('https://localhost:8443/api/tokens', {
           method: 'POST',

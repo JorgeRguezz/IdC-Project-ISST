@@ -33,7 +33,7 @@ public class Usuario {
     @NotNull
     private Boolean enabled; //siempre true, pero lo necesita SB security
 
-    @NotEmpty
+    @Column(nullable = true)
     private String authority; //Rol del usuario (ROLE_HUESPED o ROLE_PROPIETARIO)
 
     // Constructor vacío requerido por JPA
@@ -47,6 +47,15 @@ public class Usuario {
         this.contrasena = contrasena;
         this.enabled = true;
         this.authority = authority;
+    }
+
+        public Usuario(String nombre, String email, String telefono, String contrasena) { //Por si llega un usuario sin authority
+        this.nombre = nombre;
+        this.email = email;
+        this.telefono = telefono;
+        this.contrasena = contrasena;
+        this.enabled = true;
+        this.authority = "ROLE_HUESPED"; //Si llega un usuario sin authority, le asignamos el rol de HUESPED por defecto
     }
 
     // Getters y setters

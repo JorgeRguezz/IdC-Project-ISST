@@ -16,66 +16,69 @@ const GestionarAcceso = () => {
   const [fechaInicio, setFechaInicio] = useState('');
 
   const handleCrearAcceso = async () => {
-   
+
     try {
-       /*
-        
-      const response = await fetch('https://localhost:8443/api/accesos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(acceso)
-      });
+      /*
+       
+     const response = await fetch('https://localhost:8443/api/accesos', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify(acceso)
+     });
 
-      if (response.ok) {
-        alert(' Acceso registrado correctamente');
-      } else {
-        const msg = await response.text();
-        alert(' Error al registrar acceso: ' + msg);
-      }   */
+     if (response.ok) {
+       alert(' Acceso registrado correctamente');
+     } else {
+       const msg = await response.text();
+       alert(' Error al registrar acceso: ' + msg);
+     }   */
 
-        // 1. Buscar huésped
-        const resH = await fetch(`https://localhost:8443/api/usuarios/email?email=${encodeURIComponent(email)}`);
-        if (!resH.ok) return alert('Huésped no encontrado');
-         const huesped = await resH.json();
+      // 1. Buscar huésped
+      const resH = await fetch(`https://localhost:8443/api/usuarios/email?email=${encodeURIComponent(email)}`);
+      if (!resH.ok) return alert('Huésped no encontrado');
+      const huesped = await resH.json();
 
-         // 2. Buscar cerradura de la propiedad
-        const resC = await fetch(`https://localhost:8443/api/cerraduras/propiedad/${propiedad.id}`);
-        console.log("COMPROBACION DE QUE PROPIEDADID EXISTE Y NO ES UNDEFINED");
-        console.log(propiedad.id);
-        console.log("LIMPIO EL LOCAL STORAGE");
-        localStorage.removeItem('propiedadSeleccionada');
+      // 2. Buscar cerradura de la propiedad
+      const resC = await fetch(`https://localhost:8443/api/cerraduras/propiedad/${propiedad.id}`);
+      console.log("COMPROBACION DE QUE PROPIEDADID EXISTE Y NO ES UNDEFINED");
+      console.log(propiedad.id);
+      console.log("LIMPIO EL LOCAL STORAGE");
+      localStorage.removeItem('propiedadSeleccionada');
 
 
 
-        if (!resC.ok) return alert('Cerradura no asignada a esta propiedad');
-        //Cerraduras es un array ya que una propiedad puede tener más de una
-        const cerraduras = await resC.json();
-        //Cojo la primera cerradura porque al pasar el objeto al backend no puede ser un array, tiene que ser un json
-        const cerradura = cerraduras[0];
+      if (!resC.ok) return alert('Cerradura no asignada a esta propiedad');
+      //Cerraduras es un array ya que una propiedad puede tener más de una
+      const cerraduras = await resC.json();
+      //Cojo la primera cerradura porque al pasar el objeto al backend no puede ser un array, tiene que ser un json
+      const cerradura = cerraduras[0];
 
-        //3. Asegurarse de que las fechas/horas no estan vacias
-        if (!fechaInicio || !fechaFin) {
-          alert('Por favor, complete todos los campos.');
-          return;
-        }
-        
-        // 4. Crear horario
-        console.log("Inicio:", `${fechaInicio}:00`);	
-        console.log("Fin:", `${fechaFin}:00`);
+      //3. Asegurarse de que las fechas/horas no estan vacias
+      if (!fechaInicio || !fechaFin) {
+        alert('Por favor, complete todos los campos.');
+        return;
+      }
 
-        if (isNaN(new Date(fechaInicio).getTime()) || isNaN(new Date(fechaFin).getTime())) {
-          alert('Las fechas y horas proporcionadas no son válidas.');
-          return;
-        }
+      // 4. Crear horario
+      console.log("Inicio:", `${fechaInicio}:00`);
+      console.log("Fin:", `${fechaFin}:00`);
 
-        const horario = {
-          inicio: `${fechaInicio}:00`,
-          fin: `${fechaFin}:00`
-        };
-        // 5. Construir acceso completo
-        const acceso = { huesped, cerradura:{id:cerradura.id,modelo:cerradura.modelo,bloqueada:cerradura.bloqueada,propiedad:{ id: propiedad.id}}, horario };
-        // 6. Enviar al backend
-        const resA = await fetch('https://localhost:8443/api/accesos', {
+      if (isNaN(new Date(fechaInicio).getTime()) || isNaN(new Date(fechaFin).getTime())) {
+        alert('Las fechas y horas proporcionadas no son válidas.');
+        return;
+      }
+
+      const horario = {
+        inicio: `${fechaInicio}:00`,
+        fin: `${fechaFin}:00`
+      };
+
+      // Remove the "role" field from huesped porque no se debe enviar al backend excepto para creaer un nuevo usuario
+      delete huesped.role;
+      // 5. Construir acceso completo
+      const acceso = { huesped, cerradura: { id: cerradura.id, bloqueada: cerradura.bloqueada, propiedad: { id: propiedad.id } }, horario }; // quito: modelo:cerradura.modelo,
+      // 6. Enviar al backend
+      const resA = await fetch('https://localhost:8443/api/accesos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(acceso)
@@ -109,11 +112,11 @@ const GestionarAcceso = () => {
         const msg = await resA.text();
         alert('❌ Error al registrar acceso: ' + msg);
       }
-     } catch (error) {
+    } catch (error) {
       console.error(error);
       alert(' Error al conectar con el servidor');
     }
-      
+
   };
 
   const handleVolver = () => {
@@ -122,11 +125,11 @@ const GestionarAcceso = () => {
     if (confirmar) {
       navigate(-1);
     }
-};
+  };
 
-const irAMisPuertas = () => {
+  const irAMisPuertas = () => {
     navigate('/propietario-dashboard');
-};
+  };
 
   return (
     <Box
@@ -140,7 +143,7 @@ const irAMisPuertas = () => {
         overflowY: 'auto'
       }}
     >
-      
+
       {/* Header */}
       <Box
         sx={{
@@ -170,7 +173,7 @@ const irAMisPuertas = () => {
       <Typography variant="body1" sx={{ mb: 3, textDecoration: 'underline', color: '#0d6efd' }}>
         {propiedad.direccion}
       </Typography>
-    
+
       <TextField
         fullWidth
         id='email'
