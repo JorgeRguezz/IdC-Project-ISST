@@ -415,6 +415,7 @@ const AnadirPuerta = () => {
       />
 
       <Button
+        id='crearPuerta'
         fullWidth
         variant="contained"
         sx={{ bgcolor: '#0d6efd', textTransform: 'none', fontWeight: 'bold' }}

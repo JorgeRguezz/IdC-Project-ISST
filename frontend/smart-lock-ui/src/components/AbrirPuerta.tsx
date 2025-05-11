@@ -866,6 +866,7 @@ const AbrirPuerta = () => {
                         </Box>
 
                         <Button
+                            id='aceptar'
                             variant="contained"
                             color="primary"
                             onClick={irAlDashboard}
@@ -980,6 +981,7 @@ const AbrirPuerta = () => {
                             onClick={handleAbrirPuerta}
                         >
                             <img
+                                id='abrirPuertaIcon'
                                 src="\src\assets\bluetooth-icono.png"
                                 alt="Bluetooth"
                                 style={{ width: '130%', height: '130%' }}

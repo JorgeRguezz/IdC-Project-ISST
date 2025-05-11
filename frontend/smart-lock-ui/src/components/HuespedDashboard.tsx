@@ -528,7 +528,7 @@ const HuespedDashboard = () => {
                             horizontal: 'right',
                         }}
                     >
-                        <MenuItem onClick={() => navigate('/configuracion')}>
+                        <MenuItem id="configuracion" onClick={() => navigate('/configuracion')}>
                             <ListItemIcon>
                                 <SettingsIcon fontSize="small" />
                             </ListItemIcon>
@@ -598,6 +598,7 @@ const HuespedDashboard = () => {
 
                 {/* Botón Mis Accesos */}
                 <Button
+                    id='misAccesos'
                     variant="contained"
                     color="primary"
                     onClick={handleMisPuertas}

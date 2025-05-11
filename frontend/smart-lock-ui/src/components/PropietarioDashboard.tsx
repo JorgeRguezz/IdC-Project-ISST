@@ -349,6 +349,7 @@ const PropietarioDashboard: React.FC = () => {
 
                 {/* Menú desplegable */}
                 <Menu
+                    id='menuDesplegable'
                     anchorEl={anchorEl}
                     open={open}
                     onClose={handleMenuClose}
@@ -367,7 +368,8 @@ const PropietarioDashboard: React.FC = () => {
                         </ListItemIcon>
                         Configuración
                     </MenuItem>
-                    <MenuItem onClick={handleLogout}>
+                    <MenuItem id="logout" onClick={handleLogout}>
+                        
                         <ListItemIcon>
                             <LogoutIcon fontSize="small" />
                         </ListItemIcon>
@@ -427,6 +429,7 @@ const PropietarioDashboard: React.FC = () => {
                     {/* Botón Mis Puertas */}
                     <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
                         <Button
+                            id='misPuertas'
                             variant="contained"
                             color="primary"
                             onClick={handleVerPropiedades}

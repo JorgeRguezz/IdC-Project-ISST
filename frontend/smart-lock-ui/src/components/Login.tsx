@@ -313,6 +313,7 @@ const Login = () => {
             </Box>
 
             <Button
+              id='registerButton'
               component={Link}
               to="/register"
               fullWidth

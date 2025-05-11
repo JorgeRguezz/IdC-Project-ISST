@@ -126,6 +126,7 @@ const Configuracion: React.FC = () => {
         </div>
 
         <button
+          id='logoutButton'
           style={styles.logoutButton}
           onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#0056b3')}
           onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#007bff')}

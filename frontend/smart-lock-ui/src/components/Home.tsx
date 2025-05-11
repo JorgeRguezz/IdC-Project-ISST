@@ -148,6 +148,7 @@ const Home = () => {
           </Button>
 
           <Button
+            id='registerButton'
             component={Link}
             to="/register"
             fullWidth
@@ -175,6 +176,7 @@ const Home = () => {
           </Button>
 
           <Button
+            id='tokenButton'
             component={Link}
             to="/token"
             fullWidth

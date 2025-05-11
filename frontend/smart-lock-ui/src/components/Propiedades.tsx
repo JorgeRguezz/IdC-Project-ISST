@@ -132,6 +132,7 @@ const Propiedades = () => {
   
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Button
+                  id='generarToken'
                   variant="contained"
                   color="primary"
                   startIcon={<KeyIcon />}
@@ -157,6 +158,7 @@ const Propiedades = () => {
   
       {/* CTA para añadir nueva puerta */}
       <Button
+        id='anadirPuerta'
         onClick={handleAnadirPuerta}
         sx={{
           mt: 3,

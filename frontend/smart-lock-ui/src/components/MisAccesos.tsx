@@ -500,6 +500,7 @@ const MisAccesos = () => {
 
                                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
                                     <Button
+                                        id='abrirPuerta'
                                         variant="contained"
                                         color="primary"
                                         disabled={!activo}
