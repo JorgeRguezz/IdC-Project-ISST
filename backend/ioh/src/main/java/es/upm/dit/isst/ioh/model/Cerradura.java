@@ -44,10 +44,13 @@ public class Cerradura {
 
     // Getters y setters
 
+        public void setId(Long id) { //Para pruebas unitarias
+        this.id = id;
+    }
+
     public Long getId() {
         return id;
     }
-
 
     public boolean isBloqueada() {
         return bloqueada;
