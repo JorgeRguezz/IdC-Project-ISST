@@ -30,6 +30,9 @@ const Propiedades = () => {
 
   const handleGestionarAcceso = (propiedad: Propiedad) => {
     // Navegar a la vista de gestion de acceso, pasando los datos de la propiedad
+    console.log("COMPROBACIÓN QUE SE PASA BIEN LA PROPIEDAD");
+    console.log(propiedad);
+    localStorage.setItem('propiedadSeleccionada', JSON.stringify(propiedad));
     navigate('/propiedades/gestionar-acceso', { state: { propiedad }});
   };
 

@@ -9,7 +9,7 @@ import { insertEventToCalendar } from './GoogleAuth';
 const GestionarAcceso = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const propiedad = state?.propiedad || {};
+  const propiedad = state?.propiedad || JSON.parse(localStorage.getItem('propiedadSeleccionada') || '{}');
 
   const [email, setEmail] = useState('');
   const [fechaFin, setFechaFin] = useState('');
@@ -40,6 +40,13 @@ const GestionarAcceso = () => {
 
          // 2. Buscar cerradura de la propiedad
         const resC = await fetch(`https://localhost:8443/api/cerraduras/propiedad/${propiedad.id}`);
+        console.log("COMPROBACION DE QUE PROPIEDADID EXISTE Y NO ES UNDEFINED");
+        console.log(propiedad.id);
+        console.log("LIMPIO EL LOCAL STORAGE");
+        localStorage.removeItem('propiedadSeleccionada');
+
+
+
         if (!resC.ok) return alert('Cerradura no asignada a esta propiedad');
         //Cerraduras es un array ya que una propiedad puede tener más de una
         const cerraduras = await resC.json();
