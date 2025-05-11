@@ -40,6 +40,9 @@ public class Token {
     public Long getId() {
         return id;
     }
+    public void setId(Long id) { //Solo para Tests
+        this.id = id;
+    }
 
     public String getCodigo() {
         return codigo;
