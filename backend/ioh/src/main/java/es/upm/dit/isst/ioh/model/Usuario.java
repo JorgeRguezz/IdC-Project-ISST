@@ -88,7 +88,7 @@ public class Usuario {
         this.contrasena = contrasena;
     }
 
-    public Boolean getRole() {
-        return authority;
+    public String getRole() {
+        return this.authority;
     }
 }
