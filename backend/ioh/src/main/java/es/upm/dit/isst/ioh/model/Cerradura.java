@@ -47,7 +47,10 @@ public class Cerradura {
     public Long getId() {
         return id;
     }
-
+    public void setId(Long id) { //Solo para Tests
+        this.id = id;
+    }
+    
 
     public boolean isBloqueada() {
         return bloqueada;

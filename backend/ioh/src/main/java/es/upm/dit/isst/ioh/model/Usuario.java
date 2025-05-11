@@ -87,4 +87,8 @@ public class Usuario {
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
     }
+
+    public String getRole() {
+        return this.authority;
+    }
 }
