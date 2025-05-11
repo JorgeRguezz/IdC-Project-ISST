@@ -37,10 +37,6 @@ public class Token {
 
     // Getters y setters
 
-    public void setId(Long id) { //Para pruebas unitarias
-        this.id = id;
-    }
-
     public Long getId() {
         return id;
     }

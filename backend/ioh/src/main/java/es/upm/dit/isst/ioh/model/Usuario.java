@@ -34,7 +34,7 @@ public class Usuario {
     private Boolean enabled; //siempre true, pero lo necesita SB security
 
     @NotEmpty
-    private String authority; //Rol del usuario (ROLE_ADMIN, ROLE_HUESPED o ROLE_PROPIETARIO)
+    private String authority; //Rol del usuario (ROLE_HUESPED o ROLE_PROPIETARIO)
 
     // Constructor vacío requerido por JPA
     public Usuario() {
@@ -86,9 +86,5 @@ public class Usuario {
 
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
-    }
-
-    public String getRole() {
-        return authority;
     }
 }
