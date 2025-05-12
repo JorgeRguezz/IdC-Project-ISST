@@ -1,0 +1,2246 @@
+{
+	"info": {
+		"_postman_id": "70b40541-b23d-4dbc-bf3e-07786e73fcd7",
+		"name": "Pruebas Cerraduras Inteligentes",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44576700",
+		"_collection_link": "https://jorge-4315532.postman.co/workspace/Jorge's-Workspace~67acf042-baac-47fc-82a6-21ccc6c16e50/collection/44576700-70b40541-b23d-4dbc-bf3e-07786e73fcd7?action=share&source=collection_link&creator=44576700"
+	},
+	"item": [
+		{
+			"name": "Flujo de pruebas de la presentación",
+			"item": [
+				{
+					"name": "Registro propietario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Registro de propietario exitoso (200 Created)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Devuelve objeto propietario registrado\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property(\"id\");",
+									"    pm.expect(json).to.have.property(\"nombre\");",
+									"    pm.expect(json).to.have.property(\"email\");",
+									"    pm.expect(json).to.have.property(\"tipo\");",
+									"});",
+									"",
+									"pm.environment.set(\"propietarioId\", pm.response.json().id);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Carlos Test\",\n  \"email\": \"carlos@example.com\",\n  \"telefono\": \"600000000\",\n  \"contrasena\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/usuarios/propietario",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"usuarios",
+								"propietario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Registro huesped",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Registro de huésped exitoso (200 Created)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Devuelve objeto huesped registrado\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property(\"id\");",
+									"    pm.expect(json).to.have.property(\"nombre\");",
+									"    pm.expect(json).to.have.property(\"email\");",
+									"    pm.expect(json).to.have.property(\"tipo\");",
+									"});",
+									"",
+									"pm.environment.set(\"huespedId\", pm.response.json().id);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"email\": \"juan@example.com\",\n  \"telefono\": \"600123456\",\n  \"contrasena\": \"Test1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/usuarios/huesped",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"usuarios",
+								"huesped"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login de propietario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Login de propietario correcto (200 OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Devuelve objeto de confirmación\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property(\"id\");",
+									"    pm.expect(json).to.have.property(\"nombre\");",
+									"    pm.expect(json).to.have.property(\"tipo\");",
+									"    pm.expect(json).to.have.property(\"email\");",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"carlos@example.com\",\n  \"password\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/usuarios/login",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"usuarios",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login de Huésped",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Login de huesped correcto (200 OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Devuelve objeto de confirmación\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property(\"id\");",
+									"    pm.expect(json).to.have.property(\"nombre\");",
+									"    pm.expect(json).to.have.property(\"tipo\");",
+									"    pm.expect(json).to.have.property(\"email\");",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"juan@example.com\",\n  \"password\": \"Test1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/usuarios/login",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"usuarios",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crea una nueva propiedad asociada al propietario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Propiedad creada correctamente (201 Created)\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Devuelve la propiedad creada\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property(\"id\");",
+									"    pm.expect(json).to.have.property(\"nombre\");",
+									"});",
+									"",
+									"pm.environment.set(\"propiedadId\", pm.response.json().id);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Casa bonita\",\n  \"direccion\": \"Calle Azul 123\",\n  \"propietario\": {\n    \"id\": {{propietarioId}}\n  }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/propiedades",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"propiedades"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear cerradura",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Cerradura creada correctamente (200 Created)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Devuelve la cerradura creada\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property(\"id\");",
+									"    pm.expect(json).to.have.property(\"seamDeviceId\");",
+									"    pm.expect(json).to.have.property(\"bloqueada\");",
+									"",
+									"});",
+									"",
+									"pm.environment.set(\"cerraduraId\", pm.response.json().id);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"bloqueada\": \"true\",\n  \"propiedad\": {\n    \"id\": {{propiedadId}}\n  },\n  \"seamDeviceId\":\"05a62f4f-347d-4a15-ba39-cec07cd2ad97\"\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/cerraduras/create",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"cerraduras",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear un nuevo acceso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Acceso registrado (200 Created)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Devuelve acceso creado\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property(\"id\");",
+									"    pm.expect(json).to.have.property(\"huesped\");",
+									"    pm.expect(json).to.have.property(\"cerradura\");",
+									"    pm.expect(json).to.have.property(\"horario\");",
+									"",
+									"});",
+									"",
+									"pm.environment.set(\"accesoId\", pm.response.json().id);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"huesped\": {\"id\":{{huespedId}}},\n  \"cerradura\":{\"id\":{{cerraduraId}}},\n  \"horario\": {\"inicio\": \"2025-05-06T15:30:00\", \"fin\": \"2025-05-22T16:00:00\"}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/accesos",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"accesos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Abrir una cerradura pasando su ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Petición de apertura recibida (200 OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Devuelve mensaje de resultado de apertura\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property(\"mensaje\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usuarioId\": {{huespedId}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/cerraduras/{{cerraduraId}}/abrir",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"cerraduras",
+								"{{cerraduraId}}",
+								"abrir"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Validar acceso de un huésped",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Respuesta es true\", function () {",
+									"    const body = pm.response.text();",
+									"    pm.expect(body === \"true\").to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/accesos/validar?huespedId={{huespedId}}&cerraduraId={{cerraduraId}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"accesos",
+								"validar"
+							],
+							"query": [
+								{
+									"key": "huespedId",
+									"value": "{{huespedId}}"
+								},
+								{
+									"key": "cerraduraId",
+									"value": "{{cerraduraId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener accesos por huésped",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Consulta de accesos realizada con éxito (200 OK)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Devuelve una lista de accesos del huesped\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.be.an(\"array\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8443/api/accesos/huesped/{{huespedId}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"accesos",
+								"huesped",
+								"{{huespedId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Registrar un intento de apertura",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Registro de intento de apertura exitoso\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Debe devolver el registro creado\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property(\"id\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"timestamp\": \"2025-05-06T15:40:00\",\n  \"exitoso\": true,\n  \"motivo\": \"Acceso permitido\",\n  \"usuario\": {\n    \"id\": 1\n  },\n  \"cerradura\": {\n    \"id\": 1\n  }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/registros-apertura",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"registros-apertura"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener todos los registros",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Petición de resgistros exitosa\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Debe devolver lista de registros\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.be.an(\"array\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8443/api/registros-apertura",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"registros-apertura"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pruebas comprobadas pero no utilizadas en la presentación",
+			"item": [
+				{
+					"name": "/api/usuarios",
+					"item": [
+						{
+							"name": "Registrar Propietario",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Código 200: Propietario creado correctamente\", function () {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Extraer ID del propietario\", function () {",
+											"  var json = pm.response.json();",
+											"  pm.environment.set(\"propietarioId\", json.id);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nombre\": \"Laura García\",\n  \"email\": \"laura@example.com\",\n  \"telefono\": \"600111222\",\n  \"contrasena\": \"pass123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/usuarios/propietario",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"usuarios",
+										"propietario"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Registrar Huésped",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Código 200: Huésped creado correctamente\", function () {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Extraer ID del huésped\", function () {",
+											"  var json = pm.response.json();",
+											"  pm.environment.set(\"huespedId\", json.id);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nombre\": \"Carlos López\",\n  \"email\": \"carlos@example.com\",\n  \"telefono\": \"611222333\",\n  \"contrasena\": \"clave456\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/usuarios/huesped",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"usuarios",
+										"huesped"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todos los usuarios",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Código 200: Usuarios obtenidos\", function () {",
+											"  pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/usuarios",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"usuarios"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Buscar usuario por email",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Código 200: Usuario encontrado\", function () {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Validar email\", function () {",
+											"  var json = pm.response.json();",
+											"  pm.expect(json.email).to.eql(\"laura@example.com\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/usuarios/email?email=laura@example.com",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"usuarios",
+										"email"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "laura@example.com"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "/api/propiedades",
+					"item": [
+						{
+							"name": "Crear Propiedad",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Propiedad creada correctamente\", function () {",
+											"    pm.response.to.have.status(201);",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property(\"id\");",
+											"    pm.collectionVariables.set(\"propiedadId\", jsonData.id);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nombre\": \"Apartamento en la playa\",\n  \"direccion\": \"Calle Mar 42\",\n  \"propietario\": { \"id\": 1 }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/propiedades",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"propiedades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener propiedad por id",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Propiedad encontrada\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.id).to.eql(Number(pm.collectionVariables.get(\"propiedadId\")));",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/propiedades/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"propiedades",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Verifica que la propiedad se ha asociado correctamente",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/propiedades/propietario/{{propietarioId}}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"propiedades",
+										"propietario",
+										"{{propietarioId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todas las propiedades",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Propiedades cargadas correctamente\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    var propiedades = pm.response.json();",
+											"    pm.expect(propiedades.length).to.be.above(0);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/propiedades",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"propiedades"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener cerraduras de una propiedad",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Consulta de cerraduras para la propiedad\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/propiedades/1/cerraduras",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"propiedades",
+										"1",
+										"cerraduras"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener propiedades por ID de propietario",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Propiedades del propietario recibidas\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/propiedades/propietario/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"propiedades",
+										"propietario",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Recuperación del id de la propiedad creada",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let jsonData = pm.response.json();",
+											"pm.environment.set(\"propiedadId\", jsonData[0].id);",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/propiedades/propietario/{{propietarioId}}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"propiedades",
+										"propietario",
+										"{{propietarioId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "/api/cerraduras",
+					"item": [
+						{
+							"name": "Crear cerradura",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Cerradura creada correctamente\", function () {",
+											"  pm.response.to.have.status(200);",
+											"  var jsonData = pm.response.json();",
+											"  pm.collectionVariables.set(\"cerraduraId\", jsonData.id);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"modelo\": \"Modelo de pruebas\",\n  \"bloqueada\": \"true\",\n  \"propiedad\": { \"id\": 1 }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/cerraduras/create",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"cerraduras",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener todas las cerraduras",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Respuesta correcta - Lista de cerraduras\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    const data = pm.response.json();",
+											"    pm.expect(Array.isArray(data)).to.be.true;",
+											"    if (data.length > 0) {",
+											"        pm.collectionVariables.set(\"cerraduraId\", data[0].id);",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/cerraduras",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"cerraduras"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener cerradura por ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Cerradura obtenida correctamente\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    const data = pm.response.json();",
+											"    pm.expect(data).to.have.property(\"id\");",
+											"    pm.expect(data.id).to.eql(parseInt(pm.collectionVariables.get(\"cerraduraId\")));",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/cerraduras/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"cerraduras",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener cerraduras de una propiedad",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Cerraduras por propiedad obtenidas correctamente\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    const data = pm.response.json();",
+											"    pm.expect(Array.isArray(data)).to.be.true;",
+											"    if (data.length > 0) {",
+											"        pm.collectionVariables.set(\"cerraduraId\", data[0].id);",
+											"    }",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/cerraduras/propiedad/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"cerraduras",
+										"propiedad",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Verificar acceso del usuario a la cerradura",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verificación de acceso completada\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    const tieneAcceso = pm.response.json();",
+											"    pm.expect(typeof tieneAcceso).to.eql(\"boolean\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/cerraduras/1/verificar-acceso?usuarioId=1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"cerraduras",
+										"1",
+										"verificar-acceso"
+									],
+									"query": [
+										{
+											"key": "usuarioId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Cerrar una cerradura pasando su ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Intento de cierre ejecutado\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    const data = pm.response.json();",
+											"    pm.expect(data).to.have.property(\"mensaje\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"usuarioId\": {{usuarioId}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/cerraduras/1/cerrar",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"cerraduras",
+										"1",
+										"cerrar"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener el nombre de la propiedad asociada a una cerradura",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Nombre de propiedad recibido\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    pm.expect(pm.response.text()).to.be.a('string');",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/cerraduras/1/propiedad/nombre",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"cerraduras",
+										"1",
+										"propiedad",
+										"nombre"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener la dirección de la propiedad asociada a una cerradura",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Dirección de propiedad recibida\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    pm.expect(pm.response.text()).to.be.a('string');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/cerraduras/1/propiedad/direccion",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"cerraduras",
+										"1",
+										"propiedad",
+										"direccion"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener el nombre del propietario asociado a una cerradura",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Nombre del propietario recibido\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    pm.expect(pm.response.text()).to.be.a('string');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/cerraduras/1/propietario/nombre",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"cerraduras",
+										"1",
+										"propietario",
+										"nombre"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener el modelo o nombre de la cerradura",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Nombre o modelo de cerradura recibido\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    pm.expect(pm.response.text()).to.be.a('string');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/cerraduras/1/nombre",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"cerraduras",
+										"1",
+										"nombre"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "/api/accesos",
+					"item": [
+						{
+							"name": "Obtener todos los accesos",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status 200 OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"Debe devolver una lista de accesos\", function () {",
+											"    const json = pm.response.json();",
+											"    pm.expect(json).to.be.an('array');",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/accesos",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"accesos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener accesos por cerradura",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status 200 OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"Debe devolver accesos de la cerradura\", function () {",
+											"    const json = pm.response.json();",
+											"    pm.expect(json).to.be.an('array');",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/accesos/cerradura/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"accesos",
+										"cerradura",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "/api/tokens",
+					"item": [
+						{
+							"name": "Crear un nuevo token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Token creado correctamente (200 Created)\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Devuelve el token generado\", function () {",
+											"    const json = pm.response.json();",
+											"    pm.expect(json).to.have.property(\"id\");",
+											"     pm.expect(json).to.have.property(\"codigo\");",
+											"",
+											"});",
+											"",
+											"pm.environment.set(\"tokenAcceso\", pm.response.json().token);",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"codigo\": \"123456\",\n  \"usosMaximos\": 2,\n  \"cerradura\" : {\"id\":1},\n    \"fechaExpiracion\": \"2025-05-22T12:00:00\"\n\n  }\n\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://localhost:8443/api/tokens",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "8443",
+									"path": [
+										"api",
+										"tokens"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Validar token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status 200 OK o 403 Forbidden\", function () {",
+											"    pm.expect([200, 403]).to.include(pm.response.code);",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/tokens/validar?codigo=hdgfivsjshiakjahwu&cerraduraId=1&usuarioId=1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tokens",
+										"validar"
+									],
+									"query": [
+										{
+											"key": "codigo",
+											"value": "hdgfivsjshiakjahwu"
+										},
+										{
+											"key": "cerraduraId",
+											"value": "1"
+										},
+										{
+											"key": "usuarioId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Abrir puerta con token correcto",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Token válido - acceso permitido (200 OK)\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Mensaje de confirmación recibido\", function () {",
+											"    const json = pm.response.json();",
+											"    pm.expect(json).to.have.property(\"mensaje\");",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "https://localhost:8443/api/tokens/validar?codigo=123456&cerraduraId={{cerraduraId}}&usuarioId={{huespedId}}",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "8443",
+									"path": [
+										"api",
+										"tokens",
+										"validar"
+									],
+									"query": [
+										{
+											"key": "codigo",
+											"value": "123456"
+										},
+										{
+											"key": "cerraduraId",
+											"value": "{{cerraduraId}}"
+										},
+										{
+											"key": "usuarioId",
+											"value": "{{huespedId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Listar todos los tokens",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status 200 OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"Debe devolver una lista de tokens\", function () {",
+											"    const json = pm.response.json();",
+											"    pm.expect(json).to.be.an('array');",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/tokens",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tokens"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Token de acceso limitado",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let jsonData = pm.response.json();",
+											"pm.environment.set(\"tokenId\", jsonData.id);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"codigo\": \"TOKEN123\",\n  \"cerradura\": {\n    \"id\": {{cerraduraId}}\n  },\n  \"fechaExpiracion\": \"2025-06-30T23:59:59\",\n  \"usosMaximos\": 5\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/tokens",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tokens"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "/api/registros-apertura",
+					"item": [
+						{
+							"name": "Obtener registros por cerradura",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status 200 OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"Registros asociados a cerradura\", function () {",
+											"    const json = pm.response.json();",
+											"    pm.expect(json).to.be.an(\"array\");",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/registros-apertura/cerradura/2",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"registros-apertura",
+										"cerradura",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener registros por usuarios",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status 200 OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"Registros asociados a usuario\", function () {",
+											"    const json = pm.response.json();",
+											"    pm.expect(json).to.be.an(\"array\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/registros-apertura/usuario/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"registros-apertura",
+										"usuario",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Obtener registros por resultado",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status 200 OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"Registros según éxito\", function () {",
+											"    const json = pm.response.json();",
+											"    pm.expect(json).to.be.an(\"array\");",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/registros-apertura/resultado?exitoso=true",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"registros-apertura",
+										"resultado"
+									],
+									"query": [
+										{
+											"key": "exitoso",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Pruebas negativas",
+			"item": [
+				{
+					"name": "Crear usuario con mail existente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 409\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});",
+									"",
+									"pm.test(\"Mensaje de error \", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.eql(\"Ya existe un usuario con ese email\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Jorge\",\n  \"email\": \"jorge@example.com\",\n  \"telefono\": \"600000000\",\n  \"contrasena\": \"123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:8443/api/usuarios/propietario",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"usuarios",
+								"propietario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Abrir con un token inexistente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404 Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Mensaje de error \", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.eql(\"Token no encontrado\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8443/api/tokens/validar?codigo=token-inexistente&cerraduraId={{cerraduraId}}&usuarioId={{huespedId}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"tokens",
+								"validar"
+							],
+							"query": [
+								{
+									"key": "codigo",
+									"value": "token-inexistente"
+								},
+								{
+									"key": "cerraduraId",
+									"value": "{{cerraduraId}}"
+								},
+								{
+									"key": "usuarioId",
+									"value": "{{huespedId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Abrir con token sin usos disponibles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403 Forbidden\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"pm.test(\"Mensaje de error \", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.eql(\"Token expirado o sin usos disponibles\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:8443/api/tokens/validar?codigo=token-sin-usos&cerraduraId={{cerraduraId}}&usuarioId={{huespedId}}",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "8443",
+							"path": [
+								"api",
+								"tokens",
+								"validar"
+							],
+							"query": [
+								{
+									"key": "codigo",
+									"value": "token-sin-usos"
+								},
+								{
+									"key": "cerraduraId",
+									"value": "{{cerraduraId}}"
+								},
+								{
+									"key": "usuarioId",
+									"value": "{{huespedId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "propiedadId",
+			"value": ""
+		},
+		{
+			"key": "cerraduraId",
+			"value": ""
+		}
+	]
+}
